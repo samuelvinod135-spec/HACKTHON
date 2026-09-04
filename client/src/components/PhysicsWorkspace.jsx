@@ -200,9 +200,9 @@ export default function PhysicsWorkspace() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-2.5rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm" data-testid="physics-workspace">
+    <div className="flex h-[calc(100vh-8.5rem)] min-h-[540px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs" data-testid="physics-workspace">
       {/* Top toolbar */}
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-t-2xl border-b border-gray-100 bg-gray-50/80 px-4 py-2.5">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 bg-slate-50/70 px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-2">
           {editingTitle ? (
             <input
@@ -211,45 +211,45 @@ export default function PhysicsWorkspace() {
               onChange={(e) => setTitleDraft(e.target.value)}
               onBlur={commitTitle}
               onKeyDown={(e) => { if (e.key === 'Enter') commitTitle(); if (e.key === 'Escape') setEditingTitle(false); }}
-              className="w-56 rounded-lg border border-emerald-300 bg-white px-2 py-1 text-sm font-semibold text-gray-900 outline-none"
+              className="w-56 rounded-lg border border-teal-400 bg-white px-2 py-1 text-sm font-semibold text-slate-900 outline-none"
             />
           ) : (
-            <button onClick={startTitleEdit} className="group flex items-center gap-2 text-sm font-semibold text-gray-900" title="Edit project name">
+            <button onClick={startTitleEdit} className="group flex items-center gap-2 text-sm font-semibold text-slate-900" title="Edit project name">
               {title}
-              <Pencil size={14} className="text-gray-300 opacity-0 transition group-hover:opacity-100 hover:text-emerald-500" />
+              <Pencil size={14} className="text-slate-300 opacity-0 transition group-hover:opacity-100 hover:text-teal-600" />
             </button>
           )}
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-1.5 md:flex shadow-sm">
-            <span className="flex items-center gap-1 text-[11px] text-gray-500">
-              <Gauge size={12} className="text-emerald-500" />
-              <b className="text-emerald-600">{velocity.toFixed(1)} m/s</b>
+          <div className="hidden items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-1.5 md:flex shadow-xs">
+            <span className="flex items-center gap-1 text-[11px] text-slate-500">
+              <Gauge size={12} className="text-teal-600" />
+              <b className="text-teal-700">{velocity.toFixed(1)} m/s</b>
             </span>
-            <span className="h-4 w-px bg-gray-200" />
-            <span className="flex items-center gap-1 text-[11px] text-gray-500">
-              <TrendingUp size={12} className="text-teal-500" />
-              <b className="text-teal-600">{accel.toFixed(1)} m/s²</b>
+            <span className="h-4 w-px bg-slate-200" />
+            <span className="flex items-center gap-1 text-[11px] text-slate-500">
+              <TrendingUp size={12} className="text-teal-600" />
+              <b className="text-teal-700">{accel.toFixed(1)} m/s²</b>
             </span>
-            <span className="h-4 w-px bg-gray-200" />
-            <span className="flex items-center gap-1 text-[11px] text-gray-500">
-              <Timer size={12} className="text-purple-500" />
-              <b className="font-mono text-gray-800">{fmtTime(DURATION_MS - elapsed)}</b>
+            <span className="h-4 w-px bg-slate-200" />
+            <span className="flex items-center gap-1 text-[11px] text-slate-500">
+              <Timer size={12} className="text-slate-400" />
+              <b className="font-mono text-slate-800">{fmtTime(DURATION_MS - elapsed)}</b>
             </span>
           </div>
 
-          <button onClick={() => setShowRef((s) => !s)} className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-700" title="Toggle reference panel">
+          <button onClick={() => setShowRef((s) => !s)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900" title="Toggle reference panel">
             <BookOpen size={14} />
             <span className="hidden sm:inline">Reference</span>
           </button>
 
-          <button onClick={run} disabled={running} className="flex items-center gap-2 rounded-lg bg-yellow-400 px-4 py-2 text-xs font-bold text-gray-900 shadow-sm shadow-yellow-200/60 transition hover:shadow-md hover:shadow-yellow-200/80 disabled:opacity-50" data-testid="run-button">
+          <button onClick={run} disabled={running} className="flex items-center gap-2 rounded-lg bg-yellow-400 px-4 py-2 text-xs font-bold text-slate-900 shadow-xs transition hover:bg-yellow-500 disabled:opacity-50" data-testid="run-button">
             <Play size={14} />
             {running ? 'Simulating…' : 'Start Simulation'}
           </button>
 
-          <button onClick={() => setSaved(true)} disabled={running} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 disabled:opacity-50">
+          <button onClick={() => setSaved(true)} disabled={running} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-xs transition hover:bg-slate-50 disabled:opacity-50">
             <Save size={14} />
             Save / Export
           </button>

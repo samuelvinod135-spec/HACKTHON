@@ -1,117 +1,217 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import {
   FlaskConical,
   Home,
   Atom,
   TestTubes,
-  Flame,
   Zap,
   Star,
+  TrendingUp,
+  Award,
+  Bookmark,
+  User,
+  Settings,
+  HelpCircle,
+  X,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 
-const NAV = [
+export function LabXploreLogo() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-sky-400 text-white shadow-md">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-5 w-5"
+        >
+          <path d="M9 3h6" />
+          <path d="M10 3v4.5L5.5 17a3 3 0 0 0 2.5 4h8a3 3 0 0 0 2.5-4L14 7.5V3" />
+          <ellipse cx="12" cy="14" rx="7" ry="2.5" transform="rotate(-15 12 14)" strokeWidth="1.5" strokeOpacity="0.85" />
+        </svg>
+      </div>
+      <div>
+        <div className="flex items-center text-lg font-extrabold tracking-tight text-slate-900">
+          <span>Lab</span>
+          <span className="text-blue-600">Xplore</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const PRIMARY_MENU = [
   { to: '/', label: 'Home', icon: Home },
   { to: '/physics', label: 'Physics Lab', icon: Atom },
   { to: '/chemistry', label: 'Chemistry Lab', icon: FlaskConical },
   { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
+  { to: '/daily-challenge', label: 'Daily Challenge', icon: Zap },
 ];
 
-export default function Sidebar() {
+const SECONDARY_MENU = [
+  { to: '/saved', label: 'Saved Experiments', icon: Bookmark },
+  { to: '/progress', label: 'My Progress', icon: TrendingUp },
+  { to: '/achievements', label: 'Achievements', icon: Award },
+  { to: '/profile', label: 'Profile', icon: User },
+  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/help', label: 'Help & Support', icon: HelpCircle },
+];
+
+export default function Sidebar({ isOpen, onClose }) {
   const { student } = useProgress();
 
+  const xp = student ? student.xp : 4250;
+  const xpCap = student ? student.xp_for_level : 6000;
+  const level = student ? student.level : 13;
+  const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
+
   return (
-    <aside className="glass-strong z-20 flex w-64 shrink-0 flex-col border-r border-gray-100">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-md shadow-blue-200/60">
-          <FlaskConical size={22} />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold tracking-wide text-gray-900">
-            Lab<span className="neon-text">Xplore</span>
-          </h1>
-          <p className="text-[11px] text-gray-400">Virtual Science Lab</p>
-        </div>
-      </div>
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs transition-opacity md:hidden"
+        />
+      )}
 
-      {/* Navigation */}
-      <nav className="mt-2 flex flex-col gap-1.5 px-3">
-        <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-          Menu
-        </p>
-        {NAV.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                isActive
-                  ? 'bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
-              }`
-            }
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white border-r border-slate-100 shadow-sm transition-transform duration-200 md:static md:translate-x-0 ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="flex h-20 items-center justify-between px-6">
+          <Link to="/" onClick={onClose}>
+            <LabXploreLogo />
+          </Link>
+          <button
+            onClick={onClose}
+            className="clay-btn-circle flex h-8 w-8 items-center justify-center text-slate-400 hover:text-slate-600 md:hidden"
+            aria-label="Close sidebar"
           >
-            <Icon size={18} className="transition-colors" />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="flex-1" />
-
-      {/* Daily Challenge */}
-      <div className="px-4 pb-4">
-        <div className="rounded-2xl border border-yellow-100 bg-gradient-to-br from-yellow-50 to-amber-50 p-4 shadow-sm">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 text-yellow-600">
-              <Zap size={16} />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-900">Daily Challenge</p>
-              <p className="text-[10px] text-gray-400">+50 XP bonus</p>
-            </div>
-          </div>
-          <p className="mt-2 text-[11px] text-gray-500">
-            Balance a chemical equation to earn a bonus!
-          </p>
-          <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-yellow-400 py-2 text-xs font-bold text-gray-900 shadow-sm shadow-yellow-200/60 transition hover:bg-yellow-400 hover:shadow-md">
-            <Flame size={14} />
-            Take Challenge
+            <X size={18} />
           </button>
         </div>
-      </div>
 
-      {/* Mini profile + XP */}
-      <div className="mx-4 mb-4 rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-500 text-xs font-bold text-white shadow">
-            {student ? student.name.split(' ').map((n) => n[0]).join('') : 'AC'}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-gray-900">
-              {student ? student.name : 'Loading…'}
-            </p>
-            <p className="flex items-center gap-1 text-[11px] text-gray-400">
-              <Star size={11} className="text-yellow-400" fill="currentColor" />
-              Level {student ? student.level : '…'}
-            </p>
-          </div>
+        {/* Navigation Sections */}
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
+          {/* Main Navigation */}
+          <nav className="flex flex-col gap-1.5">
+            {PRIMARY_MENU.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === '/'}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `group flex items-center gap-3.5 rounded-2xl px-3.5 py-3 text-xs font-bold transition-all ${
+                    isActive
+                      ? 'bg-purple-100/70 text-indigo-700 shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <div
+                      className={`flex h-7 w-7 items-center justify-center rounded-xl transition ${
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-xs'
+                          : 'text-slate-400 group-hover:text-slate-600'
+                      }`}
+                    >
+                      <Icon size={16} />
+                    </div>
+                    <span>{label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="h-px bg-slate-100 mx-2" />
+
+          {/* Secondary Navigation */}
+          <nav className="flex flex-col gap-1.5">
+            {SECONDARY_MENU.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `group flex items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'bg-purple-100/70 text-indigo-700 shadow-xs'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <div
+                      className={`flex h-6 w-6 items-center justify-center rounded-lg transition ${
+                        isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
+                      }`}
+                    >
+                      <Icon size={16} />
+                    </div>
+                    <span>{label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
         </div>
-        <div className="mt-2">
-          <div className="flex items-center justify-between text-[10px] text-gray-400">
-            <span>{student ? `${student.xp} / ${student.xp_for_level} XP` : '…'}</span>
-            <span>{student ? Math.round((student.xp / student.xp_for_level) * 100) : 0}%</span>
-          </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-400 transition-all"
-              style={{ width: `${student ? Math.min(100, Math.round((student.xp / student.xp_for_level) * 100)) : 0}%` }}
-            />
-          </div>
+
+        {/* Footer / Student Profile Summary (matching reference image) */}
+        <div className="p-4">
+          <Link
+            to="/profile"
+            onClick={onClose}
+            className="clay-card block p-3.5 transition hover:shadow-md"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-blue-200 shadow-xs">
+                <img
+                  src="/clay/avatar.jpg"
+                  alt="Alex"
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement.innerText = 'AC';
+                  }}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <p className="truncate text-xs font-bold text-slate-900">
+                    {student ? student.name.split(' ')[0] : 'Alex'}
+                  </p>
+                  <span className="text-[10px] font-bold text-slate-500">
+                    Level {level}
+                  </span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                    style={{ width: `${xpPct}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-right text-[9px] font-semibold text-slate-400">
+                  {xp.toLocaleString()} / {xpCap.toLocaleString()} XP
+                </p>
+              </div>
+            </div>
+          </Link>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }
+
+

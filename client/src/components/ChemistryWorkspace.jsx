@@ -186,9 +186,9 @@ export default function ChemistryWorkspace() {
   const arrows = MATERIAL_CHEMICALS.filter((m) => m.arrow && (category === 'Action Arrows' || category === 'All'));
 
   return (
-    <div className="flex h-[calc(100vh-2.5rem)] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm" data-testid="chemistry-workspace">
+    <div className="flex h-[calc(100vh-8.5rem)] min-h-[540px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs" data-testid="chemistry-workspace">
       {/* Top toolbar */}
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-t-2xl border-b border-gray-100 bg-gray-50/80 px-4 py-2.5">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 bg-slate-50/70 px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-2">
           {editingTitle ? (
             <input
@@ -197,25 +197,25 @@ export default function ChemistryWorkspace() {
               onChange={(e) => setTitleDraft(e.target.value)}
               onBlur={() => { setTitle(titleDraft.trim() || 'Untitled'); setEditingTitle(false); }}
               onKeyDown={(e) => { if (e.key === 'Enter') { setTitle(titleDraft.trim() || 'Untitled'); setEditingTitle(false); } if (e.key === 'Escape') setEditingTitle(false); }}
-              className="w-56 rounded-lg border border-blue-300 bg-white px-2 py-1 text-sm font-semibold text-gray-900 outline-none"
+              className="w-56 rounded-lg border border-sky-400 bg-white px-2 py-1 text-sm font-semibold text-slate-900 outline-none"
             />
           ) : (
-            <button onClick={() => { setTitleDraft(title); setEditingTitle(true); }} className="group flex items-center gap-2 text-sm font-semibold text-gray-900" title="Edit name">
+            <button onClick={() => { setTitleDraft(title); setEditingTitle(true); }} className="group flex items-center gap-2 text-sm font-semibold text-slate-900" title="Edit name">
               {title}
-              <Pencil size={14} className="text-gray-300 opacity-0 transition group-hover:opacity-100 hover:text-blue-500" />
+              <Pencil size={14} className="text-slate-300 opacity-0 transition group-hover:opacity-100 hover:text-sky-600" />
             </button>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowHelp((s) => !s)} className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-500 shadow-sm transition hover:bg-gray-50" title="Help">
+          <button onClick={() => setShowHelp((s) => !s)} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900" title="Help">
             <BookOpen size={14} />
             <span className="hidden sm:inline">{showHelp ? 'Hide' : ''} Help</span>
           </button>
-          <button onClick={run} disabled={simulating} className="flex items-center gap-2 rounded-lg bg-yellow-400 px-4 py-2 text-xs font-bold text-gray-900 shadow-sm shadow-yellow-200/60 transition hover:shadow-md hover:shadow-yellow-200/80 disabled:opacity-50" data-testid="run-button">
+          <button onClick={run} disabled={simulating} className="flex items-center gap-2 rounded-lg bg-yellow-400 px-4 py-2 text-xs font-bold text-slate-900 shadow-xs transition hover:bg-yellow-500 disabled:opacity-50" data-testid="run-button">
             <Play size={14} />
-            {simulating ? 'Reacting…' : './ Run Simulation'}
+            {simulating ? 'Reacting…' : 'Run Simulation'}
           </button>
-          <button onClick={() => setSaved(true)} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50">
+          <button onClick={() => setSaved(true)} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-xs transition hover:bg-slate-50">
             <Save size={14} /> Save / Export
           </button>
         </div>

@@ -69,66 +69,68 @@ export default function Quizzes() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <h2 className="text-xl font-bold text-gray-900">Quizzes</h2>
-      <p className="mt-0.5 text-xs text-gray-400">Test your science knowledge & earn XP</p>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div>
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Quizzes</h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-500">Test your science knowledge, reinforce principles & earn XP</p>
+      </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {QUIZZES.map((q) => (
           <button
             key={q.id}
             onClick={() => { setActiveId(q.id); reset(); }}
-            className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${
+            className={`flex items-center gap-3.5 rounded-xl border p-3.5 text-left transition ${
               activeId === q.id
-                ? 'border-blue-200 bg-blue-50 shadow-sm'
-                : 'border-gray-100 bg-white hover:bg-gray-50'
+                ? 'border-sky-300 bg-sky-50/70 shadow-xs ring-1 ring-sky-200'
+                : 'border-slate-200 bg-white hover:bg-slate-50'
             }`}
           >
-            <span className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${q.color} text-white shadow-sm`}>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
               <Trophy size={18} />
             </span>
             <div>
-              <p className="text-sm font-semibold text-gray-900">{q.subject}</p>
-              <p className="text-[11px] text-gray-400">{q.questions.length} questions · +{q.xp} XP</p>
+              <p className="text-sm font-semibold text-slate-900">{q.subject}</p>
+              <p className="text-xs text-slate-400">{q.questions.length} questions · +{q.xp} XP</p>
             </div>
           </button>
         ))}
       </div>
 
-      <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <div className="lab-card p-6">
         {!finished ? (
           <>
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-700">
                 Question {index + 1} of {total}
               </span>
-              <span className="text-xs text-gray-400">Score: {score}/{total}</span>
+              <span className="text-xs text-slate-400">Score: {score}/{total}</span>
             </div>
-            <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-gray-100">
+            <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-400 to-purple-500 transition-all"
+                className="h-full rounded-full bg-sky-500 transition-all duration-300"
                 style={{ width: `${((index + (selected !== null ? 1 : 0)) / total) * 100}%` }}
               />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{question.q}</h3>
-            <div className="mt-4 grid grid-cols-1 gap-2">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">{question.q}</h3>
+            <div className="mt-4 grid grid-cols-1 gap-2.5">
               {question.options.map((opt, i) => {
-                let cls = 'border-gray-200 bg-gray-50 hover:bg-gray-100';
+                let cls = 'border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-800';
                 if (selected !== null) {
-                  if (i === question.answer) cls = 'border-green-300 bg-green-50';
-                  else if (i === selected) cls = 'border-red-300 bg-red-50';
-                  else cls = 'border-gray-100 bg-gray-50 opacity-50';
+                  if (i === question.answer) cls = 'border-emerald-300 bg-emerald-50 text-emerald-900 font-medium';
+                  else if (i === selected) cls = 'border-rose-300 bg-rose-50 text-rose-900';
+                  else cls = 'border-slate-100 bg-slate-50 text-slate-400 opacity-60';
                 }
                 return (
                   <button
                     key={i}
                     onClick={() => choose(i)}
                     disabled={selected !== null}
-                    className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm font-medium text-gray-800 transition ${cls}`}
+                    className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-xs sm:text-sm transition ${cls}`}
                   >
-                    {opt}
-                    {selected !== null && i === question.answer && <CheckCircle2 size={18} className="text-green-500" />}
-                    {selected !== null && i === selected && i !== question.answer && <XCircle size={18} className="text-red-500" />}
+                    <span>{opt}</span>
+                    {selected !== null && i === question.answer && <CheckCircle2 size={18} className="text-emerald-600" />}
+                    {selected !== null && i === selected && i !== question.answer && <XCircle size={18} className="text-rose-500" />}
                   </button>
                 );
               })}
@@ -136,7 +138,7 @@ export default function Quizzes() {
             {selected !== null && (
               <button
                 onClick={next}
-                className="mt-4 w-full rounded-xl bg-yellow-400 py-2.5 text-sm font-bold text-gray-900 shadow-sm shadow-yellow-200/60 transition hover:shadow-md hover:shadow-yellow-200/80"
+                className="mt-5 w-full rounded-xl bg-yellow-400 py-3 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition hover:bg-yellow-500"
               >
                 {index + 1 < total ? 'Next Question' : 'Finish Quiz →'}
               </button>
@@ -144,16 +146,16 @@ export default function Quizzes() {
           </>
         ) : (
           <div className="flex flex-col items-center py-6 text-center">
-            <Trophy size={48} className="text-yellow-400" />
-            <h3 className="mt-3 text-xl font-bold text-gray-900">Quiz Complete!</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              You scored <span className="font-bold text-blue-600">{score}/{total}</span> on {quiz.subject}
+            <Trophy size={48} className="text-amber-500" />
+            <h3 className="mt-3 text-xl font-bold text-slate-900">Quiz Complete!</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              You scored <span className="font-bold text-sky-700">{score}/{total}</span> on {quiz.subject}
             </p>
-            <p className="mt-1 text-xs font-medium text-emerald-600">+{quiz.xp} XP earned</p>
-            <div className="mt-5 flex gap-3">
+            <p className="mt-1 text-xs font-semibold text-emerald-600">+{quiz.xp} XP earned</p>
+            <div className="mt-6 flex gap-3">
               <button
                 onClick={reset}
-                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:bg-gray-50"
+                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50"
               >
                 <RotateCcw size={14} /> Retake
               </button>
@@ -162,7 +164,7 @@ export default function Quizzes() {
                   setActiveId(activeId === QUIZZES[0].id ? QUIZZES[1].id : QUIZZES[0].id);
                   reset();
                 }}
-                className="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-bold text-gray-900 shadow-sm shadow-yellow-200/60 transition hover:shadow-md"
+                className="rounded-xl bg-yellow-400 px-4 py-2 text-xs font-bold text-slate-900 shadow-xs transition hover:bg-yellow-500"
               >
                 Try Another
               </button>
