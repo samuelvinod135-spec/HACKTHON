@@ -15,10 +15,11 @@ import {
   X,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export function LabXploreLogo() {
   return (
-    <div className="flex items-center gap-3">
+    <Link to="/dashboard" className="flex items-center gap-3">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-sky-400 text-white shadow-md">
         <svg
           viewBox="0 0 24 24"
@@ -40,12 +41,12 @@ export function LabXploreLogo() {
           <span className="text-blue-600">Xplore</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
 const PRIMARY_MENU = [
-  { to: '/', label: 'Home', icon: Home },
+  { to: '/dashboard', label: 'Home', icon: Home },
   { to: '/physics', label: 'Physics Lab', icon: Atom },
   { to: '/chemistry', label: 'Chemistry Lab', icon: FlaskConical },
   { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
@@ -59,14 +60,18 @@ const SECONDARY_MENU = [
   { to: '/profile', label: 'Profile', icon: User },
   { to: '/settings', label: 'Settings', icon: Settings },
   { to: '/help', label: 'Help & Support', icon: HelpCircle },
+  { to: '/landing', label: 'Public Landing Page', icon: Star },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
   const { student } = useProgress();
+  const { profile } = useAuth();
 
-  const xp = student ? student.xp : 4250;
-  const xpCap = student ? student.xp_for_level : 6000;
-  const level = student ? student.level : 13;
+  const xp = profile?.xp ?? (student ? student.xp : 4250);
+  const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 6000);
+  const level = profile?.level ?? (student ? student.level : 13);
+  const name = profile?.full_name?.split(' ')[0] || (student ? student.name.split(' ')[0] : 'Alex');
+  const avatarUrl = profile?.avatar_url || '/clay/avatar.jpg';
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
 
   return (
@@ -86,7 +91,7 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         {/* Brand Header */}
         <div className="flex h-20 items-center justify-between px-6">
-          <Link to="/" onClick={onClose}>
+          <Link to="/dashboard" onClick={onClose}>
             <LabXploreLogo />
           </Link>
           <button
@@ -106,63 +111,38 @@ export default function Sidebar({ isOpen, onClose }) {
               <NavLink
                 key={to}
                 to={to}
-                end={to === '/'}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3.5 rounded-2xl px-3.5 py-3 text-xs font-bold transition-all ${
+                  `flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-purple-100/70 text-indigo-700 shadow-xs'
+                      ? 'bg-purple-100/70 text-indigo-700 font-bold shadow-xs'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    <div
-                      className={`flex h-7 w-7 items-center justify-center rounded-xl transition ${
-                        isActive
-                          ? 'bg-indigo-600 text-white shadow-xs'
-                          : 'text-slate-400 group-hover:text-slate-600'
-                      }`}
-                    >
-                      <Icon size={16} />
-                    </div>
-                    <span>{label}</span>
-                  </>
-                )}
+                <Icon size={17} />
+                <span>{label}</span>
               </NavLink>
             ))}
           </nav>
 
-          <div className="h-px bg-slate-100 mx-2" />
-
           {/* Secondary Navigation */}
-          <nav className="flex flex-col gap-1.5">
+          <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
             {SECONDARY_MENU.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3.5 rounded-2xl px-3.5 py-2.5 text-xs font-semibold transition-all ${
+                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-purple-100/70 text-indigo-700 shadow-xs'
+                      ? 'bg-purple-100/70 text-indigo-700 font-bold'
                       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
                   }`
                 }
               >
-                {({ isActive }) => (
-                  <>
-                    <div
-                      className={`flex h-6 w-6 items-center justify-center rounded-lg transition ${
-                        isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
-                      }`}
-                    >
-                      <Icon size={16} />
-                    </div>
-                    <span>{label}</span>
-                  </>
-                )}
+                <Icon size={16} />
+                <span>{label}</span>
               </NavLink>
             ))}
           </nav>
@@ -178,19 +158,19 @@ export default function Sidebar({ isOpen, onClose }) {
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-blue-200 shadow-xs">
                 <img
-                  src="/clay/avatar.jpg"
-                  alt="Alex"
+                  src={avatarUrl}
+                  alt={name}
                   className="h-full w-full object-cover"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement.innerText = 'AC';
+                    e.currentTarget.parentElement.innerText = (name || 'A')[0];
                   }}
                 />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
                   <p className="truncate text-xs font-bold text-slate-900">
-                    {student ? student.name.split(' ')[0] : 'Alex'}
+                    {name}
                   </p>
                   <span className="text-[10px] font-bold text-slate-500">
                     Level {level}

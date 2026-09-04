@@ -20,6 +20,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const SEARCH_INDEX = [
   { title: 'Magnesium Ribbon Burning', type: 'Chemistry', to: '/chemistry', icon: Flame },
@@ -34,6 +35,7 @@ const SEARCH_INDEX = [
 
 export default function Header({ onMenuClick }) {
   const { student } = useProgress();
+  const { user, profile, signOut, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
@@ -214,25 +216,34 @@ export default function Header({ onMenuClick }) {
           >
             <div className="h-8 w-8 overflow-hidden rounded-full border border-blue-200 shadow-xs">
               <img
-                src="/clay/avatar.jpg"
-                alt="Alex Avatar"
+                src={profile?.avatar_url || '/clay/avatar.jpg'}
+                alt="Profile Avatar"
                 className="h-full w-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement.innerText = 'AC';
+                  e.currentTarget.parentElement.innerText = (profile?.full_name || 'A')[0];
                 }}
               />
             </div>
-            <span className="text-xs font-bold text-slate-800">{name}</span>
+            <span className="text-xs font-bold text-slate-800">
+              {profile?.full_name?.split(' ')[0] || (student ? student.name.split(' ')[0] : 'Alex')}
+            </span>
             <ChevronDown size={14} className="text-slate-400" />
           </button>
 
           {/* Profile Dropdown */}
           {profileOpen && (
-            <div className="clay-card absolute right-0 top-full mt-2 w-52 rounded-2xl bg-white p-2 shadow-xl z-50">
+            <div className="clay-card absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-xl z-50">
               <div className="px-3 py-2 border-b border-slate-100">
-                <p className="text-xs font-bold text-slate-900">{student ? student.name : 'Alex Chen'}</p>
-                <p className="text-[11px] text-slate-400">Level {student ? student.level : 13} · Student</p>
+                <p className="text-xs font-bold text-slate-900">
+                  {profile?.full_name || (student ? student.name : 'Alex Chen')}
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  Level {profile?.level || (student ? student.level : 13)} · {profile?.grade_level || 'Student'}
+                </p>
+                {user?.email && (
+                  <p className="text-[10px] text-gray-400 truncate mt-0.5">{user.email}</p>
+                )}
               </div>
 
               <div className="py-1">
@@ -250,13 +261,27 @@ export default function Header({ onMenuClick }) {
                 >
                   <Settings size={15} className="text-slate-400" /> Settings
                 </Link>
-                <Link
-                  to="/login"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 transition"
-                >
-                  <LogIn size={15} /> Sign In / Switch Account
-                </Link>
+
+                {isAuthenticated ? (
+                  <button
+                    onClick={async () => {
+                      setProfileOpen(false);
+                      await signOut();
+                      navigate('/');
+                    }}
+                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition text-left"
+                  >
+                    <LogOut size={15} /> Sign Out
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition"
+                  >
+                    <LogIn size={15} /> Sign In
+                  </Link>
+                )}
               </div>
             </div>
           )}

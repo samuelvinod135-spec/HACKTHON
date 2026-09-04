@@ -235,5 +235,154 @@ body {
   .hex-badge {
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   }
+
+  /* ====================================================
+     🍎 HANDCRAFTED APPLE-INSPIRED DESIGN SYSTEM
+     ==================================================== */
+
+  /* Apple Frosted Acrylic Glass Card */
+  .apple-card {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(36px) saturate(190%);
+    -webkit-backdrop-filter: blur(36px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 1.5rem;
+    box-shadow: 
+      0 20px 48px -12px rgba(0, 0, 0, 0.07),
+      0 4px 16px -2px rgba(0, 0, 0, 0.03),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .apple-card:hover {
+    box-shadow: 
+      0 28px 56px -12px rgba(0, 0, 0, 0.1),
+      0 8px 24px -2px rgba(0, 0, 0, 0.05),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.98);
+  }
+
+  /* Apple Dark Titanium Glass Card */
+  .apple-card-dark {
+    background: rgba(22, 22, 23, 0.82);
+    backdrop-filter: blur(36px) saturate(190%);
+    -webkit-backdrop-filter: blur(36px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.5rem;
+    color: #f5f5f7;
+    box-shadow: 
+      0 24px 48px -12px rgba(0, 0, 0, 0.45),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Jet Black Apple Primary Button */
+  .apple-btn-black {
+    background-color: #000000;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: -0.015em;
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .apple-btn-black:hover {
+    background-color: #1d1d1f;
+    transform: scale(1.015);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  }
+  .apple-btn-black:active {
+    transform: scale(0.98);
+  }
+
+  /* Frosted Glass Secondary Button */
+  .apple-btn-glass {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #1d1d1f;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: -0.015em;
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .apple-btn-glass:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.14);
+    transform: scale(1.015);
+  }
+  .apple-btn-glass:active {
+    transform: scale(0.98);
+  }
+
+  /* Cupertino Segmented Control */
+  .apple-segmented {
+    background: rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 9999px;
+    padding: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  .apple-segmented-item-active {
+    background: #ffffff;
+    color: #000000;
+    border-radius: 9999px;
+    box-shadow: 
+      0 3px 8px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+  }
+
+  /* Cupertino Hairline Text Input */
+  .apple-input {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 0.875rem;
+    color: #1d1d1f;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: all 0.18s ease;
+  }
+  .apple-input:focus {
+    background: #ffffff;
+    border-color: #0071e3;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.22);
+  }
+
+  /* Machined Apple Range Slider */
+  .apple-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 9999px;
+    background: #e5e5ea;
+    outline: none;
+    transition: background 0.2s;
+  }
+  .apple-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 
+      0 3px 8px rgba(0, 0, 0, 0.2),
+      0 1px 2px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .apple-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.12);
+  }
 }
+
 
