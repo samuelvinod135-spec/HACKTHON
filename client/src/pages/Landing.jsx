@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { isAuthenticated, demoLogin } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   // Mode: 'reaction' | 'pendulum' | 'optics'
   const [activeTab, setActiveTab] = useState('reaction');
@@ -61,7 +61,6 @@ export default function Landing() {
   };
 
   const handleInstantDemo = () => {
-    demoLogin();
     navigate('/dashboard');
   };
 
@@ -173,7 +172,7 @@ export default function Landing() {
               className="btn-white-glass w-full sm:w-auto py-3.5 sm:py-4 px-6 sm:px-7 text-sm sm:text-base font-bold"
             >
               <Play className="w-4 h-4 fill-sky-500 text-sky-500" />
-              <span>1-Click Guest Demo</span>
+              <span>Explore Interactive Lab</span>
             </button>
           </div>
 
@@ -848,7 +847,7 @@ export default function Landing() {
               onClick={handleInstantDemo}
               className="btn-white-glass w-full sm:w-auto py-3.5 sm:py-4 px-7 text-sm font-bold"
             >
-              Explore as Guest (Alex Chen)
+              Explore Interactive Lab
             </button>
           </div>
         </div>

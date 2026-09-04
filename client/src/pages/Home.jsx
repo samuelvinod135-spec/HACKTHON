@@ -22,9 +22,11 @@ import {
   Settings,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Home() {
-  const { student, record } = useProgress();
+  const { user, profile } = useAuth();
+  const { student, completions, record } = useProgress();
 
   const [exploreFilter, setExploreFilter] = useState('All');
   const [exploreSearch, setExploreSearch] = useState('');
@@ -33,11 +35,19 @@ export default function Home() {
   const [observationRecorded, setObservationRecorded] = useState(false);
   const [challengeClaimed, setChallengeClaimed] = useState(false);
 
-  const name = student ? student.name.split(' ')[0] : 'Alex';
-  const xp = student ? student.xp : 4250;
-  const xpCap = student ? student.xp_for_level : 6000;
-  const level = student ? student.level : 13;
+  const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
+  const email = profile?.email || user?.email || 'scholar@labxplore.edu';
+  const xp = profile?.xp ?? (student ? student.xp : 0);
+  const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
+  const level = profile?.level ?? (student ? student.level : 1);
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
+
+  const expCount = (completions || []).filter((c) => c.kind === 'experiment' || c.kind === 'observation').length;
+  const quizCount = (completions || []).filter((c) => c.kind === 'quiz' || c.kind === 'challenge').length;
+  const hoursCount = Math.max(0, Number(((expCount * 0.4) + (quizCount * 0.2)).toFixed(1)));
+  const joinedText = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : 'Active';
 
   const handleRecordObservation = async () => {
     setObservationRecorded(true);
@@ -567,27 +577,35 @@ export default function Home() {
         <div className="clay-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-blue-200 shadow-md">
-                <img src="/clay/avatar.jpg" alt="Alex" className="h-full w-full object-cover" />
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-blue-200 shadow-md bg-sky-100 flex items-center justify-center text-base font-black text-sky-700">
+                <img
+                  src={profile?.avatar_url || '/clay/avatar.jpg'}
+                  alt={name}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <span className="uppercase">{(profile?.full_name || name || 'S')[0]}</span>
               </div>
               <div>
-                <h3 className="text-base font-black text-slate-900">{name}</h3>
-                <p className="text-xs text-slate-400">alex@example.com</p>
-                <span className="text-[10px] font-bold text-amber-600">Level {level} · Jan 15, 2024</span>
+                <h3 className="text-base font-black text-slate-900">{profile?.full_name || name}</h3>
+                <p className="text-xs text-slate-400">{email}</p>
+                <span className="text-[10px] font-bold text-amber-600">Level {level} · {joinedText}</span>
               </div>
             </div>
 
             <div className="mt-4 grid grid-cols-3 gap-2 text-center border-t border-slate-100 pt-3">
               <div className="clay-card p-2 bg-slate-50">
-                <p className="text-base font-black text-slate-900">32</p>
+                <p className="text-base font-black text-slate-900">{expCount}</p>
                 <p className="text-[9px] font-bold text-slate-400 uppercase">Exp</p>
               </div>
               <div className="clay-card p-2 bg-slate-50">
-                <p className="text-base font-black text-slate-900">18</p>
+                <p className="text-base font-black text-slate-900">{quizCount}</p>
                 <p className="text-[9px] font-bold text-slate-400 uppercase">Quiz</p>
               </div>
               <div className="clay-card p-2 bg-slate-50">
-                <p className="text-base font-black text-slate-900">24.5</p>
+                <p className="text-base font-black text-slate-900">{hoursCount}</p>
                 <p className="text-[9px] font-bold text-slate-400 uppercase">Hours</p>
               </div>
             </div>

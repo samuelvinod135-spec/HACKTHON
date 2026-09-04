@@ -45,13 +45,22 @@ export function initDb() {
       completed_at TEXT NOT NULL DEFAULT (datetime('now')),
       UNIQUE(kind, ref)
     );
+
+    CREATE TABLE IF NOT EXISTS saved_experiment (
+      id TEXT PRIMARY KEY,
+      experiment_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      discipline TEXT NOT NULL,
+      link TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   const studentCount = db.prepare('SELECT COUNT(*) AS c FROM student').get().c;
   if (studentCount === 0) {
     db.prepare(
       `INSERT INTO student (id, name, level, xp, xp_for_level)
-       VALUES (1, 'Alex Chen', 13, 2450, 3000)`
+       VALUES (1, 'Student Scholar', 1, 0, 1000)`
     ).run();
   }
 
@@ -132,4 +141,42 @@ export function countLabRuns() {
   return db.prepare('SELECT COUNT(*) AS c FROM completion').get().c;
 }
 
+export function updateStudent({ name, level, xp, xp_for_level } = {}) {
+  const current = getStudent() || { name: 'Student Scholar', level: 1, xp: 0, xp_for_level: 1000 };
+  const updatedName = name !== undefined ? name : current.name;
+  const updatedLevel = level !== undefined ? Number(level) : current.level;
+  const updatedXp = xp !== undefined ? Number(xp) : current.xp;
+  const updatedXpForLevel = xp_for_level !== undefined ? Number(xp_for_level) : current.xp_for_level;
+
+  db.prepare(
+    'UPDATE student SET name = ?, level = ?, xp = ?, xp_for_level = ? WHERE id = 1'
+  ).run(updatedName, updatedLevel, updatedXp, updatedXpForLevel);
+  return getStudent();
+}
+
+export function getSavedExperiments() {
+  return db.prepare('SELECT * FROM saved_experiment ORDER BY created_at DESC').all();
+}
+
+export function saveExperiment({ id, experiment_id, title, discipline, link } = {}) {
+  const saveId = id || experiment_id || `exp-${Date.now()}`;
+  db.prepare(`
+    INSERT OR REPLACE INTO saved_experiment (id, experiment_id, title, discipline, link, created_at)
+    VALUES (?, ?, ?, ?, ?, datetime('now'))
+  `).run(
+    saveId,
+    experiment_id || saveId,
+    title || 'Virtual Experiment',
+    discipline || 'Science',
+    link || '/chemistry'
+  );
+  return getSavedExperiments();
+}
+
+export function unsaveExperiment(id) {
+  db.prepare('DELETE FROM saved_experiment WHERE id = ? OR experiment_id = ?').run(id, id);
+  return getSavedExperiments();
+}
+
 export default db;
+

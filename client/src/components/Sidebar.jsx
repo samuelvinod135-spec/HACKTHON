@@ -67,10 +67,10 @@ export default function Sidebar({ isOpen, onClose }) {
   const { student } = useProgress();
   const { profile } = useAuth();
 
-  const xp = profile?.xp ?? (student ? student.xp : 4250);
-  const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 6000);
-  const level = profile?.level ?? (student ? student.level : 13);
-  const name = profile?.full_name?.split(' ')[0] || (student ? student.name.split(' ')[0] : 'Alex');
+  const xp = profile?.xp ?? (student ? student.xp : 0);
+  const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
+  const level = profile?.level ?? (student ? student.level : 1);
+  const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
   const avatarUrl = profile?.avatar_url || '/clay/avatar.jpg';
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
 

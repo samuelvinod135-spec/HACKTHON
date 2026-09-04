@@ -41,9 +41,20 @@ export default function Header({ onMenuClick }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
   const containerRef = useRef(null);
   const profileRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    async function loadSavedCount() {
+      try {
+        const list = await api.getSaved();
+        if (Array.isArray(list)) setSavedCount(list.length);
+      } catch {}
+    }
+    loadSavedCount();
+  }, []);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -91,7 +102,7 @@ export default function Header({ onMenuClick }) {
     navigate(to);
   };
 
-  const name = student ? student.name.split(' ')[0] : 'Alex';
+  const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
 
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full shrink-0 items-center justify-between px-4 sm:px-8 transition-all">
@@ -196,37 +207,41 @@ export default function Header({ onMenuClick }) {
           </span>
         </Link>
 
-        {/* Tools / Experiments Bag Button with Clay '2' Badge */}
+        {/* Tools / Experiments Bag Button with Clay Badge */}
         <Link
           to="/saved"
           className="clay-btn-circle relative flex h-10 w-10 items-center justify-center text-slate-600"
-          title="2 saved experiments"
+          title={`${savedCount} saved experiments`}
         >
           <ShoppingBag size={18} />
-          <span className="clay-btn-yellow absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-slate-900 shadow-xs">
-            2
-          </span>
+          {savedCount > 0 && (
+            <span className="clay-btn-yellow absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-slate-900 shadow-xs">
+              {savedCount}
+            </span>
+          )}
         </Link>
 
-        {/* 3D Alex Avatar with Dropdown */}
+        {/* User Avatar with Dropdown */}
         <div ref={profileRef} className="relative">
           <button
             onClick={() => setProfileOpen((o) => !o)}
             className="clay-btn-circle flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 text-slate-800"
           >
-            <div className="h-8 w-8 overflow-hidden rounded-full border border-blue-200 shadow-xs">
+            <div className="h-8 w-8 overflow-hidden rounded-full border border-blue-200 shadow-xs bg-sky-100 flex items-center justify-center text-xs font-black text-sky-700">
               <img
                 src={profile?.avatar_url || '/clay/avatar.jpg'}
                 alt="Profile Avatar"
                 className="h-full w-full object-cover"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement.innerText = (profile?.full_name || 'A')[0];
                 }}
               />
+              <span className="uppercase">
+                {(profile?.full_name || student?.name || user?.email || 'S')[0]}
+              </span>
             </div>
             <span className="text-xs font-bold text-slate-800">
-              {profile?.full_name?.split(' ')[0] || (student ? student.name.split(' ')[0] : 'Alex')}
+              {profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar')}
             </span>
             <ChevronDown size={14} className="text-slate-400" />
           </button>
@@ -236,10 +251,10 @@ export default function Header({ onMenuClick }) {
             <div className="clay-card absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-xl z-50">
               <div className="px-3 py-2 border-b border-slate-100">
                 <p className="text-xs font-bold text-slate-900">
-                  {profile?.full_name || (student ? student.name : 'Alex Chen')}
+                  {profile?.full_name || student?.name || 'Science Scholar'}
                 </p>
                 <p className="text-[11px] text-slate-400">
-                  Level {profile?.level || (student ? student.level : 13)} · {profile?.grade_level || 'Student'}
+                  Level {profile?.level ?? (student?.level ?? 1)} · {profile?.grade_level || 'Student'}
                 </p>
                 {user?.email && (
                   <p className="text-[10px] text-gray-400 truncate mt-0.5">{user.email}</p>

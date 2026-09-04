@@ -1,22 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase.js';
+import { api } from '../api.js';
 
 const AuthContext = createContext(null);
-
-const DEMO_STUDENT = {
-  id: 'demo-alex-chen',
-  isDemo: true,
-  email: 'alex.chen@labxplore.edu',
-  full_name: 'Alex Chen',
-  username: 'alexchen',
-  avatar_url: '/clay/avatar.jpg',
-  level: 13,
-  xp: 4250,
-  xp_for_level: 6000,
-  grade_level: 'Grade 10',
-  role: 'student',
-  streak_count: 7,
-};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -46,16 +32,32 @@ export function AuthProvider({ children }) {
           xp: data.xp || 0,
           xp_for_level: data.xp_for_level || 1000,
           avatar_url: data.avatar_url || '/clay/avatar.jpg',
-          full_name: data.full_name || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Student',
+          full_name:
+            data.full_name ||
+            authUser.user_metadata?.full_name ||
+            authUser.email?.split('@')[0] ||
+            'Scholar',
+          grade_level: data.grade_level || authUser.user_metadata?.grade_level || 'Grade 9-10',
+          role: data.role || 'student',
         };
         setProfile(fullProfile);
+        // Sync with backend SQLite
+        api.updateStudent({
+          name: fullProfile.full_name,
+          level: fullProfile.level,
+          xp: fullProfile.xp,
+          xp_for_level: fullProfile.xp_for_level,
+        }).catch(() => {});
         return fullProfile;
       }
 
-      // If trigger hasn't fired yet or row missing, create it
-      const fallback = {
+      // If profile row doesn't exist yet, insert real user profile
+      const initialProfile = {
         id: authUser.id,
-        full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Student',
+        full_name:
+          authUser.user_metadata?.full_name ||
+          authUser.email?.split('@')[0] ||
+          'Scholar',
         email: authUser.email,
         avatar_url: authUser.user_metadata?.avatar_url || '/clay/avatar.jpg',
         level: 1,
@@ -66,14 +68,23 @@ export function AuthProvider({ children }) {
         streak_count: 1,
       };
 
-      await supabase.from('profiles').upsert(fallback).catch(() => {});
-      setProfile(fallback);
-      return fallback;
+      await supabase.from('profiles').upsert(initialProfile).catch(() => {});
+      setProfile(initialProfile);
+      api.updateStudent({
+        name: initialProfile.full_name,
+        level: initialProfile.level,
+        xp: initialProfile.xp,
+        xp_for_level: initialProfile.xp_for_level,
+      }).catch(() => {});
+      return initialProfile;
     } catch (err) {
       console.warn('Could not fetch Supabase profile:', err);
       const fallback = {
         id: authUser.id,
-        full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Student',
+        full_name:
+          authUser.user_metadata?.full_name ||
+          authUser.email?.split('@')[0] ||
+          'Scholar',
         email: authUser.email,
         avatar_url: '/clay/avatar.jpg',
         level: 1,
@@ -90,6 +101,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
+    // Clean up any legacy demo state
+    try {
+      localStorage.removeItem('labxplore_demo_user');
+    } catch {}
+
     async function initAuth() {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
@@ -101,17 +117,8 @@ export function AuthProvider({ children }) {
           setUser(initialSession.user);
           await loadProfile(initialSession.user);
         } else {
-          // Check for saved demo user
-          const savedDemo = localStorage.getItem('labxplore_demo_user');
-          if (savedDemo) {
-            try {
-              const parsed = JSON.parse(savedDemo);
-              setUser({ id: parsed.id, email: parsed.email, isDemo: true });
-              setProfile(parsed);
-            } catch {
-              localStorage.removeItem('labxplore_demo_user');
-            }
-          }
+          setUser(null);
+          setProfile(null);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -126,7 +133,6 @@ export function AuthProvider({ children }) {
       if (!mounted) return;
 
       if (newSession?.user) {
-        localStorage.removeItem('labxplore_demo_user');
         setSession(newSession);
         setUser(newSession.user);
         await loadProfile(newSession.user);
@@ -134,7 +140,6 @@ export function AuthProvider({ children }) {
         setSession(null);
         setUser(null);
         setProfile(null);
-        localStorage.removeItem('labxplore_demo_user');
       }
       setLoading(false);
     });
@@ -223,17 +228,8 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Demo Login (Alex Chen, Level 13)
-  const demoLogin = () => {
-    localStorage.setItem('labxplore_demo_user', JSON.stringify(DEMO_STUDENT));
-    setUser({ id: DEMO_STUDENT.id, email: DEMO_STUDENT.email, isDemo: true });
-    setProfile(DEMO_STUDENT);
-    setSession({ access_token: 'demo-token', user: DEMO_STUDENT });
-  };
-
   // Sign out
   const signOut = async () => {
-    localStorage.removeItem('labxplore_demo_user');
     setUser(null);
     setSession(null);
     setProfile(null);
@@ -246,20 +242,25 @@ export function AuthProvider({ children }) {
 
   // Update profile
   const updateProfile = async (updates) => {
-    setProfile((prev) => ({ ...prev, ...updates }));
+    setProfile((prev) => (prev ? { ...prev, ...updates } : updates));
 
-    if (user && !user.isDemo) {
+    if (user) {
       try {
         await supabase
           .from('profiles')
           .update(updates)
           .eq('id', user.id);
       } catch (err) {
-        console.error('Failed to persist profile update:', err);
+        console.error('Failed to persist profile update to Supabase:', err);
       }
-    } else if (user?.isDemo) {
-      const updated = { ...DEMO_STUDENT, ...updates };
-      localStorage.setItem('labxplore_demo_user', JSON.stringify(updated));
+      try {
+        await api.updateStudent({
+          name: updates.full_name,
+          level: updates.level,
+          xp: updates.xp,
+          xp_for_level: updates.xp_for_level,
+        });
+      } catch (e) {}
     }
   };
 
@@ -268,10 +269,10 @@ export function AuthProvider({ children }) {
     if (!amount || amount <= 0) return;
 
     setProfile((prev) => {
-      const current = prev || DEMO_STUDENT;
-      let newXp = (current.xp || 0) + amount;
-      let newLevel = current.level || 1;
-      let newXpForLevel = current.xp_for_level || 1000;
+      if (!prev) return prev;
+      let newXp = (prev.xp || 0) + amount;
+      let newLevel = prev.level || 1;
+      let newXpForLevel = prev.xp_for_level || 1000;
 
       while (newXp >= newXpForLevel) {
         newXp -= newXpForLevel;
@@ -280,13 +281,13 @@ export function AuthProvider({ children }) {
       }
 
       const updated = {
-        ...current,
+        ...prev,
         xp: newXp,
         level: newLevel,
         xp_for_level: newXpForLevel,
       };
 
-      if (user && !user.isDemo) {
+      if (user) {
         supabase
           .from('profiles')
           .update({
@@ -296,9 +297,9 @@ export function AuthProvider({ children }) {
           })
           .eq('id', user.id)
           .catch(() => {});
-      } else if (user?.isDemo) {
-        localStorage.setItem('labxplore_demo_user', JSON.stringify(updated));
       }
+
+      api.addXp(amount).catch(() => {});
 
       return updated;
     });
@@ -307,14 +308,12 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     session,
-    profile: profile || DEMO_STUDENT,
+    profile,
     loading,
     isAuthenticated: !!user,
-    isDemo: !!user?.isDemo,
     signUpWithEmail,
     signInWithEmail,
     signInWithGoogle,
-    demoLogin,
     signOut,
     updateProfile,
     addXp,

@@ -211,7 +211,7 @@ export default function Signup() {
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Alex Chen"
+                placeholder="e.g. Marie Curie"
                 required
                 className="input-sky-clean w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-xs placeholder-slate-400"
               />

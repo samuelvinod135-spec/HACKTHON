@@ -13,6 +13,11 @@ async function request(path, options = {}) {
 
 export const api = {
   getStudent: () => request('/student'),
+  updateStudent: (payload) =>
+    request('/student', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
   getAchievements: () => request('/achievements'),
   getCompletions: () => request('/completions'),
   recordCompletion: (payload) =>
@@ -24,9 +29,20 @@ export const api = {
     request(`/achievements/${slug}/unlock`, { method: 'POST' }),
   addXp: (amount) =>
     request('/xp', { method: 'POST', body: JSON.stringify({ amount }) }),
+  getSaved: () => request('/saved'),
+  saveExperiment: (payload) =>
+    request('/saved', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  unsaveExperiment: (id) =>
+    request(`/saved/${id}`, {
+      method: 'DELETE',
+    }),
   matchReaction: (inputs, conditions) =>
     request('/reactions/match', {
       method: 'POST',
       body: JSON.stringify({ inputs, conditions }),
     }),
 };
+

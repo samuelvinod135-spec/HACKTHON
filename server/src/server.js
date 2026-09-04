@@ -14,11 +14,15 @@ import {
 import {
   initDb,
   getStudent,
+  updateStudent,
   getAchievements,
   getCompletions,
   recordCompletion,
   unlockAchievement,
   addXp,
+  getSavedExperiments,
+  saveExperiment,
+  unsaveExperiment,
 } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,6 +36,25 @@ const PORT = process.env.PORT || 5174;
 
 app.get('/api/student', (_req, res) => {
   res.json({ student: getStudent(), achievements: getAchievements() });
+});
+
+app.put('/api/student', (req, res) => {
+  const updated = updateStudent(req.body || {});
+  res.json({ student: updated });
+});
+
+app.get('/api/saved', (_req, res) => {
+  res.json(getSavedExperiments());
+});
+
+app.post('/api/saved', (req, res) => {
+  const saved = saveExperiment(req.body || {});
+  res.json(saved);
+});
+
+app.delete('/api/saved/:id', (req, res) => {
+  const saved = unsaveExperiment(req.params.id);
+  res.json(saved);
 });
 
 app.get('/api/achievements', (_req, res) => {

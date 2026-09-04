@@ -1,4 +1,5 @@
 import { useProgress } from '../context/ProgressContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import {
   TrendingUp,
   Star,
@@ -13,11 +14,12 @@ import {
 import { Link } from 'react-router-dom';
 
 export default function Progress() {
+  const { profile } = useAuth();
   const { student, achievements, completions } = useProgress();
 
-  const level = student ? student.level : 13;
-  const xp = student ? student.xp : 2450;
-  const cap = student ? student.xp_for_level : 3000;
+  const level = profile?.level ?? (student?.level ?? 1);
+  const xp = profile?.xp ?? (student?.xp ?? 0);
+  const cap = profile?.xp_for_level ?? (student?.xp_for_level ?? 1000);
   const pct = Math.min(100, Math.round((xp / cap) * 100));
 
   // Circular gauge calculations
@@ -25,7 +27,7 @@ export default function Progress() {
   const C = 2 * Math.PI * R;
   const offset = C * (1 - pct / 100);
 
-  const unlockedAchievementsCount = achievements.filter((a) => a.unlocked).length;
+  const unlockedAchievementsCount = (achievements || []).filter((a) => a.unlocked).length;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -75,7 +77,7 @@ export default function Progress() {
             </span>
           </div>
           <p className="mt-2 text-2xl font-bold text-slate-900">
-            {completions ? completions.length : 4}
+            {completions ? completions.length : 0}
           </p>
           <p className="mt-1 text-[11px] text-slate-400">
             Simulations & quizzes recorded
@@ -207,7 +209,7 @@ export default function Progress() {
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 text-xs text-slate-500">
             <span className="flex items-center gap-1.5">
               <Calendar size={13} className="text-slate-400" />
-              Active learning streak: <strong className="text-slate-800">7 Days</strong>
+              Active learning streak: <strong className="text-slate-800">{profile?.streak_count || 1} Day{profile?.streak_count === 1 ? '' : 's'}</strong>
             </span>
             <Link
               to="/chemistry"

@@ -268,26 +268,26 @@ body {
     box-shadow: 0 10px 24px -6px rgba(14, 165, 233, 0.08);
   }
 
-  /* Yellow-Tinted Warm Surface */
+  /* Slightly Dark Golden Yellow-Tinted Surface */
   .card-yellow-subtle {
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    border: 1px solid #fde68a;
+    border: 1.5px solid #fcd34d;
     border-radius: 1.5rem;
-    box-shadow: 0 10px 24px -6px rgba(245, 158, 11, 0.1);
+    box-shadow: 0 10px 24px -6px rgba(217, 119, 6, 0.12);
   }
 
-  /* Radiant Yellow Signature Primary Button */
+  /* Slightly Dark Rich Golden Yellow Primary Button */
   .btn-yellow-primary {
-    background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
     color: #0f172a;
-    font-weight: 700;
-    font-size: 0.9rem;
+    font-weight: 800;
+    font-size: 0.92rem;
     letter-spacing: -0.01em;
     border-radius: 9999px;
     padding: 0.85rem 1.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow: 
-      0 8px 20px -3px rgba(245, 158, 11, 0.42),
+      0 8px 22px -3px rgba(217, 119, 6, 0.45),
       inset 0 1px 1px rgba(255, 255, 255, 0.7);
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
@@ -297,9 +297,10 @@ body {
     min-height: 44px; /* Touch friendly on mobile */
   }
   .btn-yellow-primary:hover {
-    background: linear-gradient(135deg, #fde047 0%, #fbbf24 100%);
+    background: linear-gradient(135deg, #fcd34d 0%, #b45309 100%);
+    color: #000000;
     transform: scale(1.02);
-    box-shadow: 0 12px 26px -3px rgba(245, 158, 11, 0.52);
+    box-shadow: 0 12px 28px -3px rgba(217, 119, 6, 0.55);
   }
   .btn-yellow-primary:active {
     transform: scale(0.97);
@@ -365,7 +366,7 @@ body {
     transform: scale(0.97);
   }
 
-  /* Phone-Optimized Touch Slider (Sky Blue Track with Yellow/White Thumb) */
+  /* Phone-Optimized Touch Slider (Sky Blue Track with Slightly Dark Golden Yellow Thumb) */
   .slider-sky-yellow {
     -webkit-appearance: none;
     appearance: none;
@@ -382,10 +383,10 @@ body {
     width: 26px; /* Touch-friendly size */
     height: 26px;
     border-radius: 50%;
-    background: #facc15;
+    background: #f59e0b;
     border: 3px solid #ffffff;
     box-shadow: 
-      0 4px 10px rgba(245, 158, 11, 0.4),
+      0 4px 12px rgba(217, 119, 6, 0.45),
       0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: grab;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -393,7 +394,7 @@ body {
   .slider-sky-yellow::-webkit-slider-thumb:active {
     cursor: grabbing;
     transform: scale(1.2);
-    box-shadow: 0 6px 14px rgba(245, 158, 11, 0.6);
+    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.65);
   }
 
   /* Phone-Friendly Hairline Input (No iOS auto-zoom) */
@@ -433,13 +434,13 @@ body {
     font-weight: 700;
   }
   .segmented-item-yellow-active {
-    background: linear-gradient(135deg, #facc15, #f59e0b);
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
     color: #0f172a;
     border-radius: 9999px;
     box-shadow: 
-      0 3px 8px rgba(245, 158, 11, 0.35),
+      0 3px 8px rgba(217, 119, 6, 0.38),
       0 1px 2px rgba(0, 0, 0, 0.08);
-    font-weight: 700;
+    font-weight: 800;
   }
 }
 
