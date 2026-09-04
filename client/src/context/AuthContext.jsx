@@ -27,39 +27,49 @@ export function AuthProvider({ children }) {
       if (data && !error) {
         const fullProfile = {
           ...data,
-          email: authUser.email,
+          email: authUser.email || data.email,
+          username: data.username || authUser.user_metadata?.username || authUser.email?.split('@')[0],
           level: data.level || 1,
           xp: data.xp || 0,
           xp_for_level: data.xp_for_level || 1000,
-          avatar_url: data.avatar_url || '/clay/avatar.jpg',
+          avatar_url: data.avatar_url && !data.avatar_url.includes('/clay/avatar.jpg') ? data.avatar_url : '',
           full_name:
             data.full_name ||
             authUser.user_metadata?.full_name ||
+            data.username ||
             authUser.email?.split('@')[0] ||
             'Scholar',
           grade_level: data.grade_level || authUser.user_metadata?.grade_level || 'Grade 9-10',
           role: data.role || 'student',
         };
+
         setProfile(fullProfile);
-        // Sync with backend SQLite
+
+        // Keep local SQLite student synchronized with real logged-in user
         api.updateStudent({
           name: fullProfile.full_name,
           level: fullProfile.level,
           xp: fullProfile.xp,
           xp_for_level: fullProfile.xp_for_level,
         }).catch(() => {});
+
         return fullProfile;
       }
 
       // If profile row doesn't exist yet, insert real user profile
+      const derivedUsername =
+        authUser.user_metadata?.username ||
+        authUser.email?.split('@')[0] ||
+        'student';
+
       const initialProfile = {
         id: authUser.id,
         full_name:
           authUser.user_metadata?.full_name ||
-          authUser.email?.split('@')[0] ||
-          'Scholar',
+          derivedUsername,
+        username: derivedUsername,
         email: authUser.email,
-        avatar_url: authUser.user_metadata?.avatar_url || '/clay/avatar.jpg',
+        avatar_url: '',
         level: 1,
         xp: 0,
         xp_for_level: 1000,
@@ -70,12 +80,14 @@ export function AuthProvider({ children }) {
 
       await supabase.from('profiles').upsert(initialProfile).catch(() => {});
       setProfile(initialProfile);
+
       api.updateStudent({
         name: initialProfile.full_name,
         level: initialProfile.level,
         xp: initialProfile.xp,
         xp_for_level: initialProfile.xp_for_level,
       }).catch(() => {});
+
       return initialProfile;
     } catch (err) {
       console.warn('Could not fetch Supabase profile:', err);
@@ -85,8 +97,9 @@ export function AuthProvider({ children }) {
           authUser.user_metadata?.full_name ||
           authUser.email?.split('@')[0] ||
           'Scholar',
+        username: authUser.user_metadata?.username || authUser.email?.split('@')[0],
         email: authUser.email,
-        avatar_url: '/clay/avatar.jpg',
+        avatar_url: '',
         level: 1,
         xp: 0,
         xp_for_level: 1000,
@@ -101,9 +114,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    // Clean up any legacy demo state
+    // Purge any legacy demo keys from browser storage
     try {
       localStorage.removeItem('labxplore_demo_user');
+      sessionStorage.removeItem('labxplore_demo_user');
     } catch {}
 
     async function initAuth() {
@@ -150,18 +164,24 @@ export function AuthProvider({ children }) {
     };
   }, [loadProfile]);
 
-  // Sign up with Email & Password
-  const signUpWithEmail = async ({ email, password, fullName, gradeLevel }) => {
+  // Sign up with Email & Password (with username support)
+  const signUpWithEmail = async ({ email, password, fullName, username, gradeLevel }) => {
     setLoading(true);
     try {
+      const cleanUsername = (username || fullName || email.split('@')[0])
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '');
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
-            full_name: fullName,
+            full_name: fullName.trim(),
+            username: cleanUsername,
             grade_level: gradeLevel || 'Grade 9-10',
-            avatar_url: '/clay/avatar.jpg',
+            avatar_url: '',
           },
         },
       });
@@ -181,12 +201,53 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Sign in with Email & Password
-  const signInWithEmail = async ({ email, password }) => {
+  // Sign in with Username OR Email
+  const signInWithIdentifier = async ({ identifier, password }) => {
     setLoading(true);
     try {
+      const cleanId = (identifier || '').trim();
+      if (!cleanId) {
+        throw new Error('Please provide your student username or email address.');
+      }
+      if (!password) {
+        throw new Error('Please enter your account password.');
+      }
+
+      let emailToUse = cleanId;
+
+      // If user typed a username without @, look up their registered email
+      if (!cleanId.includes('@')) {
+        // 1. Try our high-speed secure RPC function
+        try {
+          const { data: rpcEmail, error: rpcErr } = await supabase
+            .rpc('get_email_by_username', { p_username: cleanId });
+
+          if (rpcEmail && !rpcErr) {
+            emailToUse = rpcEmail;
+          }
+        } catch (e) {
+          console.warn('RPC lookup note:', e);
+        }
+
+        // 2. If RPC did not return an email, query profiles table directly
+        if (!emailToUse.includes('@')) {
+          const { data: profileRow } = await supabase
+            .from('profiles')
+            .select('email')
+            .or(`username.ilike.${cleanId},full_name.ilike.${cleanId}`)
+            .maybeSingle();
+
+          if (profileRow?.email) {
+            emailToUse = profileRow.email;
+          } else {
+            throw new Error(`No student account found with username "${cleanId}". Please check your spelling or sign in with your email address.`);
+          }
+        }
+      }
+
+      // Execute Supabase password authentication with the resolved email
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: emailToUse,
         password,
       });
 
@@ -203,6 +264,21 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Aliases for compatibility
+  const signInWithEmail = (args) => {
+    return signInWithIdentifier({
+      identifier: args.identifier || args.email || args.username,
+      password: args.password,
+    });
+  };
+
+  const signInWithUsername = (args) => {
+    return signInWithIdentifier({
+      identifier: args.username || args.identifier,
+      password: args.password,
+    });
   };
 
   // Continue with Google OAuth
@@ -255,7 +331,7 @@ export function AuthProvider({ children }) {
       }
       try {
         await api.updateStudent({
-          name: updates.full_name,
+          name: updates.full_name || updates.name,
           level: updates.level,
           xp: updates.xp,
           xp_for_level: updates.xp_for_level,
@@ -312,7 +388,9 @@ export function AuthProvider({ children }) {
     loading,
     isAuthenticated: !!user,
     signUpWithEmail,
+    signInWithIdentifier,
     signInWithEmail,
+    signInWithUsername,
     signInWithGoogle,
     signOut,
     updateProfile,

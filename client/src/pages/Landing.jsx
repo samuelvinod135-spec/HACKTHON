@@ -60,7 +60,7 @@ export default function Landing() {
     }
   };
 
-  const handleInstantDemo = () => {
+  const handleExploreLab = () => {
     navigate('/dashboard');
   };
 
@@ -168,7 +168,7 @@ export default function Landing() {
             </button>
 
             <button
-              onClick={handleInstantDemo}
+              onClick={handleExploreLab}
               className="btn-white-glass w-full sm:w-auto py-3.5 sm:py-4 px-6 sm:px-7 text-sm sm:text-base font-bold"
             >
               <Play className="w-4 h-4 fill-sky-500 text-sky-500" />
@@ -394,7 +394,7 @@ export default function Landing() {
                   </div>
 
                   <button
-                    onClick={handleInstantDemo}
+                    onClick={() => navigate('/chemistry')}
                     className="w-full btn-yellow-primary py-3 text-xs font-bold flex items-center justify-center gap-2"
                   >
                     <span>Launch Full Chemistry Simulation →</span>
@@ -834,7 +834,7 @@ export default function Landing() {
             Step into the studio today.
           </h2>
           <p className="text-slate-600 text-xs sm:text-base font-normal max-w-lg mx-auto mb-8 leading-relaxed">
-            Create a free student account in under 30 seconds, or dive in immediately with our 1-click guest demo.
+            Create your verified student ID in under 30 seconds, or dive directly into the interactive laboratory.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-sm sm:max-w-none mx-auto">
             <Link
@@ -844,7 +844,7 @@ export default function Landing() {
               Create Free Student ID
             </Link>
             <button
-              onClick={handleInstantDemo}
+              onClick={handleExploreLab}
               className="btn-white-glass w-full sm:w-auto py-3.5 sm:py-4 px-7 text-sm font-bold"
             >
               Explore Interactive Lab

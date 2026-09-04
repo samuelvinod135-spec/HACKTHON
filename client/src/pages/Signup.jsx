@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Eye,
@@ -18,6 +18,7 @@ export default function Signup() {
   const { signUpWithEmail, signInWithGoogle, isAuthenticated } = useAuth();
 
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [gradeLevel, setGradeLevel] = useState('Grade 9-10');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,9 +28,11 @@ export default function Signup() {
   const [successMsg, setSuccessMsg] = useState(null);
   const [googleNotice, setGoogleNotice] = useState(null);
 
-  if (isAuthenticated) {
-    navigate('/dashboard');
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Password score: 1..4
   const getPasswordScore = () => {
@@ -66,6 +69,7 @@ export default function Signup() {
       email,
       password,
       fullName: fullName.trim(),
+      username: (username.trim() || fullName.trim()).toLowerCase().replace(/[^a-z0-9_]/g, ''),
       gradeLevel,
     });
     setLoading(false);
@@ -219,6 +223,23 @@ export default function Signup() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
+                Unique Username
+              </label>
+              <input
+                type="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="e.g. marie_curie"
+                required
+                className="input-sky-clean w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-xs placeholder-slate-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
                 Academic Curriculum Level
               </label>
               <select
@@ -242,7 +263,7 @@ export default function Signup() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="alex.chen@school.edu"
+                placeholder="student@school.edu"
                 required
                 className="input-sky-clean w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-xs placeholder-slate-400"
               />

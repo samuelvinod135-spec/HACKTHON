@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import UserAvatar from './UserAvatar.jsx';
 
 const SEARCH_INDEX = [
   { title: 'Magnesium Ribbon Burning', type: 'Chemistry', to: '/chemistry', icon: Flame },
@@ -227,19 +228,12 @@ export default function Header({ onMenuClick }) {
             onClick={() => setProfileOpen((o) => !o)}
             className="clay-btn-circle flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 text-slate-800"
           >
-            <div className="h-8 w-8 overflow-hidden rounded-full border border-blue-200 shadow-xs bg-sky-100 flex items-center justify-center text-xs font-black text-sky-700">
-              <img
-                src={profile?.avatar_url || '/clay/avatar.jpg'}
-                alt="Profile Avatar"
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              <span className="uppercase">
-                {(profile?.full_name || student?.name || user?.email || 'S')[0]}
-              </span>
-            </div>
+            <UserAvatar
+              name={profile?.full_name || student?.name}
+              email={user?.email}
+              avatarUrl={profile?.avatar_url}
+              size="sm"
+            />
             <span className="text-xs font-bold text-slate-800">
               {profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar')}
             </span>

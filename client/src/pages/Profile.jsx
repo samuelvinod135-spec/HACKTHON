@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import UserAvatar from '../components/UserAvatar.jsx';
 
 export default function Profile() {
   const { user, profile, updateProfile } = useAuth();
@@ -88,19 +89,13 @@ export default function Profile() {
       {/* Top Banner & Header */}
       <div className="clay-card p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white shadow-xl bg-sky-100 flex items-center justify-center">
-            <img
-              src={profile?.avatar_url || '/clay/avatar.jpg'}
-              alt={name}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <span className="text-2xl font-black text-sky-600 uppercase">
-              {(name || 'S')[0]}
-            </span>
-          </div>
+          <UserAvatar
+            name={name || initialName}
+            email={initialEmail}
+            avatarUrl={profile?.avatar_url}
+            size="xl"
+            className="border-4 border-white shadow-xl"
+          />
 
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

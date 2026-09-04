@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import UserAvatar from '../components/UserAvatar.jsx';
 
 export default function Home() {
   const { user, profile } = useAuth();
@@ -577,17 +578,13 @@ export default function Home() {
         <div className="clay-card p-6 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-blue-200 shadow-md bg-sky-100 flex items-center justify-center text-base font-black text-sky-700">
-                <img
-                  src={profile?.avatar_url || '/clay/avatar.jpg'}
-                  alt={name}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-                <span className="uppercase">{(profile?.full_name || name || 'S')[0]}</span>
-              </div>
+              <UserAvatar
+                name={profile?.full_name || name}
+                email={email}
+                avatarUrl={profile?.avatar_url}
+                size="lg"
+                className="border-2 border-blue-200 shadow-md"
+              />
               <div>
                 <h3 className="text-base font-black text-slate-900">{profile?.full_name || name}</h3>
                 <p className="text-xs text-slate-400">{email}</p>

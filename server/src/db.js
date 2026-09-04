@@ -15,7 +15,7 @@ export function initDb() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS student (
       id INTEGER PRIMARY KEY CHECK (id = 1),
-      name TEXT NOT NULL DEFAULT 'Alex Chen',
+      name TEXT NOT NULL DEFAULT 'Student Scholar',
       level INTEGER NOT NULL DEFAULT 1,
       xp INTEGER NOT NULL DEFAULT 0,
       xp_for_level INTEGER NOT NULL DEFAULT 1000
@@ -62,6 +62,8 @@ export function initDb() {
       `INSERT INTO student (id, name, level, xp, xp_for_level)
        VALUES (1, 'Student Scholar', 1, 0, 1000)`
     ).run();
+  } else {
+    db.prepare("UPDATE student SET name = 'Student Scholar' WHERE name LIKE '%Alex%'").run();
   }
 
   seedAchievements();

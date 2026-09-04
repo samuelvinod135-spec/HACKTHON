@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Eye,
@@ -12,9 +12,9 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInWithEmail, signInWithGoogle, isAuthenticated } = useAuth();
+  const { signInWithIdentifier, signInWithGoogle, isAuthenticated } = useAuth();
 
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -22,24 +22,29 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [googleNotice, setGoogleNotice] = useState(null);
 
-  if (isAuthenticated) {
-    navigate('/dashboard');
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    if (!email || !password) {
-      setError('Please enter both your email and password.');
+    if (!identifier.trim() || !password) {
+      setError('Please enter your student username or email, along with your password.');
       return;
     }
 
     setLoading(true);
-    const { error: authErr } = await signInWithEmail({ email, password });
+    const { error: authErr } = await signInWithIdentifier({
+      identifier: identifier.trim(),
+      password,
+    });
     setLoading(false);
 
     if (authErr) {
-      setError(authErr.message || 'Incorrect credentials. Please verify your email and password.');
+      setError(authErr.message || 'Incorrect credentials. Please check your username or password.');
     } else {
       navigate('/dashboard');
     }
@@ -52,7 +57,7 @@ export default function Login() {
     if (gErr) {
       setGoogleNotice(
         gErr.message.includes('provider is not enabled')
-          ? 'Google OAuth can be enabled anytime in your Supabase Dashboard. Use your Student Email & Password to sign in!'
+          ? 'Google OAuth can be enabled anytime in your Supabase Dashboard. Use your Student Username or Email to sign in!'
           : gErr.message
       );
     }
@@ -152,7 +157,7 @@ export default function Login() {
           <div className="relative flex py-2 items-center mb-4">
             <div className="flex-grow border-t border-sky-100"></div>
             <span className="flex-shrink mx-3 text-slate-400 text-[10px] sm:text-[11px] font-bold tracking-wider uppercase">
-              or student email
+              or student username / email
             </span>
             <div className="flex-grow border-t border-sky-100"></div>
           </div>
@@ -161,13 +166,16 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Student Email Address
+                Student Username or Email
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="alex.chen@school.edu"
+                type="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="e.g. samuelvinod135 or student@school.edu"
                 required
                 className="input-sky-clean w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-xs placeholder-slate-400"
               />

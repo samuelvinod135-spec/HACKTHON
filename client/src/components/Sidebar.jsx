@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import UserAvatar from './UserAvatar.jsx';
 
 export function LabXploreLogo() {
   return (
@@ -71,7 +72,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
   const level = profile?.level ?? (student ? student.level : 1);
   const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
-  const avatarUrl = profile?.avatar_url || '/clay/avatar.jpg';
+  const avatarUrl = profile?.avatar_url || '';
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
 
   return (
@@ -156,17 +157,11 @@ export default function Sidebar({ isOpen, onClose }) {
             className="clay-card block p-3.5 transition hover:shadow-md"
           >
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-blue-200 shadow-xs">
-                <img
-                  src={avatarUrl}
-                  alt={name}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement.innerText = (name || 'A')[0];
-                  }}
-                />
-              </div>
+              <UserAvatar
+                name={name}
+                avatarUrl={profile?.avatar_url}
+                size="md"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
                   <p className="truncate text-xs font-bold text-slate-900">
