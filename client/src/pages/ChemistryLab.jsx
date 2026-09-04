@@ -8,17 +8,17 @@ export default function ChemistryLab() {
       <div className="flex items-center gap-3">
         <Link
           to="/"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-400 shadow-sm transition hover:bg-gray-50 hover:text-gray-700"
           title="Back to dashboard"
         >
           <ArrowLeft size={16} />
         </Link>
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-neon-purple to-fuchsia-500 text-white shadow-lg">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-md shadow-blue-200/60">
           <FlaskConical size={20} />
         </span>
         <div>
-          <h2 className="text-xl font-bold text-white">Chemistry Lab</h2>
-          <p className="text-xs text-slate-400">Build · Simulate · Observe</p>
+          <h2 className="text-xl font-bold text-gray-900">Chemistry Lab</h2>
+          <p className="text-xs text-gray-400">Build · Simulate · Observe</p>
         </div>
       </div>
 

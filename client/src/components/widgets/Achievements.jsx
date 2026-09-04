@@ -1,13 +1,4 @@
-import {
-  Flame,
-  Beaker,
-  Atom,
-  Star,
-  TrendingUp,
-  Compass,
-  Crown,
-  Timer,
-} from 'lucide-react';
+import { Flame, Beaker, Atom, Star, TrendingUp, Compass, Crown, Timer } from 'lucide-react';
 import { useProgress } from '../../context/ProgressContext.jsx';
 
 const ICONS = {
@@ -36,11 +27,11 @@ export default function Achievements() {
   const { achievements } = useProgress();
 
   return (
-    <div className="glass flex flex-col rounded-2xl p-4">
+    <div className="flex flex-col rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-white">Achievements</h3>
-          <p className="text-[11px] text-slate-500">
+          <h3 className="text-sm font-bold text-gray-900">Achievements</h3>
+          <p className="text-[11px] text-gray-400">
             {achievements.filter((a) => a.unlocked).length}/{achievements.length} unlocked
           </p>
         </div>
@@ -55,22 +46,14 @@ export default function Achievements() {
               title={a.name + ' — ' + a.description}
               className={`flex flex-col items-center gap-1.5 rounded-xl border p-2.5 transition ${
                 unlocked
-                  ? 'border-neon-purple/30 bg-neon-purple/10'
-                  : 'border-white/5 bg-white/5 opacity-45 grayscale'
+                  ? 'border-yellow-200 bg-yellow-50 shadow-sm'
+                  : 'border-gray-100 bg-gray-50 opacity-40 grayscale'
               }`}
             >
-              <span
-                className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                  unlocked ? `bg-gradient-to-br ${COLORS[a.icon] || COLORS.star}` : 'bg-slate-700'
-                } text-white shadow`}
-              >
+              <span className={`hex-badge flex h-10 w-10 items-center justify-center ${unlocked ? `bg-gradient-to-br ${COLORS[a.icon] || COLORS.star}` : 'bg-gray-200'} text-white shadow`}>
                 <Icon size={17} />
               </span>
-              <span
-                className={`text-[9px] font-medium leading-tight text-center ${
-                  unlocked ? 'text-white' : 'text-slate-500'
-                }`}
-              >
+              <span className={`text-[9px] font-medium leading-tight text-center ${unlocked ? 'text-gray-700' : 'text-gray-400'}`}>
                 {a.name}
               </span>
             </div>
