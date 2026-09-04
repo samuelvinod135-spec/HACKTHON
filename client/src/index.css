@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy-950: #070b1d;
+  --color-navy-900: #0b1128;
+  --color-navy-850: #101838;
+  --color-navy-800: #16204a;
+  --color-navy-700: #1f2b5c;
+
+  --color-neon-purple: #a855f7;
+  --color-neon-blue: #3b82f6;
+  --color-neon-cyan: #22d3ee;
+  --color-neon-pink: #ec4899;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-navy-950);
+  color: #e6e9f5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3766;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4a85;
+}
+
+@keyframes flicker {
+  0%, 100% { transform: scaleY(1) rotate(-2deg); opacity: 1; }
+  25% { transform: scaleY(0.85) rotate(2deg); opacity: 0.9; }
+  50% { transform: scaleY(1.1) rotate(-1deg); opacity: 0.95; }
+  75% { transform: scaleY(0.9) rotate(1deg); opacity: 0.85; }
+}
+.animate-flicker {
+  animation: flicker 0.4s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* ---- Reaction observation effects (output zone only) ---- */
+@keyframes obsWhiteFlash {
+  0%, 100% { opacity: 0; }
+  15% { opacity: 0.9; }
+  30% { opacity: 0.4; }
+  45% { opacity: 0.8; }
+  60% { opacity: 0.15; }
+}
+.obs-whiteflash {
+  background: radial-gradient(circle at 50% 50%, #ffffff 0%, rgba(255,255,255,0.4) 40%, transparent 70%);
+  animation: obsWhiteFlash 1.6s ease-in-out infinite;
+}
+
+@keyframes obsBubble {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-52px); opacity: 0; }
+}
+.obs-bubble {
+  animation: obsBubble 1.5s ease-in infinite;
+}
+
+@keyframes obsPrecip {
+  0% { transform: translateY(-18px) scale(0.6); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(38px) scale(1); opacity: 1; }
+}
+.obs-precip {
+  animation: obsPrecip 2s ease-in-out infinite;
+}
+
+@keyframes obsPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  40% { transform: scale(1.3); opacity: 1; }
+  60%, 100% { transform: scale(1); opacity: 0.9; }
+}
+.obs-pop {
+  animation: obsPop 1.2s ease-in infinite;
+}
+
+@layer components {
+  .glass {
+    background: rgba(22, 30, 67, 0.55);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(139, 92, 246, 0.16);
+    box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  .glass-strong {
+    background: linear-gradient(
+      160deg,
+      rgba(32, 43, 95, 0.72),
+      rgba(14, 20, 48, 0.72)
+    );
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  .neon-text {
+    background: linear-gradient(90deg, #a855f7, #3b82f6, #22d3ee);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
