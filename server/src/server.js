@@ -70,6 +70,14 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5174;
 
+app.get('/', (_req, res) => {
+  res.json({ status: 'ok', service: 'labxplore-api', version: '1.0.0' });
+});
+
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', service: 'labxplore-api', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/student', (_req, res) => {
   res.json({ student: getStudent(), achievements: getAchievements() });
 });

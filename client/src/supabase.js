@@ -11,6 +11,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+const API_BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '') + '/api';
+
 /**
  * For a Quiz: "Fetch 10 random questions where chapter = 'Kinematics'"
  * Queries Supabase question_bank with resilient fallback to local API
@@ -39,7 +41,7 @@ export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, s
   // Fallback to local API
   const params = new URLSearchParams({ chapter, limit: String(limit), random: 'true' });
   if (subject) params.set('subject', subject);
-  const res = await fetch(`/api/questions?${params.toString()}`);
+  const res = await fetch(`${API_BASE}/questions?${params.toString()}`);
   const json = await res.json();
   return json.questions || [];
 }
@@ -72,7 +74,7 @@ export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limi
   // Fallback to local API
   const params = new URLSearchParams({ exam_level: examLevel, limit: String(limit), random: 'true' });
   if (subject) params.set('subject', subject);
-  const res = await fetch(`/api/questions?${params.toString()}`);
+  const res = await fetch(`${API_BASE}/questions?${params.toString()}`);
   const json = await res.json();
   return json.questions || [];
 }
@@ -82,7 +84,7 @@ export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limi
  */
 export async function fetchQuestionBankChapters(subject) {
   try {
-    const res = await fetch(`/api/questions/chapters${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`);
+    const res = await fetch(`${API_BASE}/questions/chapters${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`);
     const json = await res.json();
     return json.chapters || [];
   } catch {
