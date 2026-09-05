@@ -135,10 +135,10 @@ app.post('/api/xp', (req, res) => {
 });
 
 // ---- Question Bank API (Local & Fallback) ----
-app.get('/api/questions', (req, res) => {
+app.get('/api/questions', async (req, res) => {
   const { subject, chapter, topic, exam_level, limit, random } = req.query || {};
   const isRandom = random === 'true' || random === '1' || random === true;
-  const questions = getQuestions({
+  const questions = await getQuestions({
     subject,
     chapter,
     topic,
@@ -152,14 +152,14 @@ app.get('/api/questions', (req, res) => {
   });
 });
 
-app.get('/api/questions/chapters', (req, res) => {
+app.get('/api/questions/chapters', async (req, res) => {
   const { subject } = req.query || {};
-  const chapters = getQuestionBankChapters(subject);
+  const chapters = await getQuestionBankChapters(subject);
   res.json({ count: chapters.length, chapters });
 });
 
-app.get('/api/questions/stats', (_req, res) => {
-  const stats = getQuestionBankStats();
+app.get('/api/questions/stats', async (_req, res) => {
+  const stats = await getQuestionBankStats();
   res.json(stats);
 });
 
