@@ -14,6 +14,11 @@ import {
   HelpCircle,
   X,
   GraduationCap,
+  Camera,
+  Clock,
+  Sliders,
+  Swords,
+  Brain,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -54,6 +59,14 @@ const PRIMARY_MENU = [
   { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
   { to: '/daily-challenge', label: 'Daily Challenge', icon: Zap },
   { to: '/mock-tests', label: 'Mock Tests', icon: GraduationCap },
+];
+
+const HACKATHON_MENU = [
+  { to: '/snap-solve', label: 'Snap & Solve', icon: Camera, badge: 'OCR' },
+  { to: '/pomodoro', label: 'Pomodoro Lounge', icon: Clock, badge: 'Audio' },
+  { to: '/sandbox', label: 'Sandbox Labs', icon: Sliders, badge: 'Sim' },
+  { to: '/battles', label: 'Peer Battles', icon: Swords, badge: '1v1' },
+  { to: '/spaced-repetition', label: 'Spaced Repetition', icon: Brain, badge: 'AI' },
 ];
 
 const SECONDARY_MENU = [
@@ -125,6 +138,40 @@ export default function Sidebar({ isOpen, onClose }) {
               >
                 <Icon size={17} />
                 <span>{label}</span>
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Hackathon Innovations Navigation */}
+          <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
+            <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 flex items-center justify-between">
+              <span>Smart Innovations</span>
+              <span className="bg-sky-100 text-sky-700 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
+                NEW
+              </span>
+            </div>
+            {HACKATHON_MENU.map(({ to, label, icon: Icon, badge }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </div>
+                {badge && (
+                  <span className="rounded bg-sky-50 text-sky-600 border border-sky-200/80 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                    {badge}
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>

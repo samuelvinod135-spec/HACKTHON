@@ -17,6 +17,11 @@ import FunGames from './pages/FunGames.jsx';
 import SavedExperiments from './pages/SavedExperiments.jsx';
 import Profile from './pages/Profile.jsx';
 import Settings from './pages/Settings.jsx';
+import SnapAndSolvePage from './pages/SnapAndSolvePage.jsx';
+import PomodoroPage from './pages/PomodoroPage.jsx';
+import SandboxLabPage from './pages/SandboxLabPage.jsx';
+import PeerBattlesPage from './pages/PeerBattlesPage.jsx';
+import SpacedRepetitionPage from './pages/SpacedRepetitionPage.jsx';
 
 // Smart Home: Displays Landing for visitors, redirects or displays Dashboard
 function RootRoute() {
@@ -57,6 +62,11 @@ export default function App() {
               <Route path="/saved" element={<SavedExperiments />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/snap-solve" element={<SnapAndSolvePage />} />
+              <Route path="/pomodoro" element={<PomodoroPage />} />
+              <Route path="/sandbox" element={<SandboxLabPage />} />
+              <Route path="/battles" element={<PeerBattlesPage />} />
+              <Route path="/spaced-repetition" element={<SpacedRepetitionPage />} />
               <Route path="/help" element={<Settings />} />
             </Route>
 

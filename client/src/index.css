@@ -497,4 +497,25 @@ body {
   }
 }
 
+@keyframes laser-scan {
+  0% {
+    top: 0%;
+    opacity: 0.85;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.85;
+  }
+}
+
+.animate-laser {
+  position: absolute;
+  animation: laser-scan 2s ease-in-out infinite;
+}
+
+
 

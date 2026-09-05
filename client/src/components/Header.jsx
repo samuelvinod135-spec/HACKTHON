@@ -19,12 +19,23 @@ import {
   LogIn,
   LogOut,
   GraduationCap,
+  Camera,
+  Clock,
+  Sliders,
+  Swords,
+  Brain,
 } from 'lucide-react';
+import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 
 const SEARCH_INDEX = [
+  { title: 'Snap & Solve (Smart OCR)', type: 'Innovation', to: '/snap-solve', icon: Camera },
+  { title: 'Pomodoro Study Lounge & Audio', type: 'Focus Room', to: '/pomodoro', icon: Clock },
+  { title: 'Interactive Sandbox Labs', type: 'Simulation', to: '/sandbox', icon: Sliders },
+  { title: 'Real-Time Peer Battles (1v1)', type: 'Multiplayer', to: '/battles', icon: Swords },
+  { title: 'Spaced Repetition & Forgetting Curve', type: 'Retention AI', to: '/spaced-repetition', icon: Brain },
   { title: 'Adaptive Physics Mock Test', type: 'Mock Test', to: '/mock-tests', icon: GraduationCap },
   { title: 'Magnesium Ribbon Burning', type: 'Chemistry', to: '/chemistry', icon: Flame },
   { title: 'Pendulum Motion', type: 'Physics', to: '/physics', icon: Atom },
