@@ -42,7 +42,7 @@ export default function Settings() {
             <button
               onClick={() => setSoundEffects(!soundEffects)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                soundEffects ? 'bg-indigo-600' : 'bg-slate-200'
+                soundEffects ? 'bg-sky-500' : 'bg-slate-200'
               }`}
             >
               <div
@@ -64,7 +64,7 @@ export default function Settings() {
               max="100"
               value={soundVolume}
               onChange={(e) => setSoundVolume(Number(e.target.value))}
-              className="accent-indigo-600 w-32"
+              className="accent-sky-500 w-32"
             />
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function Settings() {
             <button
               onClick={() => setNotifications(!notifications)}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                notifications ? 'bg-indigo-600' : 'bg-slate-200'
+                notifications ? 'bg-sky-500' : 'bg-slate-200'
               }`}
             >
               <div

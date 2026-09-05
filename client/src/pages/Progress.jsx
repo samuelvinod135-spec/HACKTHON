@@ -29,6 +29,21 @@ export default function Progress() {
 
   const unlockedAchievementsCount = (achievements || []).filter((a) => a.unlocked).length;
 
+  // Dynamic subject proficiency starting from 0%
+  const chemLabs = (completions || []).filter(
+    (c) => c.kind === 'experiment' || c.ref?.toLowerCase().includes('chem') || c.ref?.toLowerCase().includes('magnesium')
+  ).length;
+  const physLabs = (completions || []).filter(
+    (c) => c.ref?.toLowerCase().includes('pendulum') || c.ref?.toLowerCase().includes('physic')
+  ).length;
+  const opticsLabs = (completions || []).filter(
+    (c) => c.ref?.toLowerCase().includes('lens') || c.ref?.toLowerCase().includes('optic') || c.ref?.toLowerCase().includes('wave')
+  ).length;
+
+  const chemPct = Math.min(100, chemLabs * 25);
+  const physPct = Math.min(100, physLabs * 25);
+  const opticsPct = Math.min(100, opticsLabs * 25);
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Page Header */}
@@ -169,10 +184,10 @@ export default function Progress() {
                     <FlaskConical size={14} className="text-sky-600" />
                     Chemistry & Reaction Kinetics
                   </span>
-                  <span className="font-semibold text-slate-900">72%</span>
+                  <span className="font-semibold text-slate-900">{chemPct}%</span>
                 </div>
                 <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-sky-500" style={{ width: '72%' }} />
+                  <div className="h-full rounded-full bg-sky-500 transition-all duration-500" style={{ width: `${chemPct}%` }} />
                 </div>
               </div>
 
@@ -183,10 +198,10 @@ export default function Progress() {
                     <Atom size={14} className="text-teal-600" />
                     Physics & Classical Mechanics
                   </span>
-                  <span className="font-semibold text-slate-900">65%</span>
+                  <span className="font-semibold text-slate-900">{physPct}%</span>
                 </div>
                 <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-teal-500" style={{ width: '65%' }} />
+                  <div className="h-full rounded-full bg-teal-500 transition-all duration-500" style={{ width: `${physPct}%` }} />
                 </div>
               </div>
 
@@ -197,10 +212,10 @@ export default function Progress() {
                     <TrendingUp size={14} className="text-sky-700" />
                     Optics, Waves & Refraction
                   </span>
-                  <span className="font-semibold text-slate-900">48%</span>
+                  <span className="font-semibold text-slate-900">{opticsPct}%</span>
                 </div>
                 <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-sky-700" style={{ width: '48%' }} />
+                  <div className="h-full rounded-full bg-sky-700 transition-all duration-500" style={{ width: `${opticsPct}%` }} />
                 </div>
               </div>
             </div>

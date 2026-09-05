@@ -14,13 +14,13 @@ const ICONS = {
 
 const COLORS = {
   flame: 'from-orange-400 to-red-500',
-  beaker: 'from-purple-400 to-indigo-500',
+  beaker: 'from-sky-400 to-blue-500',
   atom: 'from-blue-400 to-cyan-500',
   star: 'from-amber-300 to-yellow-500',
   'trending-up': 'from-green-400 to-emerald-500',
   compass: 'from-cyan-400 to-blue-500',
   crown: 'from-yellow-300 to-amber-500',
-  timer: 'from-pink-400 to-fuchsia-500',
+  timer: 'from-amber-400 to-orange-500',
 };
 
 export default function Achievements() {

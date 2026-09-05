@@ -10,6 +10,7 @@ import PhysicsLab from './pages/PhysicsLab.jsx';
 import ChemistryLab from './pages/ChemistryLab.jsx';
 import Quizzes from './pages/Quizzes.jsx';
 import DailyChallenge from './pages/DailyChallenge.jsx';
+import MockTests from './pages/MockTests.jsx';
 import Progress from './pages/Progress.jsx';
 import Achievements from './pages/Achievements.jsx';
 import FunGames from './pages/FunGames.jsx';
@@ -23,7 +24,7 @@ function RootRoute() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#edf2f8] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -49,6 +50,7 @@ export default function App() {
               <Route path="/chemistry" element={<ChemistryLab />} />
               <Route path="/quizzes" element={<Quizzes />} />
               <Route path="/daily-challenge" element={<DailyChallenge />} />
+              <Route path="/mock-tests" element={<MockTests />} />
               <Route path="/progress" element={<Progress />} />
               <Route path="/achievements" element={<Achievements />} />
               <Route path="/games" element={<FunGames />} />

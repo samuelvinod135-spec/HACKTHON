@@ -13,6 +13,7 @@ import {
   Settings,
   HelpCircle,
   X,
+  GraduationCap,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -52,6 +53,7 @@ const PRIMARY_MENU = [
   { to: '/chemistry', label: 'Chemistry Lab', icon: FlaskConical },
   { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
   { to: '/daily-challenge', label: 'Daily Challenge', icon: Zap },
+  { to: '/mock-tests', label: 'Mock Tests', icon: GraduationCap },
 ];
 
 const SECONDARY_MENU = [
@@ -116,8 +118,8 @@ export default function Sidebar({ isOpen, onClose }) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-purple-100/70 text-indigo-700 font-bold shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
                   }`
                 }
               >
@@ -137,8 +139,8 @@ export default function Sidebar({ isOpen, onClose }) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-purple-100/70 text-indigo-700 font-bold'
-                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-500 hover:bg-slate-100/70 hover:text-slate-800 active:bg-sky-50'
                   }`
                 }
               >
@@ -173,7 +175,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 </div>
                 <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600 transition-all duration-500"
                     style={{ width: `${xpPct}%` }}
                   />
                 </div>

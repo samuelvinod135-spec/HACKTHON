@@ -75,7 +75,6 @@ export default function Profile() {
     }
   };
 
-  const studentId = user?.id ? `LX-${user.id.slice(0, 6).toUpperCase()}` : 'LX-SCHOLAR';
   const joinedDate = user?.created_at
     ? new Date(user.created_at).toLocaleDateString('en-US', {
         month: 'short',
@@ -141,7 +140,7 @@ export default function Profile() {
               </div>
               <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-100">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600 transition-all duration-500"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -201,7 +200,7 @@ export default function Profile() {
         </div>
 
         <div className="clay-card p-5 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-2">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 mb-2">
             <Award size={20} />
           </div>
           <p className="text-2xl font-black text-slate-900">{quizzesCount}</p>
@@ -224,12 +223,8 @@ export default function Profile() {
       {/* Profile Details & Metadata */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="clay-card p-6">
-          <h2 className="text-sm font-bold text-slate-900 mb-4">Academic Credentials</h2>
+          <h2 className="text-sm font-bold text-slate-900 mb-4">Academic Details</h2>
           <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between py-1 border-b border-slate-100">
-              <span className="text-slate-500">Student ID</span>
-              <span className="font-mono font-bold text-slate-800">{studentId}</span>
-            </div>
             <div className="flex items-center justify-between py-1 border-b border-slate-100">
               <span className="text-slate-500">Joined</span>
               <span className="font-semibold text-slate-800">{joinedDate}</span>
@@ -258,8 +253,8 @@ export default function Profile() {
           {unlockedAchievements.length > 0 ? (
             <div className="grid grid-cols-3 gap-3">
               {unlockedAchievements.slice(0, 3).map((ach) => (
-                <div key={ach.slug || ach.id} className="clay-card p-3 text-center bg-purple-50/50">
-                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white shadow-xs mb-1.5">
+                <div key={ach.slug || ach.id} className="clay-card p-3 text-center bg-amber-50/50">
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-xs mb-1.5">
                     <Star size={18} fill="currentColor" />
                   </div>
                   <p className="text-[10px] font-bold text-slate-800 truncate">{ach.name}</p>

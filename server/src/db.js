@@ -180,5 +180,84 @@ export function unsaveExperiment(id) {
   return getSavedExperiments();
 }
 
+export function getQuestions({
+  subject,
+  chapter,
+  topic,
+  exam_level,
+  limit = 50,
+  random = false,
+} = {}) {
+  const clauses = [];
+  const params = [];
+
+  if (subject) {
+    clauses.push('LOWER(subject) = LOWER(?)');
+    params.push(subject);
+  }
+  if (chapter) {
+    clauses.push('LOWER(chapter) = LOWER(?)');
+    params.push(chapter);
+  }
+  if (topic) {
+    clauses.push('LOWER(topic) LIKE LOWER(?)');
+    params.push(`%${topic}%`);
+  }
+  if (exam_level) {
+    clauses.push('LOWER(exam_level) = LOWER(?)');
+    params.push(exam_level);
+  }
+
+  let sql = 'SELECT * FROM question_bank';
+  if (clauses.length > 0) {
+    sql += ` WHERE ${clauses.join(' AND ')}`;
+  }
+
+  if (random) {
+    sql += ' ORDER BY RANDOM()';
+  } else {
+    sql += ' ORDER BY id ASC';
+  }
+
+  const numLimit = Math.min(Math.max(Number(limit) || 50, 1), 200);
+  sql += ` LIMIT ${numLimit}`;
+
+  return db.prepare(sql).all(...params);
+}
+
+export function getQuestionBankChapters(subject) {
+  let sql = `
+    SELECT subject, chapter, COUNT(*) as count
+    FROM question_bank
+  `;
+  const params = [];
+  if (subject) {
+    sql += ' WHERE LOWER(subject) = LOWER(?)';
+    params.push(subject);
+  }
+  sql += ' GROUP BY subject, chapter ORDER BY subject, chapter';
+  return db.prepare(sql).all(...params);
+}
+
+export function getQuestionBankStats() {
+  const total = db.prepare('SELECT COUNT(*) as c FROM question_bank').get().c;
+  const bySubject = db
+    .prepare('SELECT subject, COUNT(*) as count FROM question_bank GROUP BY subject')
+    .all();
+  const byLevel = db
+    .prepare('SELECT exam_level, COUNT(*) as count FROM question_bank GROUP BY exam_level')
+    .all();
+  const chaptersCount = db
+    .prepare('SELECT COUNT(DISTINCT chapter) as c FROM question_bank')
+    .get().c;
+
+  return {
+    total,
+    chaptersCount,
+    bySubject,
+    byLevel,
+  };
+}
+
 export default db;
 

@@ -73,10 +73,10 @@ export default function Landing() {
   const refractedAngle = Math.round((Math.asin(Math.min(1, sinRefracted)) * 180) / Math.PI);
 
   return (
-    <div className="min-h-screen bg-[#f8fbff] text-slate-800 font-sans antialiased selection:bg-amber-200 selection:text-slate-900 overflow-x-hidden">
-      {/* Radiant Background Ambience (Sky Blue & Warm Yellow Orbs) */}
+    <div className="min-h-screen bg-[#f8fbff] text-slate-800 font-sans antialiased selection:bg-yellow-200 selection:text-slate-900 overflow-x-hidden">
+      {/* Radiant Background Ambience (Sky Blue & Banana Yellow Orbs) */}
       <div className="fixed top-[-15%] left-[-10%] w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-sky-200/40 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="fixed top-[20%] right-[-10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-amber-200/30 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-[20%] right-[-10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-yellow-200/40 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="fixed bottom-[-10%] left-[20%] w-[350px] sm:w-[550px] h-[350px] sm:h-[550px] bg-sky-100/50 rounded-full blur-3xl pointer-events-none -z-10" />
 
       {/* 1. TOUCH-FRIENDLY RESPONSIVE NAVBAR */}
@@ -90,7 +90,7 @@ export default function Landing() {
             <div>
               <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center gap-1">
                 Lab<span className="text-sky-500">Xplore</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 ml-1">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-950 border border-yellow-300 ml-1">
                   3D Lab
                 </span>
               </span>
@@ -827,7 +827,7 @@ export default function Landing() {
       {/* 5. CALL TO ACTION */}
       <section className="py-14 sm:py-20 px-4 sm:px-6 text-center">
         <div className="max-w-3xl mx-auto card-sky-glass p-8 sm:p-14 rounded-3xl border-2 border-sky-200 shadow-xl bg-gradient-to-b from-white to-sky-50/60">
-          <span className="w-10 h-10 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center font-black mx-auto mb-3 shadow-md shadow-amber-400/30 text-lg">
+          <span className="w-10 h-10 rounded-full bg-[#ffe135] text-slate-950 flex items-center justify-center font-black mx-auto mb-3 shadow-md shadow-yellow-400/40 text-lg">
             ✦
           </span>
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-3">
@@ -870,7 +870,7 @@ export default function Landing() {
           </div>
 
           <p className="text-[11px] text-slate-400">
-            © {new Date().getFullYear()} LabXplore Systems. White, Sky Blue & Yellow Edition.
+            © {new Date().getFullYear()} LabXplore Systems. White, Sky Blue & Banana Yellow Edition.
           </p>
         </div>
       </footer>

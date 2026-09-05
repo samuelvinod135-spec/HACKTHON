@@ -29,7 +29,7 @@ export const MATERIAL_CHEMICALS = [
   { id: 'c', formula: 'C', name: 'Carbon', category: 'Non-Metals', phase: 's', tone: 'from-zinc-600 to-zinc-900' },
   { id: 's', formula: 'S', name: 'Sulphur', category: 'Non-Metals', phase: 's', tone: 'from-yellow-300 to-yellow-600' },
   { id: 'p', formula: 'P', name: 'Phosphorus', category: 'Non-Metals', phase: 's', tone: 'from-amber-300 to-red-500' },
-  { id: 'h2r', formula: 'H2', name: 'Hydrogen', category: 'Non-Metals', phase: 'g', tone: 'from-indigo-300 to-indigo-500' },
+  { id: 'h2r', formula: 'H2', name: 'Hydrogen', category: 'Non-Metals', phase: 'g', tone: 'from-sky-300 to-blue-500' },
   { id: 'cl2r', formula: 'Cl2', name: 'Chlorine', category: 'Non-Metals', phase: 'g', tone: 'from-green-300 to-green-500' },
 
   // Acids
@@ -37,7 +37,7 @@ export const MATERIAL_CHEMICALS = [
   { id: 'h2so4', formula: 'H2SO4', name: 'Sulphuric Acid', category: 'Acids', phase: 'aq', tone: 'from-amber-200 to-amber-400' },
   { id: 'hno3', formula: 'HNO3', name: 'Nitric Acid', category: 'Acids', phase: 'aq', tone: 'from-yellow-100 to-yellow-300' },
   { id: 'ch3cooh', formula: 'CH3COOH', name: 'Acetic Acid', category: 'Acids', phase: 'aq', tone: 'from-orange-200 to-orange-400' },
-  { id: 'h3po4', formula: 'H3PO4', name: 'Phosphoric Acid', category: 'Acids', phase: 'aq', tone: 'from-purple-200 to-purple-400' },
+  { id: 'h3po4', formula: 'H3PO4', name: 'Phosphoric Acid', category: 'Acids', phase: 'aq', tone: 'from-teal-200 to-cyan-400' },
 
   // Bases
   { id: 'naoh', formula: 'NaOH', name: 'Sodium Hydroxide', category: 'Bases', phase: 'aq', tone: 'from-sky-200 to-sky-400' },
@@ -80,9 +80,9 @@ export const MATERIAL_CHEMICALS = [
   { id: 'co2', formula: 'CO2', name: 'Carbon Dioxide', category: 'Gases', phase: 'g', tone: 'from-slate-200 to-slate-400' },
   { id: 'so2', formula: 'SO2', name: 'Sulphur Dioxide', category: 'Gases', phase: 'g', tone: 'from-yellow-200 to-yellow-400' },
   { id: 'o2', formula: 'O2', name: 'Oxygen Gas', category: 'Gases', phase: 'g', tone: 'from-cyan-200 to-cyan-400' },
-  { id: 'h2g', formula: 'H2', name: 'Hydrogen Gas', category: 'Gases', phase: 'g', tone: 'from-indigo-200 to-indigo-400' },
+  { id: 'h2g', formula: 'H2', name: 'Hydrogen Gas', category: 'Gases', phase: 'g', tone: 'from-sky-200 to-blue-400' },
   { id: 'cl2g', formula: 'Cl2', name: 'Chlorine Gas', category: 'Gases', phase: 'g', tone: 'from-green-200 to-green-400' },
-  { id: 'n2', formula: 'N2', name: 'Nitrogen Gas', category: 'Gases', phase: 'g', tone: 'from-indigo-200 to-indigo-300' },
+  { id: 'n2', formula: 'N2', name: 'Nitrogen Gas', category: 'Gases', phase: 'g', tone: 'from-teal-200 to-sky-300' },
   { id: 'nh3g', formula: 'NH3', name: 'Ammonia Gas', category: 'Gases', phase: 'g', tone: 'from-lime-200 to-lime-300' },
   { id: 'no2', formula: 'NO2', name: 'Nitrogen Dioxide', category: 'Gases', phase: 'g', tone: 'from-red-300 to-red-500' },
   { id: 'h2s', formula: 'H2S', name: 'Hydrogen Sulphide', category: 'Gases', phase: 'g', tone: 'from-yellow-200 to-yellow-300' },

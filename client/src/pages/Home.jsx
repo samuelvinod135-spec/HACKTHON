@@ -6,24 +6,16 @@ import {
   ArrowRight,
   ArrowUpRight,
   Flame,
-  Timer,
-  Clock,
   Sparkles,
-  Zap,
-  Waves,
   Rocket,
   Search,
   CheckCircle2,
   Volume2,
   Maximize2,
   Star,
-  Award,
-  ChevronRight,
-  Settings,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import UserAvatar from '../components/UserAvatar.jsx';
 
 export default function Home() {
   const { user, profile } = useAuth();
@@ -32,23 +24,13 @@ export default function Home() {
   const [exploreFilter, setExploreFilter] = useState('All');
   const [exploreSearch, setExploreSearch] = useState('');
   const [step, setStep] = useState(1);
-  const [quizAnswer, setQuizAnswer] = useState('C');
   const [observationRecorded, setObservationRecorded] = useState(false);
-  const [challengeClaimed, setChallengeClaimed] = useState(false);
 
   const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
-  const email = profile?.email || user?.email || 'scholar@labxplore.edu';
   const xp = profile?.xp ?? (student ? student.xp : 0);
   const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
   const level = profile?.level ?? (student ? student.level : 1);
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
-
-  const expCount = (completions || []).filter((c) => c.kind === 'experiment' || c.kind === 'observation').length;
-  const quizCount = (completions || []).filter((c) => c.kind === 'quiz' || c.kind === 'challenge').length;
-  const hoursCount = Math.max(0, Number(((expCount * 0.4) + (quizCount * 0.2)).toFixed(1)));
-  const joinedText = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-    : 'Active';
 
   const handleRecordObservation = async () => {
     setObservationRecorded(true);
@@ -58,15 +40,6 @@ export default function Home() {
       xp: 80,
     });
     setTimeout(() => setObservationRecorded(false), 3000);
-  };
-
-  const handleDailyChallenge = async () => {
-    setChallengeClaimed(true);
-    await record({
-      kind: 'challenge',
-      ref: 'Daily Chemical Puzzle',
-      xp: 150,
-    });
   };
 
   return (
@@ -83,13 +56,16 @@ export default function Home() {
 
       {/* 2. Top Hero Modules Grid (matches reference image row 1) */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-        {/* Card 1: New Chemistry Workspace (Blue Clay) */}
+        {/* Card 1: New Chemistry Workspace (Blue-Tinted White Clay) */}
         <div className="clay-card-blue relative flex flex-col justify-between p-6 overflow-hidden min-h-[220px]">
-          <div className="z-10 max-w-[65%]">
-            <h3 className="text-base sm:text-lg font-black text-white leading-snug">
+          <div className="z-10">
+            <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-100/70 text-[10px] font-bold text-sky-800 mb-2">
+              Chemistry Lab
+            </span>
+            <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
               New Chemistry Workspace
             </h3>
-            <p className="mt-1 text-[11px] text-blue-100 opacity-90">
+            <p className="mt-1 text-[11px] font-medium text-sky-700/90">
               Reaction balancing & synthesis
             </p>
           </div>
@@ -102,24 +78,18 @@ export default function Home() {
               Start Experiment <ArrowRight size={13} strokeWidth={2.5} />
             </Link>
           </div>
-
-          {/* 3D Glossy Beaker Image */}
-          <div className="absolute -bottom-3 -right-3 h-36 w-36 pointer-events-none drop-shadow-2xl">
-            <img
-              src="/clay/flask.jpg"
-              alt="3D Chemistry Flask"
-              className="h-full w-full object-contain rounded-2xl"
-            />
-          </div>
         </div>
 
-        {/* Card 2: New Physics Workspace (Mint/Teal Clay) */}
+        {/* Card 2: New Physics Workspace (Green-Tinted White Clay) */}
         <div className="clay-card-green relative flex flex-col justify-between p-6 overflow-hidden min-h-[220px]">
-          <div className="z-10 max-w-[65%]">
-            <h3 className="text-base sm:text-lg font-black text-emerald-950 leading-snug">
+          <div className="z-10">
+            <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100/70 text-[10px] font-bold text-emerald-800 mb-2">
+              Physics Lab
+            </span>
+            <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
               New Physics Workspace
             </h3>
-            <p className="mt-1 text-[11px] text-emerald-800 opacity-90">
+            <p className="mt-1 text-[11px] font-medium text-emerald-700/90">
               Harmonics & kinematics
             </p>
           </div>
@@ -131,15 +101,6 @@ export default function Home() {
             >
               Start Experiment <ArrowRight size={13} strokeWidth={2.5} />
             </Link>
-          </div>
-
-          {/* 3D Newton's Cradle Image */}
-          <div className="absolute -bottom-2 -right-2 h-36 w-36 pointer-events-none drop-shadow-xl">
-            <img
-              src="/clay/cradle.jpg"
-              alt="3D Physics Cradle"
-              className="h-full w-full object-contain rounded-2xl"
-            />
           </div>
         </div>
 
@@ -157,7 +118,7 @@ export default function Home() {
 
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                className="h-full rounded-full bg-sky-500 transition-all duration-500"
                 style={{ width: `${xpPct}%` }}
               />
             </div>
@@ -176,7 +137,7 @@ export default function Home() {
 
             {/* 3D Medals Row */}
             <div className="flex items-center gap-2">
-              <div className="clay-btn-circle h-9 w-9 flex items-center justify-center bg-purple-100 text-purple-600 shadow-xs" title="Science Explorer">
+              <div className="clay-btn-circle h-9 w-9 flex items-center justify-center bg-amber-100 text-amber-600 shadow-xs" title="Science Explorer">
                 <Star size={16} fill="currentColor" />
               </div>
               <div className="clay-btn-circle h-9 w-9 flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-xs" title="Chem Whiz">
@@ -189,11 +150,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Card 4: Learn by Doing. (Lavender Clay) */}
-        <div className="clay-card-purple relative flex flex-col justify-between p-5 min-h-[220px] overflow-hidden">
+        {/* Card 4: Learn by Doing. (Teal Clay) */}
+        <div className="clay-card-teal relative flex flex-col justify-between p-5 min-h-[220px] overflow-hidden">
           <div>
-            <h3 className="text-base font-black text-purple-950">Learn by Doing.</h3>
-            <p className="mt-1.5 text-[11px] font-medium text-purple-800/80 leading-relaxed">
+            <span className="inline-block px-2.5 py-0.5 rounded-full bg-teal-100/80 text-[10px] font-bold text-teal-800 mb-2">
+              Interactive
+            </span>
+            <h3 className="text-base font-black text-teal-950">Learn by Doing.</h3>
+            <p className="mt-1.5 text-[11px] font-medium text-teal-800/80 leading-relaxed">
               Explore science through interactive experiments and fun challenges.
             </p>
           </div>
@@ -208,16 +172,11 @@ export default function Home() {
 
             {/* Carousel Dots */}
             <div className="mt-3 flex items-center gap-1.5">
-              <span className="h-1.5 w-4 rounded-full bg-indigo-600" />
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-200" />
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-200" />
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-200" />
+              <span className="h-1.5 w-4 rounded-full bg-teal-600" />
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-200" />
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-200" />
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-200" />
             </div>
-          </div>
-
-          {/* Background Illustration */}
-          <div className="absolute -bottom-2 -right-2 h-28 w-28 opacity-80 pointer-events-none">
-            <img src="/clay/flask.jpg" alt="Beaker" className="h-full w-full object-contain rounded-xl" />
           </div>
         </div>
 
@@ -296,7 +255,7 @@ export default function Home() {
               { title: 'Magnesium Ribbon Burning', discipline: 'Chemistry', time: '2 days ago', to: '/chemistry', icon: Flame, color: 'text-amber-500 bg-amber-50' },
               { title: 'Pendulum Motion', discipline: 'Physics', time: '3 days ago', to: '/physics', icon: Atom, color: 'text-teal-600 bg-teal-50' },
               { title: 'Reaction Speed Test', discipline: 'Chemistry', time: '5 days ago', to: '/chemistry', icon: FlaskConical, color: 'text-blue-600 bg-blue-50' },
-              { title: 'Lens Refraction', discipline: 'Physics', time: '1 week ago', to: '/physics', icon: Sparkles, color: 'text-indigo-600 bg-indigo-50' },
+              { title: 'Lens Refraction', discipline: 'Physics', time: '1 week ago', to: '/physics', icon: Sparkles, color: 'text-sky-600 bg-sky-50' },
             ].map((exp) => {
               const Icon = exp.icon;
               return (
@@ -334,7 +293,7 @@ export default function Home() {
             <div className="grid grid-cols-3 gap-2.5">
               {[
                 { name: 'Element Bingo', sub: 'Na', to: '/games', bg: 'bg-rose-50 text-rose-600' },
-                { name: 'Atom Builder', sub: 'Atom', to: '/games', bg: 'bg-purple-50 text-purple-600' },
+                { name: 'Atom Builder', sub: 'Atom', to: '/games', bg: 'bg-sky-50 text-sky-600' },
                 { name: 'Reaction Rush', sub: 'Reaction', to: '/games', bg: 'bg-amber-50 text-amber-600' },
                 { name: 'Launch Physics', sub: 'Launch', to: '/games', bg: 'bg-sky-50 text-sky-600' },
                 { name: 'Lab Connect', sub: 'Connect', to: '/games', bg: 'bg-emerald-50 text-emerald-600' },
@@ -368,7 +327,7 @@ export default function Home() {
         <div className="clay-card p-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 className="text-sm font-bold text-slate-900">Step-by-Step Workspace</h3>
-            <span className="text-[10px] font-bold text-indigo-600">Active Task</span>
+            <span className="text-[10px] font-bold text-sky-600">Active Task</span>
           </div>
 
           {/* Stepper numbers 1..5 */}
@@ -494,135 +453,6 @@ export default function Home() {
           >
             Record Observation
           </button>
-        </div>
-      </div>
-
-      {/* 5. Bottom Ecosystem Row: Daily Challenge, Quiz of Day, Profile (matches reference image row 4) */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {/* Daily Challenge Card (Yellow Clay) */}
-        <div className="clay-card-yellow p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black text-amber-900">Daily Challenge</h3>
-              <span className="rounded-full bg-amber-200/80 px-2.5 py-0.5 text-[10px] font-bold text-amber-900">
-                +150 XP
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-amber-800">Solve today's challenge and earn XP!</p>
-
-            <div className="my-4 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700">Time Left</p>
-              <p className="font-mono text-2xl font-black text-amber-950 tracking-wider">
-                12 : 45 : 30
-              </p>
-              <p className="text-[9px] font-bold text-amber-700 uppercase tracking-widest">HRS MIN SEC</p>
-            </div>
-          </div>
-
-          <Link
-            to="/daily-challenge"
-            onClick={handleDailyChallenge}
-            className="clay-btn-yellow flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold text-slate-900"
-          >
-            {challengeClaimed ? 'Challenge Active →' : 'Start Challenge →'}
-          </Link>
-        </div>
-
-        {/* Quiz of the Day Card */}
-        <div className="clay-card p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-indigo-600">Quiz of the Day</span>
-              <span className="text-[11px] font-bold text-slate-400">Timer 2:30</span>
-            </div>
-            <p className="text-[11px] font-bold text-slate-400 mb-1">Question 2 of 10</p>
-            <p className="text-xs font-bold text-slate-900 mb-3">
-              What gas is produced when zinc reacts with dilute hydrochloric acid?
-            </p>
-
-            {/* Options matching screenshot */}
-            <div className="space-y-1.5">
-              {[
-                { key: 'A', text: 'Oxygen' },
-                { key: 'B', text: 'Carbon dioxide' },
-                { key: 'C', text: 'Hydrogen' },
-                { key: 'D', text: 'Nitrogen' },
-              ].map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => setQuizAnswer(opt.key)}
-                  className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-bold transition text-left ${
-                    quizAnswer === opt.key
-                      ? 'clay-pill-active'
-                      : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className="h-5 w-5 rounded-md flex items-center justify-center text-[10px] bg-white/30">
-                    {opt.key}
-                  </span>
-                  <span>{opt.text}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Link
-            to="/quizzes"
-            className="clay-btn-yellow mt-4 flex items-center justify-center gap-1.5 py-2 text-xs font-bold text-slate-900"
-          >
-            Next →
-          </Link>
-        </div>
-
-        {/* Profile Card matching screenshot */}
-        <div className="clay-card p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-4">
-              <UserAvatar
-                name={profile?.full_name || name}
-                email={email}
-                avatarUrl={profile?.avatar_url}
-                size="lg"
-                className="border-2 border-blue-200 shadow-md"
-              />
-              <div>
-                <h3 className="text-base font-black text-slate-900">{profile?.full_name || name}</h3>
-                <p className="text-xs text-slate-400">{email}</p>
-                <span className="text-[10px] font-bold text-amber-600">Level {level} · {joinedText}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center border-t border-slate-100 pt-3">
-              <div className="clay-card p-2 bg-slate-50">
-                <p className="text-base font-black text-slate-900">{expCount}</p>
-                <p className="text-[9px] font-bold text-slate-400 uppercase">Exp</p>
-              </div>
-              <div className="clay-card p-2 bg-slate-50">
-                <p className="text-base font-black text-slate-900">{quizCount}</p>
-                <p className="text-[9px] font-bold text-slate-400 uppercase">Quiz</p>
-              </div>
-              <div className="clay-card p-2 bg-slate-50">
-                <p className="text-base font-black text-slate-900">{hoursCount}</p>
-                <p className="text-[9px] font-bold text-slate-400 uppercase">Hours</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2">
-            <Link
-              to="/profile"
-              className="clay-btn-yellow flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold text-slate-900"
-            >
-              Edit Profile <ArrowRight size={13} strokeWidth={2.5} />
-            </Link>
-            <Link
-              to="/settings"
-              className="clay-btn-circle h-9 w-9 flex items-center justify-center text-slate-600"
-              title="Settings"
-            >
-              <Settings size={15} />
-            </Link>
-          </div>
         </div>
       </div>
     </div>

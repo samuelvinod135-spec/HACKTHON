@@ -18,12 +18,14 @@ import {
   Settings,
   LogIn,
   LogOut,
+  GraduationCap,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 
 const SEARCH_INDEX = [
+  { title: 'Adaptive Physics Mock Test', type: 'Mock Test', to: '/mock-tests', icon: GraduationCap },
   { title: 'Magnesium Ribbon Burning', type: 'Chemistry', to: '/chemistry', icon: Flame },
   { title: 'Pendulum Motion', type: 'Physics', to: '/physics', icon: Atom },
   { title: 'Reaction Speed Test', type: 'Chemistry', to: '/chemistry', icon: FlaskConical },
@@ -286,7 +288,7 @@ export default function Header({ onMenuClick }) {
                   <Link
                     to="/login"
                     onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition"
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-sky-600 hover:bg-sky-50 transition"
                   >
                     <LogIn size={15} /> Sign In
                   </Link>

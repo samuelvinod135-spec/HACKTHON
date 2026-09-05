@@ -10,11 +10,14 @@
   /* Clay Palette */
   --color-clay-blue: #3b82f6;
   --color-clay-green: #10b981;
-  --color-clay-purple: #8b5cf6;
+  --color-clay-teal: #14b8a6;
   --color-clay-yellow: #facc15;
 }
 
-* { box-sizing: border-box; }
+* { 
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
 html, body, #root {
   height: 100%;
@@ -45,14 +48,52 @@ body {
 
 @keyframes obsWhiteFlash {
   0%, 100% { opacity: 0; }
-  15% { opacity: 0.9; }
+  15% { opacity: 0.95; }
   30% { opacity: 0.4; }
-  45% { opacity: 0.8; }
+  45% { opacity: 0.85; }
   60% { opacity: 0.15; }
 }
 .obs-whiteflash {
-  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0.5) 40%, transparent 70%);
+  background: radial-gradient(circle, #ffffff 0%, rgba(255,255,255,0.7) 40%, transparent 75%);
   animation: obsWhiteFlash 1.6s ease-in-out infinite;
+}
+
+/* Dazzling / Dashing White Light Flare Animations */
+@keyframes dazzlingRays {
+  0% { transform: rotate(0deg) scale(0.95); opacity: 0.85; }
+  50% { transform: rotate(180deg) scale(1.15); opacity: 1; }
+  100% { transform: rotate(360deg) scale(0.95); opacity: 0.85; }
+}
+.animate-dazzling-rays {
+  animation: dazzlingRays 6s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes dazzlingPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 35px rgba(254, 240, 138, 0.85)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1)) drop-shadow(0 0 65px rgba(250, 204, 21, 0.95)); }
+}
+.animate-dazzling-pulse {
+  animation: dazzlingPulse 1.2s ease-in-out infinite;
+}
+
+/* White Ash Shimmer & Smoke Drift */
+@keyframes ashShimmer {
+  0%, 100% { opacity: 0.92; filter: brightness(1); }
+  50% { opacity: 1; filter: brightness(1.12); }
+}
+.animate-ash-shimmer {
+  animation: ashShimmer 2s ease-in-out infinite;
+}
+
+@keyframes smokeWisp {
+  0% { transform: translateY(0) scaleX(0.8) scaleY(0.8); opacity: 0; }
+  30% { opacity: 0.45; }
+  70% { transform: translateY(-26px) scaleX(1.3) scaleY(1.1); opacity: 0.2; }
+  100% { transform: translateY(-44px) scaleX(1.7) scaleY(1.4); opacity: 0; }
+}
+.animate-smoke-wisp {
+  animation: smokeWisp 2.6s ease-out infinite;
 }
 
 @keyframes obsBubble {
@@ -75,6 +116,17 @@ body {
   60%, 100% { transform: scale(1); opacity: 0.9; }
 }
 .obs-pop { animation: obsPop 1.2s ease-in infinite; }
+
+/* Cartoon Element Micro-Interactions */
+@keyframes cartoonPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12) rotate(-3deg); }
+  75% { transform: scale(0.97) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.hover-cartoon-pop:hover {
+  animation: cartoonPop 0.35s ease-in-out forwards;
+}
 
 @layer components {
   /* --- Authentic Claymorphism (3D Clay UI) System --- */
@@ -99,79 +151,80 @@ body {
       inset 0 3px 5px rgba(255, 255, 255, 0.98);
   }
 
-  /* Blue Clay Card (Chemistry Workspace) */
+  /* Blue-Tinted White Clay Card (Chemistry Workspace) */
   .clay-card-blue {
-    background: linear-gradient(145deg, #60a5fa 0%, #3b82f6 100%);
+    background: linear-gradient(145deg, #f0f7ff 0%, #e0effe 100%);
     border-radius: 1.5rem;
-    color: #ffffff;
+    color: #0c4a6e;
     box-shadow: 
-      0 14px 30px -4px rgba(59, 130, 246, 0.42),
-      inset 0 -4px 6px rgba(29, 78, 216, 0.35),
-      inset 0 4px 6px rgba(255, 255, 255, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+      0 12px 28px -4px rgba(56, 189, 248, 0.22),
+      inset 0 -3px 5px rgba(14, 165, 233, 0.15),
+      inset 0 3px 5px rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.95);
   }
 
-  /* Mint/Teal Clay Card (Physics Workspace) */
+  /* Green-Tinted White Clay Card (Physics Workspace) */
   .clay-card-green {
-    background: linear-gradient(145deg, #a7f3d0 0%, #6ee7b7 55%, #34d399 100%);
+    background: linear-gradient(145deg, #f0fdf4 0%, #e6f9ed 100%);
     border-radius: 1.5rem;
     color: #064e3b;
     box-shadow: 
-      0 14px 30px -4px rgba(52, 211, 153, 0.38),
-      inset 0 -4px 6px rgba(5, 150, 105, 0.28),
-      inset 0 4px 6px rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+      0 12px 28px -4px rgba(52, 211, 153, 0.22),
+      inset 0 -3px 5px rgba(16, 185, 129, 0.15),
+      inset 0 3px 5px rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.95);
   }
 
-  /* Lavender Clay Card (Learn by Doing) */
-  .clay-card-purple {
-    background: linear-gradient(145deg, #f8f6ff 0%, #f3eeff 100%);
+  /* Fresh Teal-Tinted White Clay Card (Learn by Doing) */
+  .clay-card-teal, .clay-card-purple {
+    background: linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%);
     border-radius: 1.5rem;
-    color: #3b0764;
+    color: #134e4a;
     box-shadow: 
-      0 12px 28px -4px rgba(167, 139, 250, 0.25),
-      inset 0 -3px 5px rgba(147, 112, 219, 0.18),
-      inset 0 3px 5px rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.9);
+      0 12px 28px -4px rgba(45, 212, 191, 0.22),
+      inset 0 -3px 5px rgba(20, 184, 166, 0.15),
+      inset 0 3px 5px rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.95);
   }
 
-  /* Warm Yellow Clay Card (Daily Challenge) */
+  /* Banana Yellow Clay Card */
   .clay-card-yellow {
-    background: linear-gradient(145deg, #fef9c3 0%, #fef08a 100%);
+    background: linear-gradient(145deg, #fffde7 0%, #fff9c4 100%);
     border-radius: 1.5rem;
     color: #713f12;
     box-shadow: 
-      0 12px 28px -4px rgba(234, 179, 8, 0.28),
-      inset 0 -3px 5px rgba(202, 138, 4, 0.2),
+      0 12px 28px -4px rgba(250, 204, 21, 0.28),
+      inset 0 -3px 5px rgba(234, 179, 8, 0.2),
       inset 0 3px 5px rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.8);
   }
 
-  /* Signature 3D Yellow Clay CTA Button */
+  /* Signature 3D Banana Yellow Clay CTA Button */
   .clay-btn-yellow, .btn-cta {
-    background: linear-gradient(180deg, #fed766 0%, #ffc425 100%);
+    background: linear-gradient(180deg, #fff066 0%, #ffe135 50%, #ffd000 100%);
     color: #1e293b;
-    font-weight: 700;
+    font-weight: 800;
     border-radius: 9999px;
     box-shadow: 
-      0 6px 14px -2px rgba(245, 158, 11, 0.42),
-      inset 0 -3px 4px rgba(180, 83, 9, 0.26),
-      inset 0 3px 4px rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+      0 6px 14px -2px rgba(234, 179, 8, 0.45),
+      inset 0 -3px 4px rgba(202, 138, 4, 0.25),
+      inset 0 3px 4px rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .clay-btn-yellow:hover, .btn-cta:hover {
     transform: translateY(-1px);
+    background: linear-gradient(180deg, #fff585 0%, #ffe840 50%, #ffc800 100%);
     box-shadow: 
-      0 8px 18px -2px rgba(245, 158, 11, 0.52),
-      inset 0 -3px 4px rgba(180, 83, 9, 0.3),
-      inset 0 3px 4px rgba(255, 255, 255, 0.75);
+      0 8px 18px -2px rgba(234, 179, 8, 0.55),
+      inset 0 -3px 4px rgba(202, 138, 4, 0.28),
+      inset 0 3px 4px rgba(255, 255, 255, 0.85);
   }
   .clay-btn-yellow:active, .btn-cta:active {
     transform: translateY(1px);
     box-shadow: 
-      0 3px 8px -2px rgba(245, 158, 11, 0.35),
-      inset 0 2px 4px rgba(180, 83, 9, 0.3);
+      0 3px 8px -2px rgba(234, 179, 8, 0.35),
+      inset 0 2px 4px rgba(202, 138, 4, 0.3);
   }
 
   /* Circular Clay Button (Icons, notifications, tool buttons) */
@@ -268,18 +321,18 @@ body {
     box-shadow: 0 10px 24px -6px rgba(14, 165, 233, 0.08);
   }
 
-  /* Slightly Dark Golden Yellow-Tinted Surface */
+  /* Banana Yellow-Tinted Surface */
   .card-yellow-subtle {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    border: 1.5px solid #fcd34d;
+    background: linear-gradient(135deg, #fffde7 0%, #fff9c4 100%);
+    border: 1.5px solid #ffe082;
     border-radius: 1.5rem;
-    box-shadow: 0 10px 24px -6px rgba(217, 119, 6, 0.12);
+    box-shadow: 0 10px 24px -6px rgba(254, 225, 53, 0.18);
   }
 
-  /* Slightly Dark Rich Golden Yellow Primary Button */
+  /* Vibrant Banana Yellow Primary Button */
   .btn-yellow-primary {
-    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-    color: #0f172a;
+    background: linear-gradient(135deg, #fff066 0%, #ffe135 60%, #ffd000 100%);
+    color: #1e293b;
     font-weight: 800;
     font-size: 0.92rem;
     letter-spacing: -0.01em;
@@ -287,8 +340,8 @@ body {
     padding: 0.85rem 1.75rem;
     border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow: 
-      0 8px 22px -3px rgba(217, 119, 6, 0.45),
-      inset 0 1px 1px rgba(255, 255, 255, 0.7);
+      0 8px 22px -3px rgba(254, 208, 0, 0.45),
+      inset 0 1px 1px rgba(255, 255, 255, 0.8);
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
@@ -297,10 +350,10 @@ body {
     min-height: 44px; /* Touch friendly on mobile */
   }
   .btn-yellow-primary:hover {
-    background: linear-gradient(135deg, #fcd34d 0%, #b45309 100%);
-    color: #000000;
+    background: linear-gradient(135deg, #fff585 0%, #ffe840 60%, #ffc800 100%);
+    color: #0f172a;
     transform: scale(1.02);
-    box-shadow: 0 12px 28px -3px rgba(217, 119, 6, 0.55);
+    box-shadow: 0 12px 28px -3px rgba(254, 208, 0, 0.55);
   }
   .btn-yellow-primary:active {
     transform: scale(0.97);
@@ -366,7 +419,7 @@ body {
     transform: scale(0.97);
   }
 
-  /* Phone-Optimized Touch Slider (Sky Blue Track with Slightly Dark Golden Yellow Thumb) */
+  /* Phone-Optimized Touch Slider (Sky Blue Track with Banana Yellow Thumb) */
   .slider-sky-yellow {
     -webkit-appearance: none;
     appearance: none;
@@ -383,10 +436,10 @@ body {
     width: 26px; /* Touch-friendly size */
     height: 26px;
     border-radius: 50%;
-    background: #f59e0b;
+    background: #ffe135;
     border: 3px solid #ffffff;
     box-shadow: 
-      0 4px 12px rgba(217, 119, 6, 0.45),
+      0 4px 12px rgba(254, 208, 0, 0.55),
       0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: grab;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -394,7 +447,7 @@ body {
   .slider-sky-yellow::-webkit-slider-thumb:active {
     cursor: grabbing;
     transform: scale(1.2);
-    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.65);
+    box-shadow: 0 6px 16px rgba(254, 208, 0, 0.7);
   }
 
   /* Phone-Friendly Hairline Input (No iOS auto-zoom) */
@@ -434,11 +487,11 @@ body {
     font-weight: 700;
   }
   .segmented-item-yellow-active {
-    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-    color: #0f172a;
+    background: linear-gradient(135deg, #fff066 0%, #ffe135 100%);
+    color: #1e293b;
     border-radius: 9999px;
     box-shadow: 
-      0 3px 8px rgba(217, 119, 6, 0.38),
+      0 3px 8px rgba(254, 208, 0, 0.4),
       0 1px 2px rgba(0, 0, 0, 0.08);
     font-weight: 800;
   }

@@ -14,13 +14,12 @@ function getInitials(name, email) {
   return 'LX';
 }
 
-// Consistent curated gradients based on string hash
 const GRADIENTS = [
-  'from-sky-500 to-indigo-600',
-  'from-blue-600 to-cyan-500',
-  'from-indigo-500 to-purple-600',
+  'from-sky-400 to-blue-600',
+  'from-blue-500 to-cyan-500',
+  'from-teal-400 to-emerald-600',
   'from-teal-500 to-sky-600',
-  'from-sky-600 to-blue-700',
+  'from-sky-500 to-blue-700',
 ];
 
 function getGradient(str) {

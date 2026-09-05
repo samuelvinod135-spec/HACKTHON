@@ -2,7 +2,7 @@ import { Puzzle, Brain, Atom, Rocket, Share2, PenLine } from 'lucide-react';
 
 const GAMES = [
   { name: 'Element Bingo', icon: Puzzle, color: 'from-pink-400 to-rose-500' },
-  { name: 'Atom Builder', icon: Brain, color: 'from-purple-400 to-indigo-500' },
+  { name: 'Atom Builder', icon: Brain, color: 'from-sky-400 to-blue-500' },
   { name: 'Reaction Rush', icon: Atom, color: 'from-orange-400 to-amber-500' },
   { name: 'Launch Physics', icon: Rocket, color: 'from-blue-400 to-cyan-500' },
   { name: 'Lab Connect', icon: Share2, color: 'from-green-400 to-emerald-500' },
@@ -17,7 +17,7 @@ export default function FunGames() {
           <h3 className="text-sm font-bold text-gray-900">Fun Games to Learn</h3>
           <p className="text-[11px] text-gray-400">Play & reinforce concepts</p>
         </div>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 text-purple-500">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
           <Puzzle size={16} />
         </div>
       </div>
@@ -25,7 +25,7 @@ export default function FunGames() {
         {GAMES.map(({ name, icon: Icon, color }) => (
           <button
             key={name}
-            className="group card-3d flex flex-col items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 p-3.5 transition hover:border-purple-200 hover:bg-white"
+            className="group card-3d flex flex-col items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 p-3.5 transition hover:border-sky-200 hover:bg-white"
           >
             <div className={`bg-gradient-to-br ${color} rounded-xl p-2.5 shadow-sm transition group-hover:scale-110`}>
               <Icon size={18} />

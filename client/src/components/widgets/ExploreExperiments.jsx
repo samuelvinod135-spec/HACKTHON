@@ -3,7 +3,7 @@ import { Beaker, Magnet, Atom, Waves, Lightbulb, Dna, FlaskConical, Trophy } fro
 const EXPERIMENTS = [
   { name: 'Magnesium Ribbon Burning', icon: Beaker, color: 'bg-orange-100 text-orange-500' },
   { name: 'Pendulum Motion', icon: Magnet, color: 'bg-blue-100 text-blue-500' },
-  { name: 'Chemical Reactions', icon: FlaskConical, color: 'bg-purple-100 text-purple-500' },
+  { name: 'Chemical Reactions', icon: FlaskConical, color: 'bg-teal-100 text-teal-600' },
   { name: 'Electrolysis of Water', icon: Waves, color: 'bg-cyan-100 text-cyan-500' },
   { name: 'Projectile Launch', icon: Atom, color: 'bg-green-100 text-green-500' },
   { name: 'DNA Extraction', icon: Dna, color: 'bg-pink-100 text-pink-500' },

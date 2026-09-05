@@ -21,7 +21,7 @@ export default function Dashboard() {
       <div className="relative flex flex-col gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900">
-            Welcome back, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{student ? student.name.split(' ')[0] : 'Scholar'}</span>
+            Welcome back, <span className="bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">{student ? student.name.split(' ')[0] : 'Scholar'}</span>
           </h2>
           <p className="mt-0.5 text-xs text-gray-400">Ready to explore the wonders of science today?</p>
         </div>

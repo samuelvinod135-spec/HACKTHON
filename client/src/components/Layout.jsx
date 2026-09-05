@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar.jsx';
 import Header from './Header.jsx';
+import FloatingChatbot from './Chatbot/FloatingChatbot.jsx';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,6 +18,10 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+
+      {/* Floating Physics & Chemistry Virtual Teaching Assistant Chatbot */}
+      <FloatingChatbot />
     </div>
   );
 }
+
