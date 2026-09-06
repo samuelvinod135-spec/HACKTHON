@@ -23,6 +23,8 @@ import SandboxLabPage from './pages/SandboxLabPage.jsx';
 import PeerBattlesPage from './pages/PeerBattlesPage.jsx';
 import SpacedRepetitionPage from './pages/SpacedRepetitionPage.jsx';
 
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+
 // Smart Home: Displays Landing for visitors, redirects or displays Dashboard
 function RootRoute() {
   const { isAuthenticated, loading } = useAuth();
@@ -38,9 +40,10 @@ function RootRoute() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ProgressProvider>
-        <BrowserRouter>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ProgressProvider>
+          <BrowserRouter>
           <Routes>
             {/* Standalone Public Pages */}
             <Route path="/" element={<RootRoute />} />
@@ -78,5 +81,6 @@ export default function App() {
         </BrowserRouter>
       </ProgressProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }

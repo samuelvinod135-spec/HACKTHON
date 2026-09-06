@@ -126,7 +126,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
           {/* Main Navigation */}
           <nav className="flex flex-col gap-1.5">
-            {PRIMARY_MENU.map(({ to, label, icon: Icon }) => (
+            {PRIMARY_MENU.map(({ to, label, icon: Icon, badge }) => (
               <NavLink
                 key={to}
                 to={to}
