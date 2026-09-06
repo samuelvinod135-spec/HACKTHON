@@ -24,11 +24,16 @@ import {
   Flame,
   Plus,
   X,
+  AlertTriangle,
+  MessageSquare,
+  HelpCircle,
+  Lightbulb,
 } from 'lucide-react';
 import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { MATERIAL_CHEMICALS, CATEGORIES, ORGANIC_SUBGROUPS } from '../chemistryData.js';
 import { matchReactionLocally, getReactionCount } from '../data/massiveReactionsData.js';
+import { explainInvalidReaction } from '../utils/invalidReactionExplainer.js';
 import ElementCartoon from './ElementCartoon.jsx';
 
 const DURATION_MS = 5000;
@@ -300,6 +305,123 @@ function ProductVisualObservationStage({ output, simulating, replayingFlare, onR
   );
 }
 
+function formatTheoryText(text) {
+  if (!text) return null;
+  const paragraphs = text.split('\n\n');
+  return paragraphs.map((para, pIdx) => {
+    const parts = para.split(/(\*\*[^*]+\*\*)/g);
+    return (
+      <p key={pIdx} className="text-xs text-slate-700 leading-relaxed font-normal">
+        {parts.map((part, i) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return (
+              <strong key={i} className="font-bold text-slate-900">
+                {part.slice(2, -2)}
+              </strong>
+            );
+          }
+          return part;
+        })}
+      </p>
+    );
+  });
+}
+
+function InvalidReactionCard({ invalidReaction, onAskAiTutor }) {
+  if (!invalidReaction) return null;
+
+  return (
+    <div
+      data-testid="invalid-reaction-card"
+      className="w-full rounded-2xl border-2 border-amber-300/90 bg-white p-4 text-left shadow-lg shadow-amber-100/50 flex flex-col gap-3.5 transition-all"
+    >
+      {/* Header Tag Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-100/80 pb-2.5">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-900 border border-amber-300/80">
+          <AlertTriangle size={13} className="text-amber-700 shrink-0" />
+          <span>Reaction Infeasible</span>
+        </span>
+        {invalidReaction.theoryTag && (
+          <span className="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-1 text-[10px] font-bold text-sky-900 border border-sky-200">
+            {invalidReaction.theoryTag}
+          </span>
+        )}
+      </div>
+
+      {/* Main Title & Summary */}
+      <div>
+        <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+          {invalidReaction.title}
+        </h4>
+        <p className="mt-1.5 text-xs font-semibold text-amber-950 bg-amber-50/90 rounded-xl p-3 border border-amber-200/70 leading-relaxed">
+          {invalidReaction.summary}
+        </p>
+      </div>
+
+      {/* Scientific Theory Breakdown */}
+      <div className="space-y-2 rounded-xl bg-slate-50/90 p-3 border border-slate-200/80">
+        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+          Chemical Theory Breakdown
+        </span>
+        <div className="space-y-2">
+          {formatTheoryText(invalidReaction.scientificExplanation)}
+        </div>
+      </div>
+
+      {/* Key Principles Pills */}
+      {invalidReaction.keyPrinciples && invalidReaction.keyPrinciples.length > 0 && (
+        <div className="space-y-1.5">
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+            Governing Principles
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {invalidReaction.keyPrinciples.map((principle, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center rounded-lg bg-sky-50 px-2.5 py-1 text-[10px] font-bold text-sky-800 border border-sky-200"
+              >
+                {principle}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Suggested Alternatives ("What DOES React?") */}
+      {invalidReaction.suggestedAlternatives && invalidReaction.suggestedAlternatives.length > 0 && (
+        <div className="rounded-xl bg-amber-50/60 p-3 border border-amber-200/70 text-xs text-amber-900 flex items-start gap-2">
+          <Lightbulb size={16} className="text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <span className="font-bold">What will react instead?</span>
+            <ul className="mt-1.5 space-y-1 list-disc list-inside text-[11px] text-amber-800">
+              {invalidReaction.suggestedAlternatives.map((alt, i) => (
+                <li key={i}>{alt}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* In-Context Call to Action (CTA) Button */}
+      <div className="mt-1 pt-3 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium">
+          <HelpCircle size={14} className="text-sky-500 shrink-0" />
+          <span>Need deeper clarity for Class 10–12 exams?</span>
+        </div>
+        <button
+          type="button"
+          onClick={onAskAiTutor}
+          data-testid="ask-ai-tutor-cta"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 active:scale-[0.98] text-white px-4 py-2 text-xs font-black shadow-md shadow-sky-200 transition-all cursor-pointer"
+        >
+          <MessageSquare size={14} />
+          <span>Still confused? Ask the AI Tutor 💬</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
   const { record } = useProgress();
 
@@ -316,6 +438,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
   const [inputs, setInputs] = useState([]);
   const [arrow, setArrow] = useState({ placed: false, conditions: [] });
   const [output, setOutput] = useState(null);
+  const [invalidReaction, setInvalidReaction] = useState(null);
   const [simulating, setSimulating] = useState(false);
   const [replayingFlare, setReplayingFlare] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -323,7 +446,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
   const [dragOverInput, setDragOverInput] = useState(false);
   const [dragOverArrow, setDragOverArrow] = useState(false);
   const [lastError, setLastError] = useState('');
-  const [showHelp, setShowHelp] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Reset pagination limit when search or filters change
   useEffect(() => {
@@ -349,6 +472,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
     const id = e.dataTransfer.getData('application/labxplore-mat');
     const m = MATERIAL_CHEMICALS.find((x) => x.id === id);
     if (!m) return;
+    setInvalidReaction(null);
     setInputs((prev) =>
       prev.some((x) => x.formula.toLowerCase() === m.formula.toLowerCase())
         ? prev
@@ -362,6 +486,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
     const id = e.dataTransfer.getData('application/labxplore-mat');
     const m = MATERIAL_CHEMICALS.find((x) => x.id === id && x.arrow);
     if (!m) return;
+    setInvalidReaction(null);
     setArrow((prev) => ({
       placed: true,
       conditions: prev.conditions.includes(m.arrow) ? prev.conditions : [...prev.conditions, m.arrow],
@@ -370,6 +495,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
 
   const handleItemClick = (m) => {
     if (m.arrow) {
+      setInvalidReaction(null);
       setArrow((prev) => ({
         placed: true,
         conditions: prev.conditions.includes(m.arrow) ? prev.conditions : [...prev.conditions, m.arrow],
@@ -377,25 +503,33 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
       return;
     }
     if (inputs.some((x) => x.formula.toLowerCase() === m.formula.toLowerCase())) return;
+    setInvalidReaction(null);
     setInputs((prev) => [...prev, { id: m.id, formula: m.formula, tone: m.tone, phase: m.phase }]);
   };
 
   const removeInput = (formula) => {
     setInputs((prev) => prev.filter((x) => x.formula.toLowerCase() !== formula.toLowerCase()));
     setOutput(null);
+    setInvalidReaction(null);
   };
 
   const clearAllInputs = () => {
     setInputs([]);
     setOutput(null);
+    setInvalidReaction(null);
     setLastError('');
   };
 
-  const clearConditions = () => setArrow((prev) => ({ ...prev, conditions: [] }));
+  const clearConditions = () => {
+    setArrow((prev) => ({ ...prev, conditions: [] }));
+    setInvalidReaction(null);
+  };
 
   const run = useCallback(async () => {
     if (simulating) return;
+    setShowHelp(false);
     setOutput(null);
+    setInvalidReaction(null);
     setLastError('');
     const inFormulas = inputs.map((i) => i.formula);
     const conds = arrow.conditions;
@@ -414,7 +548,8 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
       }
     }
     if (!match) {
-      setLastError('No reaction found for these reactants. Try adding other chemicals or an action arrow (Heat, Light, etc.).');
+      const explanation = explainInvalidReaction(inputs, arrow.conditions);
+      setInvalidReaction(explanation);
       return;
     }
     setOutput(match);
@@ -437,6 +572,31 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
     };
     rafRef.current = requestAnimationFrame(tick);
   }, [simulating, inputs, arrow.conditions, record]);
+
+  const handleAskAiTutor = useCallback(() => {
+    if (!invalidReaction) return;
+    const reactantLabels = inputs.map((i) => {
+      const mat = MATERIAL_CHEMICALS.find((m) => m.formula.toLowerCase() === i.formula.toLowerCase());
+      return mat ? `${mat.name} (${mat.formula})` : i.formula;
+    });
+
+    window.dispatchEvent(
+      new CustomEvent('labxplore:chemistry-invalid-reaction', {
+        detail: {
+          reactants: reactantLabels,
+          formulas: inputs.map((i) => i.formula),
+          conditions: arrow.conditions,
+          title: invalidReaction.title,
+          theoryTag: invalidReaction.theoryTag,
+          summary: invalidReaction.summary,
+          scientificExplanation: invalidReaction.scientificExplanation,
+          keyPrinciples: invalidReaction.keyPrinciples,
+          suggestedAlternatives: invalidReaction.suggestedAlternatives,
+          teacherIntro: invalidReaction.teacherIntro,
+        },
+      })
+    );
+  }, [invalidReaction, inputs, arrow.conditions]);
 
   useEffect(() => () => { cancelAnimationFrame(rafRef.current); runId.current++; }, []);
 
@@ -716,11 +876,17 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
                   const meta = productMeta(p);
                   return <MaterialBadge key={p} formula={meta.formula} tone={meta.tone} phase={meta.phase} size="lg" />;
                 })}
-                {!output && (
+                {!output && !invalidReaction && (
                   <div className="m-auto text-center text-slate-400 py-10">
                     <Sparkles size={30} className="mx-auto opacity-50" />
                     <p className="mt-2 text-xs font-medium text-slate-600">Products will appear here</p>
                   </div>
+                )}
+                {!output && invalidReaction && (
+                  <InvalidReactionCard
+                    invalidReaction={invalidReaction}
+                    onAskAiTutor={handleAskAiTutor}
+                  />
                 )}
               </div>
 

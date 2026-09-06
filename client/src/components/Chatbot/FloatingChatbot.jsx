@@ -602,12 +602,54 @@ export default function FloatingChatbot() {
       triggerToast('📌 Question pinned to your Notepad!');
     };
 
+    // 3. Listen for "Chemistry Invalid Reaction" Context Handoff from Drag & Drop Lab
+    const handleInvalidReactionEvent = (event) => {
+      const {
+        reactants = [],
+        formulas = [],
+        title = '',
+        theoryTag = '',
+        summary = '',
+        scientificExplanation = '',
+        keyPrinciples = [],
+        suggestedAlternatives = [],
+        teacherIntro = '',
+      } = event.detail || {};
+
+      setIsOpen(true);
+      setActiveTab('chat');
+      setHasUnread(false);
+
+      const reactantNames = reactants.length > 0 ? reactants.join(' and ') : 'these chemicals';
+      const introMsg = teacherIntro || `I see you tried to mix ${reactantNames}. Let's break down why that doesn't work. What part is confusing you?`;
+
+      const teacherCard = {
+        id: `teacher-${Date.now()}`,
+        sender: 'assistant',
+        text: `🧪 **Chemistry Teacher Assistant**\n\n${introMsg}\n\n**Core Scientific Roadblock:**\n• **Theory:** ${theoryTag || 'Thermodynamically / Kinetically Infeasible'}\n• **Summary:** ${summary}\n\n${keyPrinciples.length > 0 ? `**Key Principles:**\n${keyPrinciples.map(p => `• ${p}`).join('\n')}\n\n` : ''}Feel free to ask any question about the reactivity series, activation energy, electron transfer, or thermodynamics!`,
+        timestamp: new Date().toISOString(),
+        isScienceRelated: true,
+      };
+
+      setMessages((prev) => [...prev, teacherCard]);
+
+      // Set contextual suggested prompt chips for this failed reaction
+      setSuggestedPrompts([
+        `Why is ΔG positive for mixing ${reactantNames}?`,
+        `What will ${reactants[0] || 'the first chemical'} actually react with?`,
+        `Can extreme heat or a catalyst make them react?`,
+        `Explain the reactivity series rules for this combination.`,
+      ]);
+    };
+
     window.addEventListener('labxplore:ask-ai', handleAskAiEvent);
     window.addEventListener('labxplore:pin-note', handlePinNoteEvent);
+    window.addEventListener('labxplore:chemistry-invalid-reaction', handleInvalidReactionEvent);
 
     return () => {
       window.removeEventListener('labxplore:ask-ai', handleAskAiEvent);
       window.removeEventListener('labxplore:pin-note', handlePinNoteEvent);
+      window.removeEventListener('labxplore:chemistry-invalid-reaction', handleInvalidReactionEvent);
     };
   }, []);
 
