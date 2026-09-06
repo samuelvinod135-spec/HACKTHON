@@ -1,4 +1,5 @@
-import { NavLink, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   FlaskConical,
   Home,
@@ -19,6 +20,9 @@ import {
   Sliders,
   Swords,
   Brain,
+  GripVertical,
+  Sparkles,
+  ChevronDown,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -56,8 +60,28 @@ export function LabXploreLogo() {
 const PRIMARY_MENU = [
   { to: '/dashboard', label: 'Home', icon: Home },
   { to: '/physics', label: 'Physics Lab', icon: Atom },
-  { to: '/chemistry', label: 'Chemistry Lab', icon: FlaskConical },
-  { to: '/organic', label: 'Organic Chemistry', icon: FlaskConical, badge: '2,209 Rx' },
+  {
+    to: '/chemistry',
+    label: 'Chemistry Lab',
+    icon: FlaskConical,
+    badge: '2 Modes',
+    subItems: [
+      {
+        to: '/chemistry?tab=drag-and-drop',
+        matchTab: 'drag-and-drop',
+        label: 'Drag & Drop Lab',
+        icon: GripVertical,
+        badge: 'Canvas',
+      },
+      {
+        to: '/chemistry?tab=organic',
+        matchTab: 'organic',
+        label: 'Organic Chemistry',
+        icon: Sparkles,
+        badge: '2,209 Rx',
+      },
+    ],
+  },
   { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
   { to: '/daily-challenge', label: 'Daily Challenge', icon: Zap },
   { to: '/mock-tests', label: 'Mock Tests', icon: GraduationCap },
@@ -84,6 +108,8 @@ const SECONDARY_MENU = [
 export default function Sidebar({ isOpen, onClose }) {
   const { student } = useProgress();
   const { profile } = useAuth();
+  const location = useLocation();
+  const [chemExpanded, setChemExpanded] = useState(true);
 
   const xp = profile?.xp ?? (student ? student.xp : 0);
   const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
@@ -92,6 +118,9 @@ export default function Sidebar({ isOpen, onClose }) {
   const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
   const avatarUrl = profile?.avatar_url || '';
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
+
+  const isChemRoute = location.pathname.startsWith('/chemistry') || location.pathname === '/organic';
+  const currentTab = new URLSearchParams(location.search).get('tab') || (location.pathname === '/organic' ? 'organic' : 'drag-and-drop');
 
   return (
     <>
@@ -126,30 +155,120 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
           {/* Main Navigation */}
           <nav className="flex flex-col gap-1.5">
-            {PRIMARY_MENU.map(({ to, label, icon: Icon, badge }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
-                    isActive
-                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
-                  }`
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <Icon size={17} />
-                  <span>{label}</span>
-                </div>
-                {badge && (
-                  <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
-                    {badge}
-                  </span>
-                )}
-              </NavLink>
-            ))}
+            {PRIMARY_MENU.map(({ to, label, icon: Icon, badge, subItems }) => {
+              if (subItems) {
+                const isMainActive = isChemRoute;
+                return (
+                  <div key={to} className="flex flex-col gap-1">
+                    <div
+                      className={`flex items-center justify-between rounded-2xl px-4 py-2 text-xs font-semibold transition ${
+                        isMainActive
+                          ? 'bg-sky-50/90 text-sky-900 font-bold border border-sky-200/80 shadow-xs'
+                          : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                      }`}
+                    >
+                      <Link
+                        to={to}
+                        onClick={onClose}
+                        className="flex flex-1 items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon size={17} className={isMainActive ? 'text-sky-600' : ''} />
+                          <span>{label}</span>
+                        </div>
+                        {badge && (
+                          <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs mr-1">
+                            {badge}
+                          </span>
+                        )}
+                      </Link>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setChemExpanded((prev) => !prev);
+                        }}
+                        className="p-1 rounded-lg hover:bg-slate-200/60 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                        title="Toggle sub-pages"
+                      >
+                        <ChevronDown
+                          size={14}
+                          className={`transition-transform duration-200 ${
+                            chemExpanded ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {chemExpanded && (
+                      <div className="ml-4 pl-3 border-l-2 border-sky-100 flex flex-col gap-1 my-0.5">
+                        {subItems.map((sub) => {
+                          const isSubActive =
+                            isChemRoute &&
+                            (currentTab === sub.matchTab ||
+                              (sub.matchTab === 'organic' &&
+                                (currentTab === 'inorganic' || currentTab === 'periodic')));
+                          const SubIcon = sub.icon;
+
+                          return (
+                            <Link
+                              key={sub.to}
+                              to={sub.to}
+                              onClick={onClose}
+                              className={`flex items-center justify-between rounded-xl px-3 py-1.5 text-[11px] font-bold transition ${
+                                isSubActive
+                                  ? 'bg-gradient-to-r from-yellow-300 to-amber-300 text-slate-950 font-black shadow-xs border border-yellow-400/60'
+                                  : 'text-slate-500 hover:bg-sky-50 hover:text-sky-900'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <SubIcon size={13} />
+                                <span>{sub.label}</span>
+                              </div>
+                              {sub.badge && (
+                                <span
+                                  className={`rounded px-1.5 py-0.5 text-[8px] font-black uppercase ${
+                                    isSubActive
+                                      ? 'bg-slate-900 text-yellow-300'
+                                      : 'bg-sky-100 text-sky-800'
+                                  }`}
+                                >
+                                  {sub.badge}
+                                </span>
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                      isActive
+                        ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                    }`
+                  }
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon size={17} />
+                    <span>{label}</span>
+                  </div>
+                  {badge && (
+                    <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
+                      {badge}
+                    </span>
+                  )}
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* Hackathon Innovations Navigation */}
