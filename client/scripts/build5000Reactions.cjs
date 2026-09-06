@@ -1,4 +1,12 @@
-// Master Massive Reactions Database (>5,000 Reactions)
+const fs = require('fs');
+const path = require('path');
+
+const clientOutput = path.resolve(__dirname, '../src/data/massiveReactionsData.js');
+const serverOutput = path.resolve(__dirname, '../../server/src/reactions/massiveReactionsData.js');
+
+console.log('Generating 5,000+ Class 10-12 NCERT chemical reactions...');
+
+const scriptContent = `// Master Massive Reactions Database (>5,000 Reactions)
 // Comprehensive Class 10 to Class 12 NCERT, CBSE, JEE & NEET Chemistry Curriculum:
 // - Class 10: Chemical Reactions & Equations, Acids Bases Salts, Metals & Non-metals, Carbon & Compounds
 // - Class 11: Redox, Hydrogen, s-Block, p-Block, Hydrocarbons, GOC, Environmental Chemistry
@@ -660,16 +668,16 @@ export function generateAllReactions() {
     const cV = cat.val;
     const aV = an.val;
 
-    if (cV === aV) return `${cSym}${aSym}`;
-    if (cV === 1 && aV === 2) return `${cSym}2${aSym}`;
-    if (cV === 1 && aV === 3) return `${cSym}3${aSym}`;
-    if (cV === 2 && aV === 1) return `${cSym}(${aSym})2`;
-    if (cV === 2 && aV === 3) return `${cSym}3(${aSym})2`;
-    if (cV === 3 && aV === 1) return `${cSym}(${aSym})3`;
-    if (cV === 3 && aV === 2) return `${cSym}2(${aSym})3`;
-    if (cV === 4 && aV === 1) return `${cSym}(${aSym})4`;
-    if (cV === 4 && aV === 2) return `${cSym}(${aSym})2`;
-    return `${cSym}${aSym}`;
+    if (cV === aV) return \`\${cSym}\${aSym}\`;
+    if (cV === 1 && aV === 2) return \`\${cSym}2\${aSym}\`;
+    if (cV === 1 && aV === 3) return \`\${cSym}3\${aSym}\`;
+    if (cV === 2 && aV === 1) return \`\${cSym}(\${aSym})2\`;
+    if (cV === 2 && aV === 3) return \`\${cSym}3(\${aSym})2\`;
+    if (cV === 3 && aV === 1) return \`\${cSym}(\${aSym})3\`;
+    if (cV === 3 && aV === 2) return \`\${cSym}2(\${aSym})3\`;
+    if (cV === 4 && aV === 1) return \`\${cSym}(\${aSym})4\`;
+    if (cV === 4 && aV === 2) return \`\${cSym}(\${aSym})2\`;
+    return \`\${cSym}\${aSym}\`;
   }
 
   // --- A. Acid-Base Neutralization Matrix (~625 reactions) ---
@@ -733,18 +741,18 @@ export function generateAllReactions() {
     BASES.forEach((base, bIdx) => {
       const salt = makeFormula(base.cat, acid.anion);
       addRx({
-        id: `rx_neut_${aIdx}_${bIdx}`,
-        name: `Neutralization: ${acid.name} + ${base.name}`,
+        id: \`rx_neut_\${aIdx}_\${bIdx}\`,
+        name: \`Neutralization: \${acid.name} + \${base.name}\`,
         category: 'Acids & Bases (Neutralization)',
         inputs: [acid.formula, base.formula],
         conditions: [],
         outputs: [salt, 'H2O'],
         products: [salt, 'H2O'],
-        equation: `${acid.formula} + ${base.formula} ──► ${salt} + H₂O`,
+        equation: \`\${acid.formula} + \${base.formula} ──► \${salt} + H₂O\`,
         type: 'Acid-Base Neutralization (Exothermic)',
         color: '#38bdf8',
         observation: 'heat_evolution',
-        description: `Exothermic neutralization producing ${salt} salt and water with enthalpy release.`,
+        description: \`Exothermic neutralization producing \${salt} salt and water with enthalpy release.\`,
         jeeRelevance: 'Standard enthalpy of neutralization (-57.1 kJ/mol)',
         xp: 120,
       });
@@ -775,18 +783,18 @@ export function generateAllReactions() {
       // 1. Reacting with Na salt
       const naSalt = makeFormula({ sym: 'Na', val: 1 }, an);
       addRx({
-        id: `rx_precip_na_${cIdx}_${aIdx}`,
-        name: `Precipitation of ${cat.name} ${an.name} (Sodium Reagent)`,
+        id: \`rx_precip_na_\${cIdx}_\${aIdx}\`,
+        name: \`Precipitation of \${cat.name} \${an.name} (Sodium Reagent)\`,
         category: 'Precipitation & Salt Matrix',
         inputs: [catNO3, naSalt],
         conditions: [],
         outputs: [insoluble, 'NaNO3'],
         products: [insoluble, 'NaNO3'],
-        equation: `${catNO3} + ${naSalt} ──► ${insoluble}↓ + NaNO₃`,
+        equation: \`\${catNO3} + \${naSalt} ──► \${insoluble}↓ + NaNO₃\`,
         type: 'Double Displacement Precipitation',
         color: obsColor.includes('yellow') ? '#facc15' : obsColor.includes('blue') ? '#0284c7' : obsColor.includes('black') ? '#0f172a' : '#e2e8f0',
         observation: obsColor,
-        description: `Double displacement yields insoluble ${insoluble} precipitate.`,
+        description: \`Double displacement yields insoluble \${insoluble} precipitate.\`,
         jeeRelevance: 'Inorganic qualitative salt analysis',
         xp: 130,
       });
@@ -794,18 +802,18 @@ export function generateAllReactions() {
       // 2. Reacting with K salt
       const kSalt = makeFormula({ sym: 'K', val: 1 }, an);
       addRx({
-        id: `rx_precip_k_${cIdx}_${aIdx}`,
-        name: `Precipitation: ${cat.name} Chloride + Potassium ${an.name}`,
+        id: \`rx_precip_k_\${cIdx}_\${aIdx}\`,
+        name: \`Precipitation: \${cat.name} Chloride + Potassium \${an.name}\`,
         category: 'Precipitation & Salt Matrix',
         inputs: [catCl, kSalt],
         conditions: [],
         outputs: [insoluble, 'KCl'],
         products: [insoluble, 'KCl'],
-        equation: `${catCl} + ${kSalt} ──► ${insoluble}↓ + KCl`,
+        equation: \`\${catCl} + \${kSalt} ──► \${insoluble}↓ + KCl\`,
         type: 'Double Displacement Precipitation',
         color: '#e2e8f0',
         observation: obsColor,
-        description: `Mixing solutions precipitates insoluble ${insoluble}.`,
+        description: \`Mixing solutions precipitates insoluble \${insoluble}.\`,
         jeeRelevance: 'Solubility product (Ksp) analytical equilibria',
         xp: 130,
       });
@@ -813,18 +821,18 @@ export function generateAllReactions() {
       // 3. Reacting with NH4 salt
       const nh4Salt = makeFormula({ sym: 'NH4', val: 1 }, an);
       addRx({
-        id: `rx_precip_nh4_${cIdx}_${aIdx}`,
-        name: `Precipitation: ${cat.name} Sulphate + Ammonium ${an.name}`,
+        id: \`rx_precip_nh4_\${cIdx}_\${aIdx}\`,
+        name: \`Precipitation: \${cat.name} Sulphate + Ammonium \${an.name}\`,
         category: 'Precipitation & Salt Matrix',
         inputs: [catSO4, nh4Salt],
         conditions: [],
         outputs: [insoluble, '(NH4)2SO4'],
         products: [insoluble, '(NH4)2SO4'],
-        equation: `${catSO4} + ${nh4Salt} ──► ${insoluble}↓ + (NH₄)₂SO₄`,
+        equation: \`\${catSO4} + \${nh4Salt} ──► \${insoluble}↓ + (NH₄)₂SO₄\`,
         type: 'Double Displacement Precipitation',
         color: '#cbd5e1',
         observation: obsColor,
-        description: `Ammonium reagent triggers crystal precipitation of ${insoluble}.`,
+        description: \`Ammonium reagent triggers crystal precipitation of \${insoluble}.\`,
         jeeRelevance: 'Group separation of basic radicals',
         xp: 130,
       });
@@ -832,18 +840,18 @@ export function generateAllReactions() {
       // 4. Reacting with Ba / Ca cross salts
       if (an.sym === 'SO4' || an.sym === 'CO3' || an.sym === 'PO4' || an.sym === 'CrO4') {
         addRx({
-          id: `rx_precip_cross_${cIdx}_${aIdx}`,
-          name: `Double Displacement: ${cat.name} Nitrate + Barium ${an.name}`,
+          id: \`rx_precip_cross_\${cIdx}_\${aIdx}\`,
+          name: \`Double Displacement: \${cat.name} Nitrate + Barium \${an.name}\`,
           category: 'Precipitation & Salt Matrix',
-          inputs: [catNO3, `Ba${an.sym}`],
+          inputs: [catNO3, \`Ba\${an.sym}\`],
           conditions: [],
           outputs: [insoluble, 'Ba(NO3)2'],
           products: [insoluble, 'Ba(NO3)2'],
-          equation: `${catNO3} + Ba${an.sym} ──► ${insoluble}↓ + Ba(NO₃)₂`,
+          equation: \`\${catNO3} + Ba\${an.sym} ──► \${insoluble}↓ + Ba(NO₃)₂\`,
           type: 'Double Displacement Salt Exchange',
           color: '#e2e8f0',
           observation: obsColor,
-          description: `Exchange of anion radicals precipitates ${insoluble}.`,
+          description: \`Exchange of anion radicals precipitates \${insoluble}.\`,
           jeeRelevance: 'Inorganic salt identification',
           xp: 130,
         });
@@ -852,18 +860,18 @@ export function generateAllReactions() {
       // 5. Reacting with Calcium Reagent
       const caSalt = makeFormula({ sym: 'Ca', val: 2 }, an);
       addRx({
-        id: `rx_precip_ca_${cIdx}_${aIdx}`,
-        name: `Precipitation: ${cat.name} Nitrate + Calcium ${an.name}`,
+        id: \`rx_precip_ca_\${cIdx}_\${aIdx}\`,
+        name: \`Precipitation: \${cat.name} Nitrate + Calcium \${an.name}\`,
         category: 'Precipitation & Salt Matrix',
         inputs: [catNO3, caSalt],
         conditions: [],
         outputs: [insoluble, 'Ca(NO3)2'],
         products: [insoluble, 'Ca(NO3)2'],
-        equation: `${catNO3} + ${caSalt} ──► ${insoluble}↓ + Ca(NO₃)₂`,
+        equation: \`\${catNO3} + \${caSalt} ──► \${insoluble}↓ + Ca(NO₃)₂\`,
         type: 'Double Displacement Salt Exchange',
         color: '#e2e8f0',
         observation: obsColor,
-        description: `Calcium salt exchange precipitates ${insoluble}.`,
+        description: \`Calcium salt exchange precipitates \${insoluble}.\`,
         jeeRelevance: 'Qualitative analysis group separation',
         xp: 130,
       });
@@ -871,18 +879,18 @@ export function generateAllReactions() {
       // 6. Reacting with Magnesium Reagent
       const mgSalt = makeFormula({ sym: 'Mg', val: 2 }, an);
       addRx({
-        id: `rx_precip_mg_${cIdx}_${aIdx}`,
-        name: `Precipitation: ${cat.name} Nitrate + Magnesium ${an.name}`,
+        id: \`rx_precip_mg_\${cIdx}_\${aIdx}\`,
+        name: \`Precipitation: \${cat.name} Nitrate + Magnesium \${an.name}\`,
         category: 'Precipitation & Salt Matrix',
         inputs: [catNO3, mgSalt],
         conditions: [],
         outputs: [insoluble, 'Mg(NO3)2'],
         products: [insoluble, 'Mg(NO3)2'],
-        equation: `${catNO3} + ${mgSalt} ──► ${insoluble}↓ + Mg(NO₃)₂`,
+        equation: \`\${catNO3} + \${mgSalt} ──► \${insoluble}↓ + Mg(NO₃)₂\`,
         type: 'Double Displacement Salt Exchange',
         color: '#e2e8f0',
         observation: obsColor,
-        description: `Magnesium salt exchange precipitates ${insoluble}.`,
+        description: \`Magnesium salt exchange precipitates \${insoluble}.\`,
         jeeRelevance: 'Qualitative analysis group separation',
         xp: 130,
       });
@@ -914,18 +922,18 @@ export function generateAllReactions() {
       const salt = makeFormula(gs.cat, acid.anion);
       const obs = gs.gas === 'CO2' ? 'bubbling' : gs.gas === 'H2S' ? 'rotten_egg' : 'pungent_gas';
       addRx({
-        id: `rx_gas_efferv_${gIdx}_${aIdx}`,
-        name: `Effervescence: ${gs.name} + ${acid.name}`,
+        id: \`rx_gas_efferv_\${gIdx}_\${aIdx}\`,
+        name: \`Effervescence: \${gs.name} + \${acid.name}\`,
         category: 'General Organic Chemistry (GOC)',
         inputs: [gs.formula, acid.formula],
         conditions: [],
         outputs: [salt, gs.gas, 'H2O'],
         products: [salt, gs.gas, 'H2O'],
-        equation: `${gs.formula} + ${acid.formula} ──► ${salt} + ${gs.gas}↑ + H₂O`,
+        equation: \`\${gs.formula} + \${acid.formula} ──► \${salt} + \${gs.gas}↑ + H₂O\`,
         type: 'Acid-Salt Gas Liberation',
         color: '#e0f2fe',
         observation: obs,
-        description: `Liberation of ${gs.gas} gas with rapid effervescence.`,
+        description: \`Liberation of \${gs.gas} gas with rapid effervescence.\`,
         jeeRelevance: 'Analytical acid radical detection tests',
         xp: 140,
       });
@@ -956,52 +964,52 @@ export function generateAllReactions() {
     METALS.forEach((m2) => {
       if (m1.rank < m2.rank) {
         addRx({
-          id: `rx_disp_so4_${m1.sym}_${m2.sym}`,
-          name: `Displacement: ${m1.name} + ${m2.name} Sulphate`,
+          id: \`rx_disp_so4_\${m1.sym}_\${m2.sym}\`,
+          name: \`Displacement: \${m1.name} + \${m2.name} Sulphate\`,
           category: 'Metals & Non-metals',
-          inputs: [m1.sym, `${m2.sym}SO4`],
+          inputs: [m1.sym, \`\${m2.sym}SO4\`],
           conditions: [],
-          outputs: [`${m1.sym}SO4`, m2.sym],
-          products: [`${m1.sym}SO4`, m2.sym],
-          equation: `${m1.sym} + ${m2.sym}SO₄ ──► ${m1.sym}SO₄ + ${m2.sym}`,
+          outputs: [\`\${m1.sym}SO4\`, m2.sym],
+          products: [\`\${m1.sym}SO4\`, m2.sym],
+          equation: \`\${m1.sym} + \${m2.sym}SO₄ ──► \${m1.sym}SO₄ + \${m2.sym}\`,
           type: 'Single Metal Displacement',
           color: '#38bdf8',
           observation: 'color_change_displacement',
-          description: `More reactive ${m1.name} reduces ${m2.name} ions, depositing elemental ${m2.name}.`,
+          description: \`More reactive \${m1.name} reduces \${m2.name} ions, depositing elemental \${m2.name}.\`,
           jeeRelevance: 'Electrochemical series & standard reduction potentials',
           xp: 150,
         });
 
         addRx({
-          id: `rx_disp_cl_${m1.sym}_${m2.sym}`,
-          name: `Displacement: ${m1.name} + ${m2.name} Chloride`,
+          id: \`rx_disp_cl_\${m1.sym}_\${m2.sym}\`,
+          name: \`Displacement: \${m1.name} + \${m2.name} Chloride\`,
           category: 'Metals & Non-metals',
-          inputs: [m1.sym, `${m2.sym}Cl2`],
+          inputs: [m1.sym, \`\${m2.sym}Cl2\`],
           conditions: [],
-          outputs: [`${m1.sym}Cl`, m2.sym],
-          products: [`${m1.sym}Cl`, m2.sym],
-          equation: `${m1.sym} + ${m2.sym}Cl₂ ──► ${m1.sym}Cl + ${m2.sym}`,
+          outputs: [\`\${m1.sym}Cl\`, m2.sym],
+          products: [\`\${m1.sym}Cl\`, m2.sym],
+          equation: \`\${m1.sym} + \${m2.sym}Cl₂ ──► \${m1.sym}Cl + \${m2.sym}\`,
           type: 'Single Metal Displacement',
           color: '#0284c7',
           observation: 'color_change_displacement',
-          description: `Redox displacement depositing free ${m2.name} metal.`,
+          description: \`Redox displacement depositing free \${m2.name} metal.\`,
           jeeRelevance: 'Reactivity series hierarchy',
           xp: 150,
         });
 
         addRx({
-          id: `rx_disp_no3_${m1.sym}_${m2.sym}`,
-          name: `Displacement: ${m1.name} + ${m2.name} Nitrate`,
+          id: \`rx_disp_no3_\${m1.sym}_\${m2.sym}\`,
+          name: \`Displacement: \${m1.name} + \${m2.name} Nitrate\`,
           category: 'Metals & Non-metals',
-          inputs: [m1.sym, `${m2.sym}(NO3)2`],
+          inputs: [m1.sym, \`\${m2.sym}(NO3)2\`],
           conditions: [],
-          outputs: [`${m1.sym}NO3`, m2.sym],
-          products: [`${m1.sym}NO3`, m2.sym],
-          equation: `${m1.sym} + ${m2.sym}(NO₃)₂ ──► ${m1.sym}NO₃ + ${m2.sym}`,
+          outputs: [\`\${m1.sym}NO3\`, m2.sym],
+          products: [\`\${m1.sym}NO3\`, m2.sym],
+          equation: \`\${m1.sym} + \${m2.sym}(NO₃)₂ ──► \${m1.sym}NO₃ + \${m2.sym}\`,
           type: 'Single Metal Displacement',
           color: '#60a5fa',
           observation: 'color_change_displacement',
-          description: `Precipitation of elemental ${m2.name} crystals.`,
+          description: \`Precipitation of elemental \${m2.name} crystals.\`,
           jeeRelevance: 'Standard galvanic displacement',
           xp: 150,
         });
@@ -1041,21 +1049,21 @@ export function generateAllReactions() {
 
   DIAZONIUM_SALTS.forEach((dz, dzIdx) => {
     DIAZONIUM_REAGENTS.forEach((dr, drIdx) => {
-      const prodFormula = `${dz.ring}${dr.productGroup}`;
+      const prodFormula = \`\${dz.ring}\${dr.productGroup}\`;
       const inputs = dr.acid ? [dz.formula, dr.reagent, dr.acid] : [dz.formula, dr.reagent];
       addRx({
-        id: `rx_dz_${dzIdx}_${drIdx}`,
-        name: `${dr.name} of ${dz.name}`,
+        id: \`rx_dz_\${dzIdx}_\${drIdx}\`,
+        name: \`\${dr.name} of \${dz.name}\`,
         category: 'Diazonium & Benzene',
         inputs,
         conditions: dr.acid.includes('heat') ? ['heat'] : [],
         outputs: [prodFormula, 'N2'],
         products: [prodFormula, 'N2'],
-        equation: `${dz.formula} + ${dr.reagent} ──► ${prodFormula} + N₂↑`,
+        equation: \`\${dz.formula} + \${dr.reagent} ──► \${prodFormula} + N₂↑\`,
         type: 'Aromatic Diazonium Replacement',
         color: dr.color,
         observation: dr.obs,
-        description: `Diazonium displacement yields substituted aromatic ${prodFormula} with N2 evolution.`,
+        description: \`Diazonium displacement yields substituted aromatic \${prodFormula} with N2 evolution.\`,
         jeeRelevance: 'Crucial JEE Class 12 Amines & Diazonium Synthesis',
         xp: 220,
       });
@@ -1099,7 +1107,7 @@ export function generateAllReactions() {
 
   CARBONYLS.forEach((cb, cIdx) => {
     CARBONYL_REAGENTS.forEach((cr, crIdx) => {
-      const prodName = `${cb.name} ${cr.tag}`;
+      const prodName = \`\${cb.name} \${cr.tag}\`;
       const inputs = cr.formula === 'I2' ? [cb.formula, 'I2', 'NaOH'] :
                      cr.formula === 'AgNO3' ? [cb.formula, 'AgNO3', 'NH4OH'] :
                      cr.formula === 'CuSO4' ? [cb.formula, 'CuSO4', 'NaOH'] :
@@ -1107,18 +1115,18 @@ export function generateAllReactions() {
                      [cb.formula, cr.formula];
 
       addRx({
-        id: `rx_cb_${cIdx}_${crIdx}`,
-        name: `Reaction: ${cb.name} + ${cr.name}`,
+        id: \`rx_cb_\${cIdx}_\${crIdx}\`,
+        name: \`Reaction: \${cb.name} + \${cr.name}\`,
         category: 'Aldehydes & Ketones',
         inputs,
         conditions: cr.formula === 'CuSO4' ? ['heat'] : [],
-        outputs: [`${cb.formula}_${cr.formula}_product`],
-        products: [`${cb.formula}_${cr.formula}_product`],
-        equation: `${cb.formula} + ${cr.formula} ──► ${prodName}`,
+        outputs: [\`\${cb.formula}_\${cr.formula}_product\`],
+        products: [\`\${cb.formula}_\${cr.formula}_product\`],
+        equation: \`\${cb.formula} + \${cr.formula} ──► \${prodName}\`,
         type: 'Nucleophilic Carbonyl Addition / Oxidation',
         color: cr.color,
         observation: cr.obs,
-        description: `Reaction of ${cb.name} with ${cr.name} yielding ${prodName}.`,
+        description: \`Reaction of \${cb.name} with \${cr.name} yielding \${prodName}.\`,
         jeeRelevance: 'Class 12 Aldehydes, Ketones & Carboxylic Acids',
         xp: 230,
       });
@@ -1167,26 +1175,26 @@ export function generateAllReactions() {
 
   ALKYL_HALIDES_EXPANDED.forEach((ah, ahIdx) => {
     HALIDE_NUCLEOPHILES.forEach((hn, hnIdx) => {
-      const prod = hn.prodGroup === 'Dimer' ? `${ah.r}-${ah.r}` :
-                   hn.prodGroup === 'MgX' ? `${ah.r}Mg${ah.x}` :
-                   `${ah.r}${hn.prodGroup}`;
+      const prod = hn.prodGroup === 'Dimer' ? \`\${ah.r}-\${ah.r}\` :
+                   hn.prodGroup === 'MgX' ? \`\${ah.r}Mg\${ah.x}\` :
+                   \`\${ah.r}\${hn.prodGroup}\`;
       const inputs = [ah.formula, hn.nuc];
       if (hn.nuc === 'NaI') inputs.push('acetone');
       if (hn.nuc === 'Mg' || hn.nuc === 'Na') inputs.push('dry_ether');
 
       addRx({
-        id: `rx_sn_${ahIdx}_${hnIdx}`,
-        name: `${hn.name} from ${ah.name}`,
+        id: \`rx_sn_\${ahIdx}_\${hnIdx}\`,
+        name: \`\${hn.name} from \${ah.name}\`,
         category: 'Haloalkanes & Haloarenes',
         inputs,
         conditions: hn.cond,
         outputs: [prod],
         products: [prod],
-        equation: `${ah.formula} + ${hn.nuc} ──► ${prod}`,
+        equation: \`\${ah.formula} + \${hn.nuc} ──► \${prod}\`,
         type: 'Nucleophilic Substitution / Organometallic',
         color: hn.color,
         observation: hn.obs,
-        description: `Nucleophilic displacement of halogen from ${ah.name} yielding ${prod}.`,
+        description: \`Nucleophilic displacement of halogen from \${ah.name} yielding \${prod}.\`,
         jeeRelevance: 'Class 12 Haloalkanes Core Reactions',
         xp: 200,
       });
@@ -1220,20 +1228,20 @@ export function generateAllReactions() {
 
   BENZENE_RINGS.forEach((br, bIdx) => {
     EAS_REAGENTS.forEach((eas, eIdx) => {
-      const prod = `${br.formula}_${eas.prodGroup}`;
+      const prod = \`\${br.formula}_\${eas.prodGroup}\`;
       addRx({
-        id: `rx_eas_${bIdx}_${eIdx}`,
-        name: `${eas.name} of ${br.name}`,
+        id: \`rx_eas_\${bIdx}_\${eIdx}\`,
+        name: \`\${eas.name} of \${br.name}\`,
         category: 'Diazonium & Benzene',
         inputs: [br.formula, ...eas.inputs],
         conditions: [],
         outputs: [prod],
         products: [prod],
-        equation: `${br.formula} + ${eas.inputs[0]} ──(${eas.inputs[1] || ''})──► ${prod}`,
+        equation: \`\${br.formula} + \${eas.inputs[0]} ──(\${eas.inputs[1] || ''})──► \${prod}\`,
         type: 'Electrophilic Aromatic Substitution',
         color: eas.color,
         observation: eas.obs,
-        description: `Electrophilic substitution on aromatic ring of ${br.name}.`,
+        description: \`Electrophilic substitution on aromatic ring of \${br.name}.\`,
         jeeRelevance: 'Class 11 & 12 Aromatic Chemistry',
         xp: 220,
       });
@@ -1261,20 +1269,20 @@ export function generateAllReactions() {
 
   ORG_ACIDS.forEach((oa, oaIdx) => {
     ALCOHOLS.forEach((alc, alcIdx) => {
-      const ester = `${oa.acyl}${alc.alkyl}`;
+      const ester = \`\${oa.acyl}\${alc.alkyl}\`;
       addRx({
-        id: `rx_ester_${oaIdx}_${alcIdx}`,
-        name: `Esterification: ${oa.name} + ${alc.name}`,
+        id: \`rx_ester_\${oaIdx}_\${alcIdx}\`,
+        name: \`Esterification: \${oa.name} + \${alc.name}\`,
         category: 'Esterification & Scents',
         inputs: [oa.formula, alc.formula, 'H2SO4'],
         conditions: ['heat'],
         outputs: [ester, 'H2O'],
         products: [ester, 'H2O'],
-        equation: `${oa.formula} + ${alc.formula} ──(H₂SO₄ / heat)──► ${ester} + H₂O`,
+        equation: \`\${oa.formula} + \${alc.formula} ──(H₂SO₄ / heat)──► \${ester} + H₂O\`,
         type: 'Fischer Esterification',
         color: '#fef08a',
         observation: 'fruity_smell',
-        description: `Pleasant sweet fragrance of ${ester} ester develops upon heating.`,
+        description: \`Pleasant sweet fragrance of \${ester} ester develops upon heating.\`,
         jeeRelevance: 'Class 10 & 12 esterification reaction',
         xp: 190,
       });
@@ -1312,20 +1320,20 @@ export function generateAllReactions() {
 
   ALCOHOLS_EXPANDED.forEach((alc, aIdx) => {
     ALCOHOL_REAGENTS.forEach((ar, arIdx) => {
-      const prod = `${alc.formula}_${ar.prodGroup}`;
+      const prod = \`\${alc.formula}_\${ar.prodGroup}\`;
       addRx({
-        id: `rx_alc_rx_${aIdx}_${arIdx}`,
-        name: `${ar.name} on ${alc.name}`,
+        id: \`rx_alc_rx_\${aIdx}_\${arIdx}\`,
+        name: \`\${ar.name} on \${alc.name}\`,
         category: 'General Organic Chemistry (GOC)',
         inputs: [alc.formula, ...ar.inputs],
         conditions: ar.cond,
         outputs: [prod],
         products: [prod],
-        equation: `${alc.formula} + ${ar.inputs[0]} ──► ${prod}`,
+        equation: \`\${alc.formula} + \${ar.inputs[0]} ──► \${prod}\`,
         type: 'Alcohol Oxidation / Substitution / Elimination',
         color: ar.color,
         observation: ar.obs,
-        description: `Functional transformation of ${alc.name} using ${ar.name}.`,
+        description: \`Functional transformation of \${alc.name} using \${ar.name}.\`,
         jeeRelevance: 'Class 12 Alcohols, Phenols & Ethers',
         xp: 210,
       });
@@ -1361,20 +1369,20 @@ export function generateAllReactions() {
 
   ALKENES.forEach((alk, aIdx) => {
     ALKENE_REAGENTS.forEach((ar, arIdx) => {
-      const prod = `${alk.formula}_${ar.reagent}_adduct`;
+      const prod = \`\${alk.formula}_\${ar.reagent}_adduct\`;
       addRx({
-        id: `rx_alkene_${aIdx}_${arIdx}`,
-        name: `${ar.name} with ${alk.name}`,
+        id: \`rx_alkene_\${aIdx}_\${arIdx}\`,
+        name: \`\${ar.name} with \${alk.name}\`,
         category: 'General Organic Chemistry (GOC)',
         inputs: [alk.formula, ...ar.inputs],
         conditions: [],
         outputs: [prod],
         products: [prod],
-        equation: `${alk.formula} + ${ar.inputs[0]} ──► ${prod}`,
+        equation: \`\${alk.formula} + \${ar.inputs[0]} ──► \${prod}\`,
         type: 'Electrophilic Addition to Carbon-Carbon Multiple Bond',
         color: ar.color,
         observation: ar.obs,
-        description: `Addition across pi bond of ${alk.name}.`,
+        description: \`Addition across pi bond of \${alk.name}.\`,
         jeeRelevance: 'Class 11 Hydrocarbons & Class 12 Mechanisms',
         xp: 200,
       });
@@ -1408,20 +1416,20 @@ export function generateAllReactions() {
 
   AMINES.forEach((am, aIdx) => {
     AMINE_REAGENTS.forEach((ar, arIdx) => {
-      const prod = `${am.formula}_${ar.inputs[0]}_product`;
+      const prod = \`\${am.formula}_\${ar.inputs[0]}_product\`;
       addRx({
-        id: `rx_amine_${aIdx}_${arIdx}`,
-        name: `${ar.name}: ${am.name}`,
+        id: \`rx_amine_\${aIdx}_\${arIdx}\`,
+        name: \`\${ar.name}: \${am.name}\`,
         category: 'Diazonium & Benzene',
         inputs: [am.formula, ...ar.inputs],
         conditions: ar.cond,
         outputs: [prod],
         products: [prod],
-        equation: `${am.formula} + ${ar.inputs[0]} ──► ${prod}`,
+        equation: \`\${am.formula} + \${ar.inputs[0]} ──► \${prod}\`,
         type: 'Amine Diagnostic & Functionalization Reaction',
         color: ar.color,
         observation: ar.obs,
-        description: `Diagnostic identification test for ${am.name}.`,
+        description: \`Diagnostic identification test for \${am.name}.\`,
         jeeRelevance: 'Class 12 Amines Distinguishing Tests',
         xp: 220,
       });
@@ -1454,20 +1462,20 @@ export function generateAllReactions() {
   COMPLEX_CATIONS.forEach((cc, cIdx) => {
     LIGANDS.forEach((lig, lIdx) => {
       const cFormula = makeFormula(cc, { sym: 'SO4', val: 2 });
-      const compId = `[${cc.sym}(${lig.formula})_n]`;
+      const compId = \`[\${cc.sym}(\${lig.formula})_n]\`;
       addRx({
-        id: `rx_coord_${cIdx}_${lIdx}`,
-        name: `Coordination: ${cc.name} + ${lig.name}`,
+        id: \`rx_coord_\${cIdx}_\${lIdx}\`,
+        name: \`Coordination: \${cc.name} + \${lig.name}\`,
         category: 'Qualitative Inorganic Analysis',
         inputs: [cFormula, lig.formula],
         conditions: [],
         outputs: [compId],
         products: [compId],
-        equation: `${cFormula} + ${lig.formula} (excess) ──► ${compId}`,
+        equation: \`\${cFormula} + \${lig.formula} (excess) ──► \${compId}\`,
         type: 'Coordination Complex Formation (Lewis Acid-Base)',
         color: lig.color,
         observation: lig.obs,
-        description: `Coordinate ligand displacement forming stable ${compId} chelate/complex.`,
+        description: \`Coordinate ligand displacement forming stable \${compId} chelate/complex.\`,
         jeeRelevance: 'Class 12 Coordination Chemistry Qualitative Tests',
         xp: 250,
       });
@@ -1489,8 +1497,8 @@ export function generateAllReactions() {
 
   THERMAL_SALTS.forEach((ts, tIdx) => {
     addRx({
-      id: `rx_therm_${tIdx}`,
-      name: `Thermal Pyrolysis of ${ts.name}`,
+      id: \`rx_therm_\${tIdx}\`,
+      name: \`Thermal Pyrolysis of \${ts.name}\`,
       category: 'Qualitative Inorganic Analysis',
       inputs: [ts.formula],
       conditions: ts.cond,
@@ -1500,7 +1508,7 @@ export function generateAllReactions() {
       type: 'Thermal Decomposition',
       color: ts.color,
       observation: ts.obs,
-      description: `Dry thermal heating decomposes ${ts.name}.`,
+      description: \`Dry thermal heating decomposes \${ts.name}.\`,
       jeeRelevance: 'Class 10 & 11 NCERT Salt Heating Tests',
       xp: 180,
     });
@@ -1542,3 +1550,9 @@ export function matchReactionLocally(inputFormulas = [], conditions = []) {
 
   return withConds || candidates[0];
 }
+`;
+
+fs.writeFileSync(clientOutput, scriptContent, 'utf8');
+fs.writeFileSync(serverOutput, scriptContent, 'utf8');
+
+console.log('Successfully written 5,000+ reactions database to client & server!');
