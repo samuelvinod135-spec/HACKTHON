@@ -57,6 +57,7 @@ const PRIMARY_MENU = [
   { to: '/dashboard', label: 'Home', icon: Home },
   { to: '/physics', label: 'Physics Lab', icon: Atom },
   { to: '/chemistry', label: 'Chemistry Lab', icon: FlaskConical },
+  { to: '/organic', label: 'Organic Chemistry', icon: FlaskConical, badge: '2,209 Rx' },
   { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
   { to: '/daily-challenge', label: 'Daily Challenge', icon: Zap },
   { to: '/mock-tests', label: 'Mock Tests', icon: GraduationCap },
@@ -131,15 +132,22 @@ export default function Sidebar({ isOpen, onClose }) {
                 to={to}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-2xl px-4 py-3 text-xs font-semibold transition ${
+                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                     isActive
                       ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
                   }`
                 }
               >
-                <Icon size={17} />
-                <span>{label}</span>
+                <div className="flex items-center gap-3">
+                  <Icon size={17} />
+                  <span>{label}</span>
+                </div>
+                {badge && (
+                  <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
+                    {badge}
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>

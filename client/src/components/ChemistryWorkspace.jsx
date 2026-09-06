@@ -36,20 +36,12 @@ import {
 } from '../data/massiveReactionsData.js';
 import ElementCartoon from './ElementCartoon.jsx';
 
-const DURATION_MS = 3800;
-
-export default function ChemistryWorkspace() {
+export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab }) {
   const { record } = useProgress();
 
-  // Experiment & Bench Title
-  const [title, setTitle] = useState('Organic & Inorganic Alchemical Realm');
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [titleDraft, setTitleDraft] = useState('');
-
   // Gamification & Alchemist Level System
-  const [alchemistXp, setAlchemistXp] = useState(1450);
+  const [alchemistXp, setAlchemistXp] = useState(1650);
   const [comboCount, setComboCount] = useState(1);
-  const [discoveredReactions, setDiscoveredReactions] = useState(new Set(['rx_diazotization', 'rx_aldol_condensation', 'rx_flame_sodium']));
   const [xpToast, setXpToast] = useState(null);
 
   // Active Apparatus Setup
@@ -57,36 +49,48 @@ export default function ChemistryWorkspace() {
   const [vesselVolumeMax, setVesselVolumeMax] = useState(250);
 
   // Vessel Contents & Multi-Chemical Mixing State
+  // Default to Organic Chemistry (Diazotization of Aniline)
   const [vesselChemicals, setVesselChemicals] = useState([
     { id: 'c6h5nh2', formula: 'C6H5NH2', name: 'Aniline', amount: 15, tone: 'from-amber-100 to-amber-300', phase: 'l', color: '#fef08a' },
     { id: 'nano2', formula: 'NaNO2', name: 'Sodium Nitrite', amount: 5, tone: 'from-yellow-100 to-yellow-200', phase: 's', color: '#fef9c3' },
     { id: 'hcl', formula: 'HCl', name: 'Hydrochloric Acid', amount: 20, tone: 'from-rose-300 to-rose-500', phase: 'aq', color: '#f8fafc' },
   ]);
-  const [vesselTemp, setVesselTemp] = useState(4); // Celsius (ice cold for diazotization)
+  const [vesselTemp, setVesselTemp] = useState(4); // 4°C Ice bath for diazotization
   const [isStirring, setIsStirring] = useState(false);
 
   // Bunsen Burner "Fire Fire Equipment" Controls
   const [burnerActive, setBurnerActive] = useState(false);
-  const [flameMode, setFlameMode] = useState('blue_roaring'); // 'blue_roaring' (oxidizing 1200°C) | 'yellow_luminous' (safety 300°C)
+  const [flameMode, setFlameMode] = useState('blue_roaring'); // 'blue_roaring' (1200°C) | 'yellow_luminous' (300°C)
   const [heatIntensity, setHeatIntensity] = useState(50); // 0 - 100%
 
   // Simulation & Reaction Results
   const [simulating, setSimulating] = useState(false);
   const [outputReaction, setOutputReaction] = useState(null);
-  const [lastMessage, setLastMessage] = useState('');
+  const [lastMessage, setLastMessage] = useState('Ready on bench: Diazotization of Aniline (0-5°C). Click "Ignite Reaction" to synthesize Benzene Diazonium Chloride!');
   const [dropletAnimation, setDropletAnimation] = useState(null);
 
   // Material Inventory & Palette
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('Diazonium & Benzene');
 
   // Modals
   const [showPeriodicTable, setShowPeriodicTable] = useState(false);
   const [showReactionCodex, setShowReactionCodex] = useState(false);
   const [selectedChampion, setSelectedChampion] = useState(ALL_118_ELEMENTS[0]); // Hydrogen
   const [codexSearch, setCodexSearch] = useState('');
-  const [codexCategory, setCodexCategory] = useState('All');
+  const [codexCategory, setCodexCategory] = useState('Diazonium & Benzene');
   const [affinityFilter, setAffinityFilter] = useState('ALL');
+
+  // Switch category when activeTab changes
+  useEffect(() => {
+    if (activeTab === 'organic') {
+      setSelectedCategory('Diazonium & Benzene');
+    } else if (activeTab === 'inorganic') {
+      setSelectedCategory('Acids');
+    } else if (activeTab === 'periodic') {
+      setShowPeriodicTable(true);
+    }
+  }, [activeTab]);
 
   // Thermal Physics Loop (Bunsen Burner heats the vessel)
   useEffect(() => {
@@ -95,10 +99,10 @@ export default function ChemistryWorkspace() {
       const targetTemp = flameMode === 'blue_roaring' ? 120 + heatIntensity * 9 : 45 + heatIntensity * 2.5;
       timer = setInterval(() => {
         setVesselTemp((prev) => {
-          if (prev < targetTemp) return Math.min(targetTemp, prev + 3);
+          if (prev < targetTemp) return Math.min(targetTemp, prev + 4);
           return prev;
         });
-      }, 400);
+      }, 350);
     } else {
       timer = setInterval(() => {
         setVesselTemp((prev) => (prev > 25 ? Math.max(25, prev - 1.5) : prev));
@@ -123,24 +127,25 @@ export default function ChemistryWorkspace() {
 
   // Calculate Liquid Volume & Blended Color
   const currentVolume = vesselChemicals.reduce((acc, c) => acc + (c.amount || 10), 0);
-  const liquidFillPct = Math.min(94, Math.max(12, (currentVolume / vesselVolumeMax) * 85));
+  const liquidFillPct = Math.min(94, Math.max(14, (currentVolume / vesselVolumeMax) * 85));
 
   // Determine Liquid Color dynamically
   const liquidColor = outputReaction?.color
     ? outputReaction.color
     : vesselChemicals.length === 0
     ? '#e0f2fe'
+    : vesselChemicals.some((c) => c.formula.includes('C6H5N2Cl') || c.formula.includes('Phenol'))
+    ? '#fdba74'
     : vesselChemicals.some((c) => c.formula.includes('Cu'))
-    ? '#0ea5e9'
+    ? '#38bdf8'
     : vesselChemicals.some((c) => c.formula.includes('Fe') || c.formula.includes('I'))
     ? '#f59e0b'
     : vesselChemicals.some((c) => c.formula.includes('C6H5') || c.formula.includes('Aniline'))
-    ? '#fde047'
+    ? '#fef08a'
     : '#e0f2fe';
 
   // Add Chemical into the active Vessel
   const addChemicalToVessel = (chemical, amount = 10) => {
-    // Droplet Splash Effect
     setDropletAnimation(chemical.formula);
     setTimeout(() => setDropletAnimation(null), 700);
 
@@ -191,10 +196,10 @@ export default function ChemistryWorkspace() {
     if (vesselTemp < 10) conditions.push('ice_cold', '0_5C');
     if (vesselTemp > 80) conditions.push('high_temp', 'heat');
 
-    // 1. Fast Local Matcher across 2,200+ reactions
+    // 1. Fast Local Matcher across 2,209 reactions
     let match = matchReactionLocally(inFormulas, conditions);
 
-    // 2. Fallback to server endpoint if local has no hit
+    // 2. Fallback to server endpoint
     if (!match) {
       try {
         const res = await api.matchReaction(inFormulas, conditions);
@@ -213,7 +218,6 @@ export default function ChemistryWorkspace() {
         const earnedXp = (match.xp || 150) * comboCount;
         setAlchemistXp((prev) => prev + earnedXp);
         setComboCount((prev) => Math.min(5, prev + 1));
-        setDiscoveredReactions((prev) => new Set([...prev, match.id || match.name]));
 
         setXpToast(`+${earnedXp} XP! ${match.name}`);
         setTimeout(() => setXpToast(null), 3500);
@@ -224,7 +228,7 @@ export default function ChemistryWorkspace() {
         setComboCount(1);
         setLastMessage('No reaction occurred. Check temperature, reagent compatibility, or Bunsen flame conditions.');
       }
-    }, 1200);
+    }, 1100);
   }, [simulating, vesselChemicals, burnerActive, flameMode, vesselTemp, comboCount, record]);
 
   // Load a Reaction directly from the 2,000+ Reaction Codex onto the workbench
@@ -264,7 +268,10 @@ export default function ChemistryWorkspace() {
     const matchesCat =
       selectedCategory === 'All' ||
       m.category === selectedCategory ||
-      (selectedCategory === '118 Elements (Anime)' && m.category === '118 Elements (Anime)');
+      (selectedCategory === 'All Organic' &&
+        (m.category === 'Diazonium & Benzene' ||
+          m.category === 'Aldehydes & Ketones' ||
+          m.category === 'Haloalkanes & Alkyls'));
     const matchesSearch =
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.formula.toLowerCase().includes(searchQuery.toLowerCase());
@@ -286,8 +293,59 @@ export default function ChemistryWorkspace() {
     return affinityFilter === 'ALL' || el.affinity === affinityFilter;
   });
 
+  // Top 4 Organic Pillar Reactions for 1-Click Launch
+  const ORGANIC_PILLARS = [
+    {
+      title: 'Diazonium & Benzene',
+      icon: '💎',
+      desc: 'Diazotization, Sandmeyer & Azo Dyes',
+      badge: 'Orange/Yellow Dyes',
+      reactions: [
+        { name: 'Diazotization (0-5°C)', id: 'rx_diazotization' },
+        { name: 'Azo Coupling (Orange Dye)', id: 'rx_azo_coupling_phenol' },
+        { name: 'Sandmeyer (Chlorobenzene)', id: 'rx_sandmeyer_cl' },
+        { name: 'Balz-Schiemann (Fluorobenzene)', id: 'rx_balz_schiemann' },
+      ],
+    },
+    {
+      title: 'Aldehydes & Ketones',
+      icon: '🧪',
+      desc: 'Aldol, Cannizzaro, Silver Mirror & Iodoform',
+      badge: 'Silver Mirror',
+      reactions: [
+        { name: 'Aldol Condensation', id: 'rx_aldol_condensation' },
+        { name: 'Cross-Aldol (Cinnamaldehyde)', id: 'rx_cross_aldol' },
+        { name: 'Tollens\' Silver Mirror', id: 'rx_tollens_test' },
+        { name: 'Iodoform Yellow Crystals', id: 'rx_iodoform_test' },
+      ],
+    },
+    {
+      title: 'Haloalkanes ("hellowelken")',
+      icon: '⚡',
+      desc: 'Finkelstein, Swarts, Wurtz & Grignard',
+      badge: 'Wurtz & Grignard',
+      reactions: [
+        { name: 'Finkelstein Halide Exchange', id: 'rx_finkelstein' },
+        { name: 'Swarts Fluorination', id: 'rx_swarts' },
+        { name: 'Wurtz Alkane Coupling', id: 'rx_wurtz' },
+        { name: 'Saytzeff E2 Elimination', id: 'rx_saytzeff_elimination' },
+      ],
+    },
+    {
+      title: 'General Organic Chemistry (GOC)',
+      icon: '🔬',
+      desc: 'Acidity, Resonance & Free Radicals',
+      badge: 'Brisk Effervescence',
+      reactions: [
+        { name: 'Acidity: Phenol + NaOH', id: 'rx_goc_phenol_naoh' },
+        { name: 'Effervescence: Acid + NaHCO3', id: 'rx_goc_carboxylic_nahco3' },
+        { name: 'Free Radical Bromination', id: 'rx_goc_free_radical_bromination' },
+      ],
+    },
+  ];
+
   return (
-    <div className="flex h-[calc(100vh-7.5rem)] min-h-[640px] flex-col overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-xl shadow-sky-900/5 select-none" data-testid="chemistry-workspace">
+    <div className="flex h-[calc(100vh-7.5rem)] min-h-[660px] flex-col overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-xl shadow-sky-900/5 select-none" data-testid="chemistry-workspace">
       {/* 1. Top Clay Toolbar: Level, XP Bar, Gamification Combos & Quick Tools */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-sky-100 bg-gradient-to-r from-sky-50/70 via-white to-amber-50/50 px-4 py-2.5">
         <div className="flex items-center gap-3">
@@ -321,7 +379,7 @@ export default function ChemistryWorkspace() {
           )}
         </div>
 
-        {/* Action Controls: 118 Anime Periodic Table & 2,000+ Reaction Codex */}
+        {/* Action Controls: 118 Anime Champions, 2,000+ Reaction Codex & Ignite Reaction */}
         <div className="flex items-center gap-2">
           {/* XP Floating Toast */}
           {xpToast && (
@@ -341,12 +399,15 @@ export default function ChemistryWorkspace() {
           </button>
 
           <button
-            onClick={() => setShowReactionCodex(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-yellow-300 bg-yellow-100/70 px-3 py-2 text-xs font-black text-slate-800 shadow-xs transition hover:bg-yellow-200 active:scale-95"
-            title="Search 2,000+ Chemical Reactions"
+            onClick={() => {
+              setCodexCategory('All');
+              setShowReactionCodex(true);
+            }}
+            className="flex items-center gap-1.5 rounded-xl border border-yellow-300 bg-yellow-100/80 px-3 py-2 text-xs font-black text-slate-800 shadow-xs transition hover:bg-yellow-200 active:scale-95"
+            title="Search 2,209 Chemical Reactions"
           >
-            <BookOpen size={15} className="text-yellow-700" />
-            <span>2,000+ Reactions ({getReactionCount()})</span>
+            <BookOpen size={15} className="text-yellow-800" />
+            <span>2,209 Reactions Grimoire</span>
           </button>
 
           <button
@@ -360,16 +421,69 @@ export default function ChemistryWorkspace() {
         </div>
       </div>
 
-      {/* 2. Main Studio Workspace */}
+      {/* 2. DEDICATED ORGANIC CHEMISTRY SHOWCASE HUB */}
+      <div className="border-b border-sky-100 bg-gradient-to-b from-amber-50/40 to-white px-4 py-2.5">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-yellow-400 text-slate-900 text-xs font-black">
+              🌿
+            </span>
+            <span className="text-xs font-black text-slate-900 uppercase tracking-wide">
+              Organic Chemistry Master Hub (Diazonium · Aldehydes · Haloalkanes · GOC)
+            </span>
+          </div>
+          <span className="text-[10px] font-bold text-slate-400 hidden sm:inline">
+            Click any organic reaction to load directly onto the workbench!
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          {ORGANIC_PILLARS.map((pillar) => (
+            <div
+              key={pillar.title}
+              className="flex flex-col justify-between rounded-2xl border border-sky-100 bg-white p-2.5 shadow-xs hover:border-yellow-300 hover:shadow-sm transition"
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <span>{pillar.icon}</span>
+                  <span className="truncate">{pillar.title}</span>
+                </span>
+                <span className="rounded-full bg-yellow-100 text-yellow-800 px-2 py-0.2 text-[9px] font-black">
+                  {pillar.badge}
+                </span>
+              </div>
+
+              {/* Reaction Buttons */}
+              <div className="flex flex-wrap gap-1">
+                {pillar.reactions.map((r) => {
+                  const matchedRx = ALL_REACTIONS.find((x) => x.id === r.id);
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => matchedRx && autoSetupReaction(matchedRx)}
+                      className="rounded-lg bg-sky-50 hover:bg-yellow-100 text-sky-800 hover:text-slate-900 border border-sky-100 px-2 py-1 text-[10px] font-extrabold transition active:scale-95 truncate max-w-full text-left"
+                      title={matchedRx?.description || r.name}
+                    >
+                      ▶ {r.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Main Studio Workspace */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Side: Reagent & Element Cabinet */}
         <div className="flex w-72 shrink-0 flex-col border-r border-sky-100 bg-sky-50/30 p-3">
           {/* Search Box */}
-          <div className="relative mb-2.5">
+          <div className="relative mb-2">
             <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search chemicals & elements…"
+              placeholder="Search organic reagents…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-xl border border-sky-200 bg-white pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-sky-400"
@@ -377,14 +491,14 @@ export default function ChemistryWorkspace() {
           </div>
 
           {/* Category Filter Pills */}
-          <div className="mb-2.5 flex flex-wrap gap-1">
-            {CATEGORIES.slice(0, 6).map((cat) => (
+          <div className="mb-2 flex flex-wrap gap-1">
+            {['All Organic', 'Diazonium & Benzene', 'Aldehydes & Ketones', 'Haloalkanes & Alkyls', 'Acids', 'Bases', 'Salts & Reagents'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`rounded-lg px-2 py-0.5 text-[10px] font-bold transition ${
                   selectedCategory === cat
-                    ? 'bg-sky-500 text-white shadow-xs'
+                    ? 'bg-gradient-to-r from-yellow-400 to-amber-400 text-slate-900 font-black shadow-xs'
                     : 'bg-white text-slate-600 border border-sky-100 hover:bg-sky-50'
                 }`}
               >
@@ -416,7 +530,7 @@ export default function ChemistryWorkspace() {
                   </div>
                 </div>
                 <button
-                  className="rounded-lg bg-sky-100 p-1 text-sky-700 opacity-0 group-hover:opacity-100 transition hover:bg-sky-200"
+                  className="rounded-lg bg-yellow-100 p-1 text-yellow-800 opacity-0 group-hover:opacity-100 transition hover:bg-yellow-200"
                   title="Add to vessel"
                 >
                   <Plus size={14} />
@@ -458,13 +572,21 @@ export default function ChemistryWorkspace() {
               ))}
             </div>
 
+            {/* Live Message / Status */}
+            <div className="hidden md:flex items-center gap-2 rounded-2xl bg-sky-50/80 px-3 py-1.5 border border-sky-100 max-w-md">
+              <Sparkles size={14} className="text-yellow-500 shrink-0" />
+              <span className="text-[11px] font-bold text-slate-700 truncate">
+                {lastMessage}
+              </span>
+            </div>
+
             {/* Vessel Controls: Clean & Stir */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   setIsStirring(true);
                   setTimeout(() => setIsStirring(false), 2000);
-                  setLastMessage('Solution stirred with glass rod.');
+                  setLastMessage('Solution swirled with glass rod.');
                 }}
                 className={`flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-2.5 py-1.5 text-xs font-bold text-sky-700 shadow-xs transition hover:bg-sky-50 active:scale-95 ${
                   isStirring ? 'animate-spin' : ''
@@ -491,8 +613,8 @@ export default function ChemistryWorkspace() {
               {/* Droplet Drop Animation */}
               {dropletAnimation && (
                 <div className="absolute -top-10 z-30 flex flex-col items-center animate-droplet-drop">
-                  <div className="h-4 w-4 rounded-full bg-sky-400 shadow-md shadow-sky-400/50" />
-                  <span className="mt-1 font-mono text-[10px] font-black text-sky-700">
+                  <div className="h-4 w-4 rounded-full bg-yellow-400 shadow-md shadow-yellow-400/50" />
+                  <span className="mt-1 font-mono text-[10px] font-black text-slate-800">
                     +{dropletAnimation}
                   </span>
                 </div>
@@ -506,7 +628,7 @@ export default function ChemistryWorkspace() {
                     {Math.round(vesselTemp)}°C
                   </span>
                   <span className="text-[9px] font-bold text-slate-400 uppercase">
-                    {vesselTemp > 80 ? 'Boiling' : vesselTemp < 10 ? 'Ice Bath' : 'Ambient'}
+                    {vesselTemp > 80 ? 'Boiling' : vesselTemp < 10 ? 'Ice Bath (0-5°C)' : 'Ambient'}
                   </span>
                 </div>
               </div>
@@ -547,7 +669,7 @@ export default function ChemistryWorkspace() {
                   style={{
                     height: `${liquidFillPct}%`,
                     backgroundColor: liquidColor,
-                    opacity: 0.85,
+                    opacity: 0.88,
                   }}
                 >
                   {/* Liquid Meniscus Curve on Top */}
@@ -562,17 +684,17 @@ export default function ChemistryWorkspace() {
                     </div>
                   )}
 
-                  {/* Precipitate Solids Settled at Bottom */}
+                  {/* Precipitate Solids Settled at Bottom (e.g. Orange Dye, Yellow Iodoform, Silver Mirror) */}
                   {outputReaction?.observation?.includes('precipitate') && (
                     <div
-                      className="absolute bottom-0 left-0 right-0 h-6 border-t border-white/40 shadow-inner"
+                      className="absolute bottom-0 left-0 right-0 h-7 border-t border-white/40 shadow-inner"
                       style={{
                         backgroundColor: outputReaction.color || '#eab308',
                         opacity: 0.95,
                       }}
                     >
                       <div className="flex h-full items-center justify-center text-[8px] font-black text-slate-900 uppercase tracking-wider">
-                        Precipitate Formed
+                        {outputReaction.name.includes('Orange') ? 'Orange Dye Ppt' : outputReaction.name.includes('Yellow') ? 'Yellow Crystals Ppt' : 'Precipitate Formed'}
                       </div>
                     </div>
                   )}
@@ -590,7 +712,7 @@ export default function ChemistryWorkspace() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-3 text-slate-400">
                     <FlaskConical size={28} className="text-sky-300 mb-1 opacity-60" />
                     <span className="text-[11px] font-bold">Vessel Empty</span>
-                    <span className="text-[9px]">Click chemicals on the left to add</span>
+                    <span className="text-[9px]">Click reagents or 1-Click reactions above</span>
                   </div>
                 )}
               </div>
@@ -643,7 +765,7 @@ export default function ChemistryWorkspace() {
             {/* Loaded Chemicals in Vessel */}
             <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-[280px]">
               <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 mr-1">
-                Contents:
+                Vessel Mixture:
               </span>
               {vesselChemicals.map((c) => (
                 <span
@@ -707,7 +829,7 @@ export default function ChemistryWorkspace() {
         </div>
       </div>
 
-      {/* 3. Reaction Verification & Result Stage (Bottom Drawer / Observation) */}
+      {/* 4. Reaction Verification & Result Stage (Bottom Drawer / Observation) */}
       {outputReaction && (
         <div className="border-t border-sky-100 bg-gradient-to-r from-sky-50 via-white to-amber-50/50 p-4 transition-all">
           <div className="mx-auto max-w-5xl flex flex-col gap-2">
@@ -754,7 +876,7 @@ export default function ChemistryWorkspace() {
         </div>
       )}
 
-      {/* 4. MODAL: 118 Anime Periodic Table Champions */}
+      {/* 5. MODAL: 118 Anime Periodic Table Champions */}
       {showPeriodicTable && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in">
           <div className="flex h-[90vh] w-full max-w-6xl flex-col rounded-3xl border border-sky-100 bg-white shadow-2xl overflow-hidden">
@@ -896,7 +1018,7 @@ export default function ChemistryWorkspace() {
         </div>
       )}
 
-      {/* 5. MODAL: Master 2,000+ Chemical Reaction Codex */}
+      {/* 6. MODAL: Master 2,000+ Chemical Reaction Codex */}
       {showReactionCodex && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fade-in">
           <div className="flex h-[90vh] w-full max-w-5xl flex-col rounded-3xl border border-sky-100 bg-white shadow-2xl overflow-hidden">

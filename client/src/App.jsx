@@ -53,6 +53,8 @@ export default function App() {
               <Route path="/dashboard" element={<Home />} />
               <Route path="/physics" element={<PhysicsLab />} />
               <Route path="/chemistry" element={<ChemistryLab />} />
+              <Route path="/organic" element={<ChemistryLab initialTab="organic" />} />
+              <Route path="/organic-chemistry" element={<ChemistryLab initialTab="organic" />} />
               <Route path="/quizzes" element={<Quizzes />} />
               <Route path="/daily-challenge" element={<DailyChallenge />} />
               <Route path="/mock-tests" element={<MockTests />} />
