@@ -1,36 +1,79 @@
-// Frontend mirror of the chemical catalog for palette rendering.
-// The authoritative reaction database lives on the server (320+ reactions).
+// Frontend chemical & apparatus catalog for Chemistry Workspace.
+// Integrates all 118 Anime Elements, key Organic Compounds (Diazonium, Haloalkanes, Aldehydes, Benzene),
+// and Laboratory Apparatus (Beakers, Test Tubes, Bunsen Burner Fire Equipment).
+
+import { ALL_118_ELEMENTS } from './data/elementsAnimeData.js';
+
+export const APPARATUS_ITEMS = [
+  { id: 'app_beaker_250', name: 'Beaker (250 mL)', capacity: 250, type: 'beaker', icon: '🧪', desc: 'Standard borosilicate glass beaker for mixing & heating' },
+  { id: 'app_beaker_500', name: 'Beaker (500 mL)', capacity: 500, type: 'beaker', icon: '🍶', desc: 'Large capacity beaker for exothermic bulk reactions' },
+  { id: 'app_test_tube', name: 'Test Tube (50 mL)', capacity: 50, type: 'test_tube', icon: '🧪', desc: 'Slender cylindrical tube mounted in wooden/acrylic rack' },
+  { id: 'app_erlenmeyer', name: 'Erlenmeyer Flask', capacity: 250, type: 'flask', icon: '⚗️', desc: 'Conical neck flask ideal for swirling without spillage' },
+  { id: 'app_bunsen_burner', name: 'Bunsen Burner ("Fire Fire")', type: 'burner', icon: '🔥', desc: 'Dual-flame thermal source: Luminous Yellow vs Roaring Sky Blue flame' },
+  { id: 'app_pipette', name: 'Precision Dropper / Pipette', type: 'dropper', icon: '💧', desc: 'Accurately delivers drops of liquid reagent into vessels' },
+  { id: 'app_glass_stirrer', name: 'Glass Stirring Rod', type: 'stirrer', icon: '🪄', desc: 'Agitates solution to accelerate diffusion and reaction kinetics' },
+];
 
 export const CATEGORIES = [
-  'Metals',
-  'Non-Metals',
+  'All',
+  '118 Elements (Anime)',
+  'Diazonium & Benzene',
+  'Aldehydes & Ketones',
+  'Haloalkanes & Alkyls',
   'Acids',
   'Bases',
-  'Salts',
+  'Salts & Reagents',
   'Gases',
   'Action Arrows',
 ];
 
-export const MATERIAL_CHEMICALS = [
-  // Metals
-  { id: 'na', formula: 'Na', name: 'Sodium', category: 'Metals', phase: 's', tone: 'from-slate-200 to-slate-400' },
-  { id: 'k', formula: 'K', name: 'Potassium', category: 'Metals', phase: 's', tone: 'from-slate-100 to-slate-300' },
-  { id: 'ca', formula: 'Ca', name: 'Calcium', category: 'Metals', phase: 's', tone: 'from-slate-300 to-slate-400' },
-  { id: 'mg', formula: 'Mg', name: 'Magnesium', category: 'Metals', phase: 's', tone: 'from-slate-100 to-slate-200' },
-  { id: 'zn', formula: 'Zn', name: 'Zinc', category: 'Metals', phase: 's', tone: 'from-slate-300 to-slate-500' },
-  { id: 'fe', formula: 'Fe', name: 'Iron', category: 'Metals', phase: 's', tone: 'from-slate-400 to-slate-600' },
-  { id: 'cu', formula: 'Cu', name: 'Copper', category: 'Metals', phase: 's', tone: 'from-orange-400 to-amber-700' },
-  { id: 'al', formula: 'Al', name: 'Aluminium', category: 'Metals', phase: 's', tone: 'from-slate-200 to-slate-400' },
-  { id: 'ag', formula: 'Ag', name: 'Silver', category: 'Metals', phase: 's', tone: 'from-slate-100 to-slate-300' },
-  { id: 'pb', formula: 'Pb', name: 'Lead', category: 'Metals', phase: 's', tone: 'from-slate-500 to-slate-700' },
-  { id: 'ba', formula: 'Ba', name: 'Barium', category: 'Metals', phase: 's', tone: 'from-slate-300 to-slate-400' },
+// Convert 118 elements into palette materials
+const ELEMENT_MATERIALS = ALL_118_ELEMENTS.map((el) => ({
+  id: `el_${el.symbol.toLowerCase()}`,
+  formula: el.symbol,
+  name: `${el.name} (${el.animeTitle.split('(')[0].trim()})`,
+  category: '118 Elements (Anime)',
+  phase: el.category.includes('Gas') ? 'g' : el.symbol === 'Hg' || el.symbol === 'Br' ? 'l' : 's',
+  tone: 'from-sky-100 to-amber-200',
+  number: el.number,
+  affinity: el.affinity,
+  animeTitle: el.animeTitle,
+  power: el.power,
+  reactivity: el.reactivity,
+}));
 
-  // Non-Metals
-  { id: 'c', formula: 'C', name: 'Carbon', category: 'Non-Metals', phase: 's', tone: 'from-zinc-600 to-zinc-900' },
-  { id: 's', formula: 'S', name: 'Sulphur', category: 'Non-Metals', phase: 's', tone: 'from-yellow-300 to-yellow-600' },
-  { id: 'p', formula: 'P', name: 'Phosphorus', category: 'Non-Metals', phase: 's', tone: 'from-amber-300 to-red-500' },
-  { id: 'h2r', formula: 'H2', name: 'Hydrogen', category: 'Non-Metals', phase: 'g', tone: 'from-sky-300 to-blue-500' },
-  { id: 'cl2r', formula: 'Cl2', name: 'Chlorine', category: 'Non-Metals', phase: 'g', tone: 'from-green-300 to-green-500' },
+export const MATERIAL_CHEMICALS = [
+  // Organic: Benzene & Diazonium
+  { id: 'c6h5n2cl', formula: 'C6H5N2Cl', name: 'Benzene Diazonium Chloride', category: 'Diazonium & Benzene', phase: 'aq', tone: 'from-sky-200 to-blue-400' },
+  { id: 'c6h6', formula: 'C6H6', name: 'Benzene', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-slate-200 to-slate-400' },
+  { id: 'c6h5nh2', formula: 'C6H5NH2', name: 'Aniline', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-amber-200 to-amber-400' },
+  { id: 'c6h5oh', formula: 'C6H5OH', name: 'Phenol (Carbolic Acid)', category: 'Diazonium & Benzene', phase: 's', tone: 'from-rose-100 to-rose-300' },
+  { id: 'c6h5no2', formula: 'C6H5NO2', name: 'Nitrobenzene (Oil of Mirbane)', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-yellow-200 to-yellow-400' },
+  { id: 'c6h5cl', formula: 'C6H5Cl', name: 'Chlorobenzene', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-sky-200 to-slate-400' },
+  { id: 'c6h5br', formula: 'C6H5Br', name: 'Bromobenzene', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-amber-300 to-orange-500' },
+  { id: 'c6h5i', formula: 'C6H5I', name: 'Iodobenzene', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-slate-300 to-slate-600' },
+  { id: 'c6h5f', formula: 'C6H5F', name: 'Fluorobenzene', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-sky-100 to-sky-300' },
+  { id: 'c6h5cn', formula: 'C6H5CN', name: 'Benzonitrile', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-slate-200 to-slate-400' },
+  { id: 'c6h5ch3', formula: 'C6H5CH3', name: 'Toluene', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-sky-100 to-sky-300' },
+  { id: 'c6h5coch3', formula: 'C6H5COCH3', name: 'Acetophenone', category: 'Diazonium & Benzene', phase: 'l', tone: 'from-slate-100 to-slate-300' },
+  { id: 'beta_naphthol', formula: 'beta_naphthol', name: 'β-Naphthol (2-Naphthol)', category: 'Diazonium & Benzene', phase: 's', tone: 'from-red-100 to-rose-300' },
+
+  // Organic: Aldehydes & Ketones
+  { id: 'ch3cho', formula: 'CH3CHO', name: 'Acetaldehyde (Ethanal)', category: 'Aldehydes & Ketones', phase: 'l', tone: 'from-yellow-100 to-amber-300' },
+  { id: 'c6h5cho', formula: 'C6H5CHO', name: 'Benzaldehyde (Oil of Bitter Almonds)', category: 'Aldehydes & Ketones', phase: 'l', tone: 'from-amber-200 to-orange-300' },
+  { id: 'hcho', formula: 'HCHO', name: 'Formaldehyde (Methanal)', category: 'Aldehydes & Ketones', phase: 'g', tone: 'from-slate-100 to-sky-200' },
+  { id: 'ch3coch3', formula: 'CH3COCH3', name: 'Acetone (Propanone)', category: 'Aldehydes & Ketones', phase: 'l', tone: 'from-sky-100 to-sky-300' },
+  { id: 'ch3cn', formula: 'CH3CN', name: 'Acetonitrile', category: 'Aldehydes & Ketones', phase: 'l', tone: 'from-slate-100 to-slate-300' },
+
+  // Organic: Haloalkanes & Alkyls
+  { id: 'ch3cl', formula: 'CH3Cl', name: 'Methyl Chloride', category: 'Haloalkanes & Alkyls', phase: 'g', tone: 'from-sky-200 to-blue-300' },
+  { id: 'ch3br', formula: 'CH3Br', name: 'Methyl Bromide', category: 'Haloalkanes & Alkyls', phase: 'g', tone: 'from-amber-200 to-amber-400' },
+  { id: 'ch3i', formula: 'CH3I', name: 'Methyl Iodide', category: 'Haloalkanes & Alkyls', phase: 'l', tone: 'from-yellow-200 to-yellow-500' },
+  { id: 'c2h5cl', formula: 'C2H5Cl', name: 'Ethyl Chloride', category: 'Haloalkanes & Alkyls', phase: 'g', tone: 'from-sky-100 to-sky-300' },
+  { id: 'c2h5br', formula: 'C2H5Br', name: 'Ethyl Bromide', category: 'Haloalkanes & Alkyls', phase: 'l', tone: 'from-amber-100 to-amber-300' },
+  { id: 'c2h5i', formula: 'C2H5I', name: 'Ethyl Iodide', category: 'Haloalkanes & Alkyls', phase: 'l', tone: 'from-yellow-100 to-yellow-400' },
+  { id: 'chcl3', formula: 'CHCl3', name: 'Chloroform (Trichloromethane)', category: 'Haloalkanes & Alkyls', phase: 'l', tone: 'from-slate-200 to-slate-400' },
+  { id: 'ccl4', formula: 'CCl4', name: 'Carbon Tetrachloride', category: 'Haloalkanes & Alkyls', phase: 'l', tone: 'from-slate-300 to-slate-500' },
 
   // Acids
   { id: 'hcl', formula: 'HCl', name: 'Hydrochloric Acid', category: 'Acids', phase: 'aq', tone: 'from-rose-300 to-rose-500' },
@@ -38,43 +81,38 @@ export const MATERIAL_CHEMICALS = [
   { id: 'hno3', formula: 'HNO3', name: 'Nitric Acid', category: 'Acids', phase: 'aq', tone: 'from-yellow-100 to-yellow-300' },
   { id: 'ch3cooh', formula: 'CH3COOH', name: 'Acetic Acid', category: 'Acids', phase: 'aq', tone: 'from-orange-200 to-orange-400' },
   { id: 'h3po4', formula: 'H3PO4', name: 'Phosphoric Acid', category: 'Acids', phase: 'aq', tone: 'from-teal-200 to-cyan-400' },
+  { id: 'h3po2', formula: 'H3PO2', name: 'Hypophosphorous Acid', category: 'Acids', phase: 'aq', tone: 'from-sky-200 to-blue-300' },
+  { id: 'hbf4', formula: 'HBF4', name: 'Fluoroboric Acid', category: 'Acids', phase: 'aq', tone: 'from-sky-100 to-sky-300' },
 
   // Bases
   { id: 'naoh', formula: 'NaOH', name: 'Sodium Hydroxide', category: 'Bases', phase: 'aq', tone: 'from-sky-200 to-sky-400' },
   { id: 'koh', formula: 'KOH', name: 'Potassium Hydroxide', category: 'Bases', phase: 'aq', tone: 'from-sky-100 to-sky-300' },
-  { id: 'caoh2', formula: 'Ca(OH)2', name: 'Calcium Hydroxide', category: 'Bases', phase: 'aq', tone: 'from-cyan-100 to-cyan-300' },
-  { id: 'nh3b', formula: 'NH3', name: 'Ammonia', category: 'Bases', phase: 'aq', tone: 'from-lime-200 to-lime-400' },
+  { id: 'nh4oh', formula: 'NH4OH', name: 'Ammonium Hydroxide', category: 'Bases', phase: 'aq', tone: 'from-cyan-100 to-cyan-300' },
+  { id: 'caoh2', formula: 'Ca(OH)2', name: 'Calcium Hydroxide (Limewater)', category: 'Bases', phase: 'aq', tone: 'from-slate-100 to-slate-200' },
   { id: 'mgoh2', formula: 'Mg(OH)2', name: 'Magnesium Hydroxide', category: 'Bases', phase: 's', tone: 'from-teal-100 to-teal-300' },
 
-  // Salts
-  { id: 'nacl', formula: 'NaCl', name: 'Sodium Chloride', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
-  { id: 'caco3', formula: 'CaCO3', name: 'Calcium Carbonate', category: 'Salts', phase: 's', tone: 'from-slate-100 to-slate-200' },
-  { id: 'bao', formula: 'BaO', name: 'Barium Oxide', category: 'Salts', phase: 's', tone: 'from-slate-200 to-slate-300' },
-  { id: 'bao2', formula: 'BaO2', name: 'Barium Peroxide', category: 'Salts', phase: 's', tone: 'from-slate-100 to-slate-200' },
-  { id: 'mgo', formula: 'MgO', name: 'Magnesium Oxide', category: 'Salts', phase: 's', tone: 'from-slate-50 to-slate-200' },
-  { id: 'zno', formula: 'ZnO', name: 'Zinc Oxide', category: 'Salts', phase: 's', tone: 'from-yellow-100 to-yellow-300' },
-  { id: 'cuo', formula: 'CuO', name: 'Copper(II) Oxide', category: 'Salts', phase: 's', tone: 'from-zinc-700 to-zinc-900' },
-  { id: 'fe2o3', formula: 'Fe2O3', name: 'Iron Oxide', category: 'Salts', phase: 's', tone: 'from-red-800 to-red-950' },
-  { id: 'alg_2', formula: 'Al2O3', name: 'Aluminium Oxide', category: 'Salts', phase: 's', tone: 'from-slate-200 to-slate-300' },
-  { id: 'na2o', formula: 'Na2O', name: 'Sodium Oxide', category: 'Salts', phase: 's', tone: 'from-slate-50 to-slate-200' },
-  { id: 'agcl', formula: 'AgCl', name: 'Silver Chloride', category: 'Salts', phase: 's', tone: 'from-slate-100 to-slate-300' },
-  { id: 'baso4', formula: 'BaSO4', name: 'Barium Sulphate', category: 'Salts', phase: 's', tone: 'from-slate-50 to-slate-200' },
-  { id: 'pbno3', formula: 'Pb(NO3)2', name: 'Lead Nitrate', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
-  { id: 'cuso4', formula: 'CuSO4', name: 'Copper Sulphate', category: 'Salts', phase: 'aq', tone: 'from-blue-400 to-blue-600' },
-  { id: 'znso4', formula: 'ZnSO4', name: 'Zinc Sulphate', category: 'Salts', phase: 'aq', tone: 'from-sky-100 to-sky-300' },
-  { id: 'feso4', formula: 'FeSO4', name: 'Iron Sulphate', category: 'Salts', phase: 'aq', tone: 'from-emerald-300 to-emerald-500' },
-  { id: 'kclo3', formula: 'KClO3', name: 'Potassium Chlorate', category: 'Salts', phase: 's', tone: 'from-slate-50 to-slate-200' },
-  { id: 'cacl2', formula: 'CaCl2', name: 'Calcium Chloride', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
-  { id: 'bacl2', formula: 'BaCl2', name: 'Barium Chloride', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
-  { id: 'nh4cl', formula: 'NH4Cl', name: 'Ammonium Chloride', category: 'Salts', phase: 'aq', tone: 'from-blue-100 to-blue-300' },
-  { id: 'mgcl2', formula: 'MgCl2', name: 'Magnesium Chloride', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
-  { id: 'zncl2', formula: 'ZnCl2', name: 'Zinc Chloride', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
-  { id: 'fecl3', formula: 'FeCl3', name: 'Iron(III) Chloride', category: 'Salts', phase: 'aq', tone: 'from-amber-300 to-amber-500' },
-  { id: 'h2o', formula: 'H2O', name: 'Water', category: 'Salts', phase: 'l', tone: 'from-sky-300 to-sky-500' },
-  { id: 'na2co3', formula: 'Na2CO3', name: 'Sodium Carbonate', category: 'Salts', phase: 'aq', tone: 'from-slate-50 to-slate-200' },
-  { id: 'nahco3', formula: 'NaHCO3', name: 'Sodium Bicarbonate', category: 'Salts', phase: 's', tone: 'from-slate-50 to-slate-200' },
-  { id: 'kno3', formula: 'KNO3', name: 'Potassium Nitrate', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-200' },
-  { id: 'agno3', formula: 'AgNO3', name: 'Silver Nitrate', category: 'Salts', phase: 'aq', tone: 'from-slate-100 to-slate-200' },
+  // Salts & Reagents
+  { id: 'nano2', formula: 'NaNO2', name: 'Sodium Nitrite', category: 'Salts & Reagents', phase: 's', tone: 'from-yellow-100 to-yellow-200' },
+  { id: 'cucl', formula: 'CuCl', name: 'Copper(I) Chloride', category: 'Salts & Reagents', phase: 's', tone: 'from-emerald-200 to-emerald-400' },
+  { id: 'cubr', formula: 'CuBr', name: 'Copper(I) Bromide', category: 'Salts & Reagents', phase: 's', tone: 'from-amber-200 to-amber-400' },
+  { id: 'cucn', formula: 'CuCN', name: 'Copper(I) Cyanide', category: 'Salts & Reagents', phase: 's', tone: 'from-slate-200 to-slate-300' },
+  { id: 'ki', formula: 'KI', name: 'Potassium Iodide', category: 'Salts & Reagents', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
+  { id: 'alcl3', formula: 'AlCl3', name: 'Anhydrous Aluminium Chloride', category: 'Salts & Reagents', phase: 's', tone: 'from-slate-100 to-slate-200' },
+  { id: 'fecl3', formula: 'FeCl3', name: 'Iron(III) Chloride', category: 'Salts & Reagents', phase: 'aq', tone: 'from-amber-300 to-amber-500' },
+  { id: 'agno3', formula: 'AgNO3', name: 'Silver Nitrate', category: 'Salts & Reagents', phase: 'aq', tone: 'from-slate-100 to-slate-200' },
+  { id: 'kmno4', formula: 'KMnO4', name: 'Potassium Permanganate', category: 'Salts & Reagents', phase: 'aq', tone: 'from-sky-300 to-blue-500' },
+  { id: 'k2cr2o7', formula: 'K2Cr2O7', name: 'Potassium Dichromate', category: 'Salts & Reagents', phase: 'aq', tone: 'from-orange-300 to-amber-500' },
+  { id: 'feso4', formula: 'FeSO4', name: 'Ferrous Sulphate', category: 'Salts & Reagents', phase: 'aq', tone: 'from-emerald-300 to-emerald-500' },
+  { id: 'k2hgi4', formula: 'K2HgI4', name: "Nessler's Reagent", category: 'Salts & Reagents', phase: 'aq', tone: 'from-amber-200 to-yellow-400' },
+  { id: 'dmg', formula: 'DMG', name: 'Dimethylglyoxime', category: 'Salts & Reagents', phase: 's', tone: 'from-rose-200 to-red-400' },
+  { id: 'caco3', formula: 'CaCO3', name: 'Calcium Carbonate', category: 'Salts & Reagents', phase: 's', tone: 'from-slate-100 to-slate-200' },
+  { id: 'nahco3', formula: 'NaHCO3', name: 'Sodium Bicarbonate', category: 'Salts & Reagents', phase: 's', tone: 'from-slate-50 to-slate-200' },
+  { id: 'nacl', formula: 'NaCl', name: 'Sodium Chloride', category: 'Salts & Reagents', phase: 'aq', tone: 'from-slate-100 to-slate-300' },
+  { id: 'cuso4', formula: 'CuSO4', name: 'Copper Sulphate', category: 'Salts & Reagents', phase: 'aq', tone: 'from-sky-300 to-blue-500' },
+  { id: 'zn_hg', formula: 'Zn_Hg', name: 'Zinc Amalgam (Clemmensen Reagent)', category: 'Salts & Reagents', phase: 's', tone: 'from-slate-300 to-slate-400' },
+  { id: 'nh2nh2', formula: 'NH2NH2', name: 'Hydrazine (Wolff-Kishner Reagent)', category: 'Salts & Reagents', phase: 'l', tone: 'from-sky-100 to-sky-200' },
+  { id: 'dry_ether', formula: 'dry_ether', name: 'Dry Ether (Anhydrous Solvent)', category: 'Salts & Reagents', phase: 'l', tone: 'from-sky-50 to-sky-100' },
+  { id: 'acetone', formula: 'acetone', name: 'Dry Acetone (Finkelstein Solvent)', category: 'Salts & Reagents', phase: 'l', tone: 'from-sky-100 to-sky-200' },
 
   // Gases
   { id: 'co2', formula: 'CO2', name: 'Carbon Dioxide', category: 'Gases', phase: 'g', tone: 'from-slate-200 to-slate-400' },
@@ -84,9 +122,9 @@ export const MATERIAL_CHEMICALS = [
   { id: 'cl2g', formula: 'Cl2', name: 'Chlorine Gas', category: 'Gases', phase: 'g', tone: 'from-green-200 to-green-400' },
   { id: 'n2', formula: 'N2', name: 'Nitrogen Gas', category: 'Gases', phase: 'g', tone: 'from-teal-200 to-sky-300' },
   { id: 'nh3g', formula: 'NH3', name: 'Ammonia Gas', category: 'Gases', phase: 'g', tone: 'from-lime-200 to-lime-300' },
-  { id: 'no2', formula: 'NO2', name: 'Nitrogen Dioxide', category: 'Gases', phase: 'g', tone: 'from-red-300 to-red-500' },
-  { id: 'h2s', formula: 'H2S', name: 'Hydrogen Sulphide', category: 'Gases', phase: 'g', tone: 'from-yellow-200 to-yellow-300' },
-  { id: 'ch4', formula: 'CH4', name: 'Methane', category: 'Gases', phase: 'g', tone: 'from-blue-200 to-blue-400' },
+
+  // 118 Elements (Anime)
+  ...ELEMENT_MATERIALS,
 
   // Action Arrows
   { id: 'arrow_heat', arrow: 'heat', name: 'Heat Arrow', symbol: 'Δ', category: 'Action Arrows' },
@@ -99,4 +137,10 @@ export const MATERIAL_CHEMICALS = [
 
 export function materialById(id) {
   return MATERIAL_CHEMICALS.find((m) => m.id === id);
+}
+
+export function materialByFormula(formula) {
+  if (!formula) return null;
+  const f = formula.trim();
+  return MATERIAL_CHEMICALS.find((m) => m.formula.toLowerCase() === f.toLowerCase()) || null;
 }

@@ -245,7 +245,7 @@ export default function SnapAndSolveView() {
       {/* Main Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-sky-400 text-white shadow-md">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-300 text-slate-950 shadow-md border-b-4 border-amber-400">
             <Camera size={24} />
           </div>
           <div>
@@ -253,8 +253,8 @@ export default function SnapAndSolveView() {
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                 Snap & Solve
               </h1>
-              <span className="rounded-full bg-blue-100 text-blue-800 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border border-blue-200">
-                Smart OCR Component
+              <span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border border-sky-200">
+                Handcrafted OCR
               </span>
             </div>
             <p className="text-xs text-slate-500">
@@ -270,7 +270,7 @@ export default function SnapAndSolveView() {
               setSelectedImage(null);
               setCurrentProblem(null);
             }}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-xs transition active:scale-95"
+            className="clay-btn-yellow flex items-center gap-1.5 px-4 py-2 text-xs font-black text-slate-950 shadow-xs active:scale-95 transition"
           >
             <RotateCcw size={14} />
             <span>Scan Another Problem</span>
@@ -279,7 +279,7 @@ export default function SnapAndSolveView() {
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* STAGE 1: IDLE / UPLOAD ZONE                                   */}
+      {/* STAGE 1: IDLE / UPLOAD ZONE (CLAY UI)                         */}
       {/* ------------------------------------------------------------- */}
       {stage === 'idle' && (
         <div className="space-y-6">
@@ -287,7 +287,7 @@ export default function SnapAndSolveView() {
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
-            className="group relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-sky-300 bg-white/80 p-8 sm:p-12 text-center shadow-sm transition hover:border-sky-500 hover:bg-sky-50/30"
+            className="clay-card group relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-sky-300 bg-white p-8 sm:p-12 text-center shadow-sm transition hover:border-sky-500 hover:bg-sky-50/20"
           >
             <input
               ref={fileInputRef}
@@ -297,12 +297,12 @@ export default function SnapAndSolveView() {
               onChange={handleFileSelect}
             />
 
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 group-hover:scale-110 transition shadow-inner">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-300 text-slate-950 group-hover:scale-105 transition shadow-sm border-b-2 border-amber-400">
               <UploadCloud size={32} />
             </div>
 
-            <h3 className="mt-4 text-base sm:text-lg font-bold text-slate-900">
-              Drag and drop your handwritten problem photo here
+            <h3 className="mt-4 text-base sm:text-lg font-black text-slate-900">
+              Drop your handwritten problem photo here
             </h3>
             <p className="mt-1 text-xs text-slate-500 max-w-md">
               Supports PNG, JPG, or screenshot files. Our Smart OCR pipeline automatically parses handwritten symbols, vectors, and chemical reactions.
@@ -311,7 +311,7 @@ export default function SnapAndSolveView() {
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 rounded-2xl bg-sky-600 px-5 py-3 text-xs font-bold text-white shadow-md shadow-sky-600/25 hover:bg-sky-500 transition active:scale-95"
+                className="clay-btn-yellow flex items-center gap-2 px-6 py-3 text-xs font-black text-slate-950 shadow-md"
               >
                 <FileImage size={16} />
                 <span>Upload From Device</span>
@@ -319,28 +319,28 @@ export default function SnapAndSolveView() {
 
               <button
                 onClick={openCamera}
-                className="flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 transition active:scale-95"
+                className="clay-btn-sky flex items-center gap-2 px-6 py-3 text-xs font-bold text-white shadow-md"
               >
-                <Camera size={16} className="text-sky-600" />
+                <Camera size={16} />
                 <span>Use Camera</span>
               </button>
             </div>
           </div>
 
-          {/* Preset Samples For Hackathon Demonstration */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          {/* Preset Samples For Demonstration */}
+          <div className="clay-card rounded-3xl border border-sky-100 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                  <Sparkles size={16} className="text-amber-500" />
+                <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                  <Sparkles size={16} className="text-amber-500 fill-amber-400" />
                   <span>Try Demo Handwritten Problems (1-Click Test)</span>
                 </h3>
                 <p className="text-[11px] text-slate-500">
                   Select a pre-scanned handwritten problem to test the OCR scanning and step-by-step breakdown.
                 </p>
               </div>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Hackathon Presets
+              <span className="text-[10px] font-black uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">
+                Instant Presets
               </span>
             </div>
 
@@ -349,9 +349,9 @@ export default function SnapAndSolveView() {
                 <div
                   key={preset.id}
                   onClick={() => handleSelectPreset(preset)}
-                  className="group cursor-pointer rounded-2xl border border-slate-200/90 bg-slate-50/60 p-4 transition hover:border-sky-400 hover:bg-sky-50/40 hover:shadow-md"
+                  className="group cursor-pointer rounded-2xl border border-sky-100 bg-white p-4 transition hover:border-amber-400 hover:bg-amber-50/20 hover:shadow-md"
                 >
-                  <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center p-2 group-hover:scale-102 transition">
+                  <div className="aspect-video w-full rounded-xl overflow-hidden border border-sky-100 bg-sky-50/40 flex items-center justify-center p-2 group-hover:scale-102 transition">
                     <img
                       src={preset.previewUrl}
                       alt={preset.title}
@@ -361,7 +361,7 @@ export default function SnapAndSolveView() {
 
                   <div className="mt-3">
                     <div className="flex items-center justify-between">
-                      <span className="rounded bg-sky-100 text-sky-800 px-2 py-0.5 text-[9px] font-bold">
+                      <span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-0.5 text-[9px] font-bold border border-sky-200">
                         {preset.subject}
                       </span>
                       <span className="text-[10px] font-semibold text-slate-400">
@@ -376,7 +376,7 @@ export default function SnapAndSolveView() {
                     </p>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-200/60 text-xs font-bold text-sky-600 group-hover:text-sky-700">
+                  <div className="mt-3 flex items-center justify-between pt-2 border-t border-sky-100 text-xs font-bold text-sky-700 group-hover:text-amber-600">
                     <span>Scan & Solve This</span>
                     <ArrowRight size={13} className="group-hover:translate-x-1 transition" />
                   </div>
@@ -388,36 +388,42 @@ export default function SnapAndSolveView() {
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* CAMERA MODAL OVERLAY                                          */}
+      {/* HANDCRAFTED CLAY CAMERA MODAL OVERLAY                         */}
       {/* ------------------------------------------------------------- */}
       {isCameraOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-800 p-6 text-white shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-sky-950/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="clay-card relative w-full max-w-xl rounded-3xl bg-white border-2 border-sky-200 p-6 text-slate-900 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-sky-100 pb-3">
               <div className="flex items-center gap-2">
-                <Camera size={18} className="text-sky-400" />
-                <h3 className="text-sm font-bold">Camera Capture</h3>
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-300 text-slate-950 font-bold border-b-2 border-amber-400">
+                  <Camera size={16} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">Handcrafted Camera Frame</h3>
+                  <p className="text-[10px] text-slate-400">Point at handwritten equation or problem sheet</p>
+                </div>
               </div>
               <button
                 onClick={closeCamera}
-                className="rounded-lg bg-slate-800 p-1.5 text-slate-400 hover:text-white"
+                className="clay-btn-circle flex h-8 w-8 items-center justify-center text-slate-400 hover:text-slate-700"
               >
                 <X size={16} />
               </button>
             </div>
 
             {cameraError ? (
-              <div className="rounded-2xl bg-rose-500/20 border border-rose-500/40 p-4 text-center">
-                <p className="text-xs text-rose-300 font-medium">{cameraError}</p>
+              <div className="rounded-2xl bg-amber-50 border-2 border-amber-300 p-5 text-center space-y-3">
+                <AlertCircle size={28} className="mx-auto text-amber-600" />
+                <p className="text-xs text-slate-700 font-semibold">{cameraError}</p>
                 <button
                   onClick={closeCamera}
-                  className="mt-3 rounded-xl bg-slate-800 px-4 py-2 text-xs font-bold text-white hover:bg-slate-700"
+                  className="clay-btn-yellow px-5 py-2 text-xs font-black text-slate-950 shadow-xs"
                 >
-                  Close & Use Upload Instead
+                  Use Upload Instead
                 </button>
               </div>
             ) : (
-              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black border border-slate-800">
+              <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-sky-50 border-4 border-dashed border-sky-300 shadow-inner flex items-center justify-center">
                 <video
                   ref={videoRef}
                   autoPlay
@@ -425,9 +431,9 @@ export default function SnapAndSolveView() {
                   className="h-full w-full object-cover"
                 />
 
-                {/* Camera Reticle Overlay */}
-                <div className="absolute inset-8 border-2 border-dashed border-sky-400/80 rounded-xl pointer-events-none flex items-center justify-center">
-                  <span className="bg-slate-950/70 text-sky-300 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-xs">
+                {/* Handcrafted Camera Reticle Overlay */}
+                <div className="absolute inset-6 border-2 border-dashed border-sky-400 rounded-2xl pointer-events-none flex items-center justify-center">
+                  <span className="bg-white/95 text-sky-900 text-[10px] font-black px-3.5 py-1 rounded-full border border-sky-200 shadow-sm backdrop-blur-xs">
                     Align handwritten problem inside frame
                   </span>
                 </div>
@@ -435,19 +441,19 @@ export default function SnapAndSolveView() {
             )}
 
             {!cameraError && (
-              <div className="mt-6 flex items-center justify-center gap-4">
+              <div className="pt-2 flex items-center justify-center gap-3">
                 <button
                   onClick={closeCamera}
-                  className="rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-700"
+                  className="clay-card rounded-2xl border border-sky-200 px-5 py-2.5 text-xs font-bold text-slate-600 hover:bg-sky-50 transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={capturePhoto}
-                  className="flex items-center gap-2 rounded-2xl bg-sky-500 px-6 py-3 text-xs font-black text-white shadow-lg shadow-sky-500/30 hover:bg-sky-400 active:scale-95 transition"
+                  className="clay-btn-yellow flex items-center gap-2 px-7 py-3 text-xs font-black text-slate-950 shadow-md"
                 >
                   <Camera size={16} />
-                  <span>Snap Problem</span>
+                  <span>Snap Problem & Solve</span>
                 </button>
               </div>
             )}
@@ -456,45 +462,43 @@ export default function SnapAndSolveView() {
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* STAGE 2: SCANNING LASER ANIMATION                             */}
+      {/* STAGE 2: SCANNING CHAMBER (HANDCRAFTED CLAY UI)               */}
       {/* ------------------------------------------------------------- */}
       {stage === 'scanning' && (
-        <div className="relative flex flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white p-8 sm:p-12 shadow-sm text-center">
-          <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-2xl border-2 border-sky-400/60 bg-slate-950 shadow-xl">
+        <div className="clay-card relative flex flex-col items-center justify-center rounded-3xl border-2 border-sky-100 bg-white p-8 sm:p-12 shadow-sm text-center space-y-5">
+          <div className="clay-card relative aspect-video w-full max-w-md overflow-hidden rounded-2xl border-2 border-sky-300 bg-sky-50/50 shadow-md flex items-center justify-center">
             {selectedImage && (
               <img
                 src={selectedImage}
                 alt="Problem being scanned"
-                className="h-full w-full object-contain opacity-70 filter contrast-125"
+                className="h-full w-full object-contain opacity-85 filter contrast-110"
               />
             )}
 
-            {/* Glowing Laser Scan Line Animation */}
-            <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-laser" />
+            {/* Handcrafted Sky Blue Scan Line */}
+            <div className="absolute inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent shadow-[0_0_12px_#38bdf8] animate-laser" />
 
-            {/* Scan Grid Overlay */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#0284c715_1px,transparent_1px),linear-gradient(to_bottom,#0284c715_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
-
-            <div className="absolute bottom-3 inset-x-4 flex items-center justify-between rounded-xl bg-slate-900/85 backdrop-blur-md px-3 py-1.5 text-[11px] text-sky-300 font-mono">
+            {/* Scanning Pill */}
+            <div className="absolute bottom-3 inset-x-4 flex items-center justify-between rounded-xl bg-white/95 border border-sky-200 shadow-sm px-3.5 py-1.5 text-[11px] text-sky-900 font-mono font-bold backdrop-blur-xs">
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
+                <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
                 <span>OCR Processing</span>
               </span>
               <span>Step {scanStepIndex + 1}/4</span>
             </div>
           </div>
 
-          <div className="mt-6 max-w-md w-full space-y-2">
-            <h3 className="text-base font-bold text-slate-900">
+          <div className="max-w-md w-full space-y-2.5">
+            <h3 className="text-base font-black text-slate-900">
               Analyzing Handwritten Problem...
             </h3>
-            <p className="text-xs font-medium text-sky-600 font-mono">
+            <p className="text-xs font-bold text-sky-700 font-mono">
               {SCAN_STAGES[scanStepIndex]}
             </p>
 
-            <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+            <div className="h-3 w-full rounded-full bg-sky-50 border border-sky-200 overflow-hidden p-0.5 shadow-inner">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600 transition-all duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-300 transition-all duration-300 shadow-xs"
                 style={{ width: `${((scanStepIndex + 1) / SCAN_STAGES.length) * 100}%` }}
               />
             </div>
@@ -508,27 +512,27 @@ export default function SnapAndSolveView() {
       {stage === 'solved' && currentProblem && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* LEFT SIDE: UPLOADED IMAGE WITH OCR HIGHLIGHTS */}
-          <div className="lg:col-span-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4 sticky top-24">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="clay-card lg:col-span-5 rounded-3xl border border-sky-100 bg-white p-5 shadow-sm space-y-4 sticky top-24">
+            <div className="flex items-center justify-between pb-3 border-b border-sky-100">
               <div className="flex items-center gap-2">
-                <FileImage size={16} className="text-blue-600" />
-                <span className="text-xs font-bold text-slate-800">Scanned Problem</span>
+                <FileImage size={16} className="text-sky-600" />
+                <span className="text-xs font-black text-slate-800">Scanned Problem</span>
               </div>
 
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setZoomLevel((z) => Math.max(0.8, z - 0.15))}
-                  className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+                  className="rounded-lg p-1.5 text-slate-500 hover:bg-sky-50 transition"
                   title="Zoom Out"
                 >
                   <ZoomOut size={14} />
                 </button>
-                <span className="text-[10px] font-mono font-bold text-slate-500 px-1">
+                <span className="text-[10px] font-mono font-bold text-slate-600 px-1">
                   {Math.round(zoomLevel * 100)}%
                 </span>
                 <button
                   onClick={() => setZoomLevel((z) => Math.min(1.6, z + 0.15))}
-                  className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+                  className="rounded-lg p-1.5 text-slate-500 hover:bg-sky-50 transition"
                   title="Zoom In"
                 >
                   <ZoomIn size={14} />
@@ -537,7 +541,7 @@ export default function SnapAndSolveView() {
             </div>
 
             {/* Image Viewer Container */}
-            <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center">
+            <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-sky-200 bg-sky-50/50 flex items-center justify-center p-2 shadow-inner">
               <img
                 src={selectedImage}
                 alt="Scanned problem"
@@ -547,19 +551,19 @@ export default function SnapAndSolveView() {
 
               {/* Bounding Box Highlights Badge */}
               {showBoundingBoxes && (
-                <div className="absolute top-2 left-2 rounded-lg bg-emerald-500/90 text-white px-2 py-0.5 text-[9px] font-bold shadow-xs">
-                  ✓ 98.4% OCR Confidence
+                <div className="absolute top-3 left-3 rounded-full bg-amber-300 text-slate-950 px-2.5 py-0.5 text-[9px] font-black shadow-xs border border-amber-400">
+                  ✓ 98.4% OCR Precision
                 </div>
               )}
             </div>
 
             {/* Extracted Text Details Card */}
-            <div className="rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-2">
+            <div className="rounded-2xl bg-sky-50/50 border border-sky-100 p-4 space-y-2">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="font-extrabold uppercase tracking-wide text-slate-500">
+                <span className="font-black uppercase tracking-wide text-slate-500">
                   Recognized Problem Text
                 </span>
-                <span className="rounded bg-sky-100 text-sky-700 px-2 py-0.5 text-[9px] font-bold">
+                <span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-0.5 text-[9px] font-bold border border-sky-200">
                   {currentProblem.chapter}
                 </span>
               </div>
@@ -569,58 +573,54 @@ export default function SnapAndSolveView() {
             </div>
 
             {/* Quick Actions (Pin to Notes) */}
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={handlePinToNotes}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition active:scale-95 ${
-                  isPinned
-                    ? 'border-amber-400 bg-amber-50 text-amber-900'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
+                className="clay-btn-yellow w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black text-slate-950 shadow-xs active:scale-95 transition"
               >
-                {isPinned ? <BookmarkCheck size={14} className="text-amber-600" /> : <Bookmark size={14} />}
-                <span>{isPinned ? 'Pinned to Student Notes' : 'Pin to Notes'}</span>
+                {isPinned ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+                <span>{isPinned ? 'Pinned to Student Notes' : 'Pin to Notes (+25 XP)'}</span>
               </button>
             </div>
           </div>
 
           {/* RIGHT SIDE: AI STEP-BY-STEP BREAKDOWN & CHAT INTERFACE */}
-          <div className="lg:col-span-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+          <div className="clay-card lg:col-span-7 rounded-3xl border border-sky-100 bg-white p-6 shadow-sm space-y-6">
             {/* Header info */}
-            <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+            <div className="flex items-start justify-between pb-4 border-b border-sky-100">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-blue-100 text-blue-800 px-2.5 py-0.5 text-[10px] font-bold">
+                  <span className="rounded-full bg-sky-100 text-sky-800 px-2.5 py-0.5 text-[10px] font-bold border border-sky-200">
                     {currentProblem.subject}
                   </span>
                   <span className="rounded-full bg-slate-100 text-slate-700 px-2 py-0.5 text-[10px] font-medium">
                     {currentProblem.difficulty}
                   </span>
                 </div>
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                <h2 className="text-base sm:text-lg font-black text-slate-900 mt-1">
                   {currentProblem.title}
                 </h2>
               </div>
 
-              <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-bold">
-                <CheckCircle2 size={16} />
+              <div className="flex items-center gap-1.5 text-sky-700 text-xs font-bold bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">
+                <CheckCircle2 size={15} />
                 <span>Verified Solution</span>
               </div>
             </div>
 
             {/* Step-by-Step Breakdown Cards */}
             <div className="space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
                 Step-by-Step Pedagogical Derivation
               </h3>
 
               {currentProblem.steps.map((step) => (
                 <div
                   key={step.stepNumber}
-                  className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 transition hover:bg-white hover:shadow-2xs"
+                  className="rounded-2xl border border-sky-100 bg-white p-4 transition hover:border-amber-300 hover:shadow-2xs"
                 >
                   <div className="flex items-center gap-2.5 mb-1.5">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-sky-600 text-white font-mono text-xs font-bold shrink-0">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-amber-300 text-slate-950 font-mono text-xs font-black shrink-0 border-b-2 border-amber-400 shadow-2xs">
                       {step.stepNumber}
                     </span>
                     <h4 className="text-xs sm:text-sm font-bold text-slate-900">
@@ -633,7 +633,7 @@ export default function SnapAndSolveView() {
                   </p>
 
                   {step.math && (
-                    <div className="mt-2.5 ml-8 overflow-x-auto rounded-xl bg-white border border-slate-200 px-3 py-2 font-mono text-xs font-bold text-sky-900 shadow-2xs">
+                    <div className="mt-2.5 ml-8 overflow-x-auto rounded-xl bg-sky-50/70 border border-sky-200 px-3.5 py-2 font-mono text-xs font-bold text-sky-950 shadow-2xs">
                       {step.math}
                     </div>
                   )}
@@ -652,24 +652,24 @@ export default function SnapAndSolveView() {
             </div>
 
             {/* Final Answer Banner */}
-            <div className="rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-sky-500/10 border border-emerald-200 p-4">
-              <div className="flex items-center gap-2 text-emerald-800 text-xs font-extrabold uppercase tracking-wide mb-1">
-                <Check size={16} />
+            <div className="rounded-2xl bg-amber-50/80 border-2 border-amber-300 p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-slate-950 text-xs font-black uppercase tracking-wide mb-1">
+                <Check size={16} className="text-amber-600" />
                 <span>Final Result</span>
               </div>
-              <p className="font-mono text-xs sm:text-sm font-bold text-emerald-950">
+              <p className="font-mono text-xs sm:text-sm font-black text-slate-900">
                 {currentProblem.finalAnswer}
               </p>
               {currentProblem.tips && (
-                <p className="mt-2 text-[11px] text-emerald-800/90 bg-white/70 rounded-lg p-2 border border-emerald-200/60">
+                <p className="mt-2 text-[11px] text-slate-700 bg-white/90 rounded-xl p-2.5 border border-amber-200/80">
                   💡 <strong>Exam Insight:</strong> {currentProblem.tips}
                 </p>
               )}
             </div>
 
             {/* Interactive Follow-up Doubt Chat */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+            <div className="rounded-2xl border border-sky-100 bg-sky-50/40 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
                 <Bot size={16} className="text-sky-600" />
                 <span>Ask AI a Follow-up Doubt on This Solution</span>
               </div>
@@ -684,15 +684,15 @@ export default function SnapAndSolveView() {
                     }`}
                   >
                     {msg.sender === 'ai' && (
-                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-sky-600 text-white text-[10px] font-bold">
+                      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-xl bg-amber-300 text-slate-950 text-[10px] font-black border-b-2 border-amber-400">
                         AI
                       </div>
                     )}
                     <div
                       className={`max-w-[85%] rounded-2xl px-3.5 py-2 leading-relaxed ${
                         msg.sender === 'user'
-                          ? 'bg-sky-600 text-white font-medium'
-                          : 'bg-white text-slate-800 border border-slate-200 shadow-2xs'
+                          ? 'clay-btn-sky text-white font-medium shadow-xs'
+                          : 'bg-white text-slate-800 border border-sky-100 shadow-2xs'
                       }`}
                     >
                       {msg.text}
@@ -717,12 +717,12 @@ export default function SnapAndSolveView() {
                   value={followUpInput}
                   onChange={(e) => setFollowUpInput(e.target.value)}
                   placeholder="e.g., Why did we resolve velocity into cos and sin?"
-                  className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                  className="flex-1 rounded-xl border border-sky-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-900 placeholder-slate-400 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-200 shadow-2xs"
                 />
                 <button
                   type="submit"
                   disabled={!followUpInput.trim() || isChatThinking}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-600 text-white hover:bg-sky-500 disabled:opacity-50 transition active:scale-95"
+                  className="clay-btn-yellow flex h-9 w-9 items-center justify-center rounded-xl text-slate-950 disabled:opacity-50 transition active:scale-95 shadow-xs"
                 >
                   <Send size={14} />
                 </button>

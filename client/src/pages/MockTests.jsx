@@ -332,13 +332,13 @@ export default function MockTests() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-500 text-white shadow-md">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-sky-400 text-white shadow-md">
                 <GraduationCap size={28} />
               </span>
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-0.5 text-[10px] font-extrabold text-indigo-800">
-                  <Database size={12} className="text-indigo-600" />
-                  Supabase Question Bank · 3,800 Questions Available
+                <div className="inline-flex items-center gap-2 rounded-full bg-sky-50 border border-sky-200 px-3 py-0.5 text-[10px] font-extrabold text-sky-800">
+                  <Database size={12} className="text-sky-600" />
+                  Supabase Question Bank · 25,000 Questions Available
                 </div>
                 <h1 className="mt-1 text-2xl sm:text-3xl font-black text-slate-900">
                   JEE Science Mock Tests
@@ -352,7 +352,7 @@ export default function MockTests() {
                 onClick={() => setTestMode('QB_50')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition ${
                   testMode === 'QB_50'
-                    ? 'bg-white text-indigo-700 shadow-xs ring-1 ring-slate-200'
+                    ? 'bg-white text-sky-700 shadow-xs ring-1 ring-slate-200'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -363,7 +363,7 @@ export default function MockTests() {
                 onClick={() => setTestMode('ADAPTIVE_10')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition ${
                   testMode === 'ADAPTIVE_10'
-                    ? 'bg-white text-indigo-700 shadow-xs ring-1 ring-slate-200'
+                    ? 'bg-white text-sky-700 shadow-xs ring-1 ring-slate-200'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -420,7 +420,7 @@ export default function MockTests() {
                         onClick={() => setExamLevel(lvl.level)}
                         className={`p-3 rounded-xl border text-left transition ${
                           examLevel === lvl.level
-                            ? 'border-indigo-500 bg-indigo-50/80 ring-2 ring-indigo-200 shadow-xs'
+                            ? 'border-sky-500 bg-sky-50/80 ring-2 ring-sky-200 shadow-xs'
                             : 'border-slate-200 bg-white hover:bg-slate-50'
                         }`}
                       >
@@ -459,7 +459,7 @@ export default function MockTests() {
                     </div>
                     <div className="rounded-xl bg-slate-50 p-2.5 text-center border border-slate-100">
                       <p className="text-[9px] uppercase font-bold text-slate-400">Target Time</p>
-                      <p className="text-sm font-black text-indigo-600">60 Minutes</p>
+                      <p className="text-sm font-black text-sky-600">60 Minutes</p>
                     </div>
                     <div className="rounded-xl bg-slate-50 p-2.5 text-center border border-slate-100">
                       <p className="text-[9px] uppercase font-bold text-slate-400">Reward</p>
@@ -531,7 +531,7 @@ export default function MockTests() {
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100">
                   <p className="text-[10px] font-bold uppercase text-slate-400">Remediation</p>
-                  <p className="mt-0.5 text-base font-black text-indigo-600">5 Qs / Concept</p>
+                  <p className="mt-0.5 text-base font-black text-sky-600">5 Qs / Concept</p>
                 </div>
                 <div className="rounded-2xl bg-slate-50 p-3 border border-slate-100">
                   <p className="text-[10px] font-bold uppercase text-slate-400">Target XP</p>
@@ -563,15 +563,15 @@ export default function MockTests() {
           {/* Top Bar: Exam Level, Timer & Status */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-4 border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 font-extrabold text-sm">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-700 font-extrabold text-sm">
                 Q{qbCurrentIndex + 1}
               </span>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded bg-indigo-100 text-indigo-800 px-2 py-0.5 text-[10px] font-bold">
+                  <span className="rounded bg-sky-100 text-sky-800 px-2 py-0.5 text-[10px] font-bold">
                     {currentQbQ.subject}
                   </span>
-                  <span className="rounded bg-sky-100 text-sky-800 px-2 py-0.5 text-[10px] font-bold">
+                  <span className="rounded bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold">
                     {examLevel}
                   </span>
                 </div>
@@ -588,7 +588,7 @@ export default function MockTests() {
               </div>
               <button
                 onClick={() => setShowSubmitModal(true)}
-                className="rounded-xl bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 transition shadow-xs"
+                className="clay-btn-yellow px-4 py-1.5 text-xs font-bold text-slate-900 shadow-xs"
               >
                 Submit Test ({qbTotalAnswered}/50)
               </button>
@@ -677,14 +677,14 @@ export default function MockTests() {
                     onClick={() => handleSelectQbAnswer(opt.key)}
                     className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left text-xs sm:text-sm transition ${
                       isSelected
-                        ? 'border-indigo-500 bg-indigo-50/80 text-indigo-950 font-bold ring-2 ring-indigo-200 shadow-xs'
+                        ? 'border-sky-500 bg-sky-50/80 text-sky-950 font-bold ring-2 ring-sky-200 shadow-xs'
                         : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <span
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-bold text-xs ${
-                          isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'
+                          isSelected ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-700'
                         }`}
                       >
                         {opt.key}
@@ -693,7 +693,7 @@ export default function MockTests() {
                     </div>
 
                     {isSelected && (
-                      <CheckCircle2 size={18} className="text-indigo-600 shrink-0 ml-2" />
+                      <CheckCircle2 size={18} className="text-sky-600 shrink-0 ml-2" />
                     )}
                   </button>
                 );
@@ -738,7 +738,7 @@ export default function MockTests() {
                 ) : (
                   <button
                     onClick={() => setShowSubmitModal(true)}
-                    className="rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-indigo-700"
+                    className="clay-btn-yellow px-5 py-2.5 text-xs font-bold text-slate-900 shadow-xs"
                   >
                     Review & Submit Test
                   </button>
@@ -754,7 +754,7 @@ export default function MockTests() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="rounded-3xl bg-white p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 space-y-5">
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 <BarChart3 size={20} />
               </span>
               <div>
@@ -787,7 +787,7 @@ export default function MockTests() {
               </button>
               <button
                 onClick={handleFinishQbTest}
-                className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white hover:bg-indigo-700 shadow-xs"
+                className="clay-btn-yellow flex-1 py-2.5 text-xs font-bold text-slate-900 shadow-xs"
               >
                 Confirm & Submit
               </button>
@@ -860,10 +860,10 @@ export default function MockTests() {
                     <p className="mt-1 text-2xl font-black text-amber-900">{qbTotalAnswered} / 50</p>
                     <p className="text-[10px] text-amber-700">{50 - qbTotalAnswered} Skipped</p>
                   </div>
-                  <div className="rounded-2xl bg-indigo-50/70 p-4 border border-indigo-100">
-                    <p className="text-[10px] font-bold uppercase text-indigo-800">XP Awarded</p>
-                    <p className="mt-1 text-2xl font-black text-indigo-900">+{200 + correct * 12} XP</p>
-                    <p className="text-[10px] text-indigo-700">Logged to Profile</p>
+                  <div className="rounded-2xl bg-amber-50/70 p-4 border border-amber-100">
+                    <p className="text-[10px] font-bold uppercase text-amber-800">XP Awarded</p>
+                    <p className="mt-1 text-2xl font-black text-amber-900">+{200 + correct * 12} XP</p>
+                    <p className="text-[10px] text-amber-700">Logged to Profile</p>
                   </div>
                 </div>
 
@@ -943,7 +943,7 @@ export default function MockTests() {
           {/* Top Bar */}
           <div className="flex items-center justify-between rounded-2xl bg-white p-4 border border-slate-100 shadow-xs">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold text-indigo-800">
+              <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-800 border border-sky-200">
                 Question {currentIndex + 1} of {MOCK_TEST_QUESTIONS.length}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -1293,12 +1293,12 @@ export default function MockTests() {
               <p className="text-[10px] text-sky-700">All Weak Concepts Fixed</p>
             </div>
 
-            <div className="rounded-2xl bg-indigo-50/70 p-4 border border-indigo-100">
-              <p className="text-[10px] font-bold uppercase text-indigo-800">Total XP Earned</p>
-              <p className="mt-1 text-2xl font-black text-indigo-900">
+            <div className="rounded-2xl bg-amber-50/70 p-4 border border-amber-100">
+              <p className="text-[10px] font-bold uppercase text-amber-800">Total XP Earned</p>
+              <p className="mt-1 text-2xl font-black text-amber-900">
                 +{150 + testScore * 15 + remediatedConcepts.length * 40} XP
               </p>
-              <p className="text-[10px] text-indigo-700">Logged to Profile</p>
+              <p className="text-[10px] text-amber-700">Logged to Profile</p>
             </div>
           </div>
         </div>

@@ -9,7 +9,10 @@ import moreCombination from './08_moreCombination.js';
 import misc from './09_misc.js';
 import { CHEMICALS, CATEGORIES, CONDITIONS, OBSERVATIONS, norm } from './catalog.js';
 
+import { ALL_REACTIONS } from './massiveReactions.js';
+
 export const REACTIONS = [
+  ...ALL_REACTIONS,
   ...combination,
   ...decomposition,
   ...displacement,

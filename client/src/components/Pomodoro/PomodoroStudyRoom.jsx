@@ -25,7 +25,7 @@ import { audioEngine } from '../../utils/ambientAudioEngine.js';
 const TIMER_MODES = [
   { id: 'focus', label: 'Deep Focus', duration: 25 * 60, icon: Brain, color: 'text-sky-500' },
   { id: 'shortBreak', label: 'Short Break', duration: 5 * 60, icon: Coffee, color: 'text-emerald-500' },
-  { id: 'longBreak', label: 'Long Break', duration: 15 * 60, icon: Sparkles, color: 'text-purple-500' },
+  { id: 'longBreak', label: 'Long Break', duration: 15 * 60, icon: Sparkles, color: 'text-amber-500' },
 ];
 
 const SOUND_TRACKS = [
@@ -54,9 +54,9 @@ const SOUND_TRACKS = [
     title: 'Cosmic Rain & Focus Static',
     subtitle: 'Astronomy · Ambient Pink Noise Soundscape',
     icon: CloudRain,
-    themeColor: 'from-purple-500 to-indigo-600',
-    borderColor: 'border-purple-300',
-    bgActive: 'bg-purple-50',
+    themeColor: 'from-amber-400 to-yellow-500',
+    borderColor: 'border-amber-300',
+    bgActive: 'bg-amber-50',
     badgeText: 'Zen Calm',
   },
 ];
@@ -251,7 +251,7 @@ export default function PomodoroStudyRoom({ isFullscreenOverlay = false, onClose
       {/* Top Header Bar */}
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-md">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-sky-400 text-white shadow-md">
             <Clock size={22} />
           </div>
           <div>

@@ -29,6 +29,8 @@ import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
+import CreditStageModal from './CreditStages/CreditStageModal.jsx';
+import { getCreditStage } from '../utils/creditStages.js';
 
 const SEARCH_INDEX = [
   { title: 'Snap & Solve (Smart OCR)', type: 'Innovation', to: '/snap-solve', icon: Camera },
@@ -55,10 +57,14 @@ export default function Header({ onMenuClick }) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [stageModalOpen, setStageModalOpen] = useState(false);
   const [savedCount, setSavedCount] = useState(0);
   const containerRef = useRef(null);
   const profileRef = useRef(null);
   const inputRef = useRef(null);
+
+  const xp = profile?.xp ?? (student ? student.xp : 0);
+  const stageInfo = getCreditStage(xp);
 
   useEffect(() => {
     async function loadSavedCount() {
@@ -207,8 +213,27 @@ export default function Header({ onMenuClick }) {
         </div>
       </div>
 
-      {/* Right: Clay Notifications, Cart/Tools, and 3D Avatar Profile */}
-      <div className="flex items-center gap-3 shrink-0">
+      {/* Right: Clay Credit Stage Capsule, Notifications, Cart/Tools, and 3D Avatar Profile */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        {/* Credit Stage Capsule Button */}
+        <button
+          type="button"
+          onClick={() => setStageModalOpen(true)}
+          className="clay-card hidden sm:flex items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-sm border border-sky-200 hover:border-amber-400 transition cursor-pointer active:scale-95"
+          title="Click to view Credit Stages & Status"
+        >
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-300 text-slate-950 text-[10px] font-black shadow-2xs">
+            ⚡
+          </span>
+          <div className="flex items-center gap-1.5 text-xs font-bold">
+            <span className="text-slate-900 font-mono">{xp.toLocaleString()} Credits</span>
+            <span className="text-sky-400 font-medium">·</span>
+            <span className="text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full text-[10px] font-black border border-sky-200">
+              Stage {stageInfo.stage}: {stageInfo.title}
+            </span>
+          </div>
+        </button>
+
         {/* Notification Button with Clay '3' Badge */}
         <Link
           to="/daily-challenge"
@@ -309,6 +334,13 @@ export default function Header({ onMenuClick }) {
           )}
         </div>
       </div>
+
+      {/* Credit Stage & Status Modal */}
+      <CreditStageModal
+        isOpen={stageModalOpen}
+        onClose={() => setStageModalOpen(false)}
+        credits={xp}
+      />
     </header>
   );
 }

@@ -23,6 +23,7 @@ import {
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
+import { getCreditStage } from '../utils/creditStages.js';
 
 export function LabXploreLogo() {
   return (
@@ -86,6 +87,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const xp = profile?.xp ?? (student ? student.xp : 0);
   const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
   const level = profile?.level ?? (student ? student.level : 1);
+  const stageInfo = getCreditStage(xp);
   const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
   const avatarUrl = profile?.avatar_url || '';
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
@@ -107,9 +109,9 @@ export default function Sidebar({ isOpen, onClose }) {
       >
         {/* Brand Header */}
         <div className="flex h-20 items-center justify-between px-6">
-          <Link to="/dashboard" onClick={onClose}>
+          <div onClick={onClose} className="cursor-pointer">
             <LabXploreLogo />
-          </Link>
+          </div>
           <button
             onClick={onClose}
             className="clay-btn-circle flex h-8 w-8 items-center justify-center text-slate-400 hover:text-slate-600 md:hidden"
@@ -216,18 +218,21 @@ export default function Sidebar({ isOpen, onClose }) {
                   <p className="truncate text-xs font-bold text-slate-900">
                     {name}
                   </p>
-                  <span className="text-[10px] font-bold text-slate-500">
-                    Level {level}
+                  <span className="text-[9px] font-black text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                    Stage {stageInfo.stage}
                   </span>
                 </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                <p className="text-[10px] font-bold text-slate-500 truncate mt-0.5">
+                  {stageInfo.title}
+                </p>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 p-0.5 border border-sky-100">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-sky-400 to-blue-600 transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 transition-all duration-500"
                     style={{ width: `${xpPct}%` }}
                   />
                 </div>
                 <p className="mt-1 text-right text-[9px] font-semibold text-slate-400">
-                  {xp.toLocaleString()} / {xpCap.toLocaleString()} XP
+                  {xp.toLocaleString()} Credits · Level {level}
                 </p>
               </div>
             </div>

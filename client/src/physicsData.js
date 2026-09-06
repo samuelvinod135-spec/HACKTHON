@@ -88,7 +88,7 @@ export const PHYSICS_COMPONENTS = [
     type: 'concave_lens',
     name: 'Concave Lens',
     category: 'Optics',
-    tone: 'from-sky-400 to-indigo-600',
+    tone: 'from-sky-400 to-sky-600',
     description: 'Diverging biconcave lens forming virtual focal points.',
     defaultParams: {
       focalLength: 150,
@@ -114,7 +114,7 @@ export const PHYSICS_COMPONENTS = [
     type: 'prism',
     name: 'Triangular Prism',
     category: 'Optics',
-    tone: 'from-fuchsia-400 to-pink-600',
+    tone: 'from-amber-400 to-yellow-500',
     description: 'Dispersive equilateral glass prism splitting white light into rainbow spectral bands.',
     defaultParams: {
       side: 110,
@@ -302,7 +302,7 @@ export const PHYSICS_COMPONENTS = [
     type: 'vernier',
     name: 'Vernier Calipers',
     category: 'Measurement',
-    tone: 'from-violet-400 to-purple-600',
+    tone: 'from-sky-400 to-blue-500',
     description: 'High-precision dual scale caliper for internal and external dimensions.',
     defaultParams: {
       measuredWidth: 24.6,
@@ -323,7 +323,7 @@ export const PHYSICS_COMPONENTS = [
     type: 'screw_gauge',
     name: 'Screw Gauge',
     category: 'Measurement',
-    tone: 'from-indigo-400 to-slate-600',
+    tone: 'from-sky-500 to-slate-600',
     description: 'Micrometer screw gauge for fine wire diameters and thin plates.',
     defaultParams: {
       pitch: 1.0,
@@ -462,7 +462,7 @@ export const PHYSICS_COMPONENTS = [
     type: 'photoelectric',
     name: 'Photoelectric Plate',
     category: 'Modern Physics',
-    tone: 'from-purple-400 to-pink-600',
+    tone: 'from-amber-400 to-sky-500',
     description: 'UV radiation dislodging photoelectrons above threshold work function.',
     defaultParams: {
       workFunctionEv: 2.28, // Sodium

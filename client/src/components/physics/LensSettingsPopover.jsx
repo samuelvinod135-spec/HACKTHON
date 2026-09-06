@@ -142,7 +142,7 @@ export default function LensSettingsPopover({ lens, onChange, onClose }) {
       <div className="mt-3 space-y-1">
         <div className="flex items-center justify-between text-[11px]">
           <span className="font-semibold text-slate-700">Refractive Index (n):</span>
-          <span className="font-mono font-bold text-indigo-600">{n.toFixed(2)}</span>
+          <span className="font-mono font-bold text-sky-600">{n.toFixed(2)}</span>
         </div>
         <input
           type="range"
@@ -151,7 +151,7 @@ export default function LensSettingsPopover({ lens, onChange, onClose }) {
           step="0.02"
           value={n}
           onChange={(e) => handleNChange(parseFloat(e.target.value))}
-          className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-indigo-600"
+          className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-sky-500"
         />
 
         {/* Preset Material Pills */}

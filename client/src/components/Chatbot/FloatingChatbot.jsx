@@ -29,7 +29,12 @@ import {
   Bookmark,
   Share2,
   Copy,
+  Mic,
+  MicOff,
+  Camera,
+  Image,
 } from 'lucide-react';
+import { DEMO_PRESET_PROBLEMS } from '../../utils/ocrSolverHelper.js';
 import { api } from '../../api.js';
 import {
   getSessions,
@@ -318,8 +323,140 @@ export default function FloatingChatbot() {
   const [isWritingNote, setIsWritingNote] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Voice & Camera state
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [cameraError, setCameraError] = useState(null);
+  const recognitionRef = useRef(null);
+  const videoRef = useRef(null);
+  const fileInputRef = useRef(null);
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Speech Recognition (Web Speech API)
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setVoiceSupported(true);
+      const recog = new SpeechRecognition();
+      recog.continuous = false;
+      recog.interimResults = true;
+      recog.lang = 'en-US';
+
+      recog.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((res) => res[0].transcript)
+          .join('');
+        if (activeTab === 'history') {
+          setHistorySearchQuery(transcript);
+        } else {
+          setInput(transcript);
+        }
+      };
+
+      recog.onerror = (e) => {
+        console.warn('Speech recognition error:', e.error);
+        setIsListening(false);
+        setToastMessage('Microphone access unavailable or denied');
+        setTimeout(() => setToastMessage(null), 3000);
+      };
+
+      recog.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recog;
+    }
+  }, [activeTab]);
+
+  const toggleVoiceListening = () => {
+    if (!voiceSupported || !recognitionRef.current) {
+      setToastMessage('Speech recognition not supported in this browser');
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+        setToastMessage(
+          activeTab === 'history'
+            ? '🎙️ Listening... Speak to search conversations'
+            : '🎙️ Listening... Speak your physics or chemistry question'
+        );
+        setTimeout(() => setToastMessage(null), 3000);
+      } catch (err) {
+        console.warn('Speech start error:', err);
+      }
+    }
+  };
+
+  const handleOpenCameraModal = async () => {
+    setIsCameraModalOpen(true);
+    setCameraError(null);
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 } },
+          audio: false,
+        });
+        setCameraStream(stream);
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(() => {});
+          }
+        }, 150);
+      }
+    } catch (err) {
+      console.warn('Camera stream error:', err);
+      setCameraError('Camera access not permitted. You can upload an image file or try a demo sample!');
+    }
+  };
+
+  const handleCloseCameraModal = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraModalOpen(false);
+    setCameraError(null);
+  };
+
+  const handleCaptureSnapshot = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    handleCloseCameraModal();
+    setActiveTab('chat');
+    handleSend('📷 [Camera Photo Captured] Please analyze this handwritten physics/chemistry problem and provide a step-by-step solution.');
+  };
+
+  const handleUploadImageFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    handleCloseCameraModal();
+    setActiveTab('chat');
+    handleSend(`📷 [Problem Image: ${file.name}] Please extract the handwritten science formulas/diagram and solve step-by-step.`);
+  };
+
+  const handleSelectDemoPreset = (preset) => {
+    handleCloseCameraModal();
+    setActiveTab('chat');
+    handleSend(`📷 [Problem: ${preset.title}] ${preset.extractedText || preset.description || 'Please solve this physics problem step by step.'}`);
+  };
 
   // Derive human-readable active lab context
   const activeContext = useMemo(() => {
@@ -359,8 +496,8 @@ export default function FloatingChatbot() {
         path,
         domain: 'Assessment',
         label: 'Mock Tests · Concept Diagnostics',
-        icon: <GraduationCap size={13} className="text-purple-500" />,
-        badgeBg: 'bg-purple-50 border-purple-200 text-purple-700',
+        icon: <GraduationCap size={13} className="text-sky-600" />,
+        badgeBg: 'bg-sky-50 border-sky-200 text-sky-700',
         activeExperiment: 'Diagnostic Assessment',
       };
     }
@@ -699,7 +836,7 @@ export default function FloatingChatbot() {
           {/* Header Bar */}
           <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/90 px-3.5 py-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-xs">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-sky-400 text-white shadow-xs">
                 <Atom size={18} className="animate-spin" style={{ animationDuration: '12s' }} />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
               </div>
@@ -910,22 +1047,46 @@ export default function FloatingChatbot() {
                     e.preventDefault();
                     handleSend();
                   }}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1.5 sm:gap-2"
                 >
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Ask about formulas, Snell's law, reaction equations…"
-                    disabled={loading}
-                    className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-2 focus:ring-sky-100 disabled:opacity-50"
-                  />
+                  <div className="relative flex-1 flex items-center">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Ask about formulas, Snell's law, reaction equations…"
+                      disabled={loading}
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 pl-3.5 pr-16 py-2.5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-2 focus:ring-sky-100 disabled:opacity-50 shadow-2xs"
+                    />
+                    <div className="absolute right-1.5 flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={toggleVoiceListening}
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${
+                          isListening
+                            ? 'bg-amber-400 text-slate-950 animate-pulse ring-2 ring-amber-200'
+                            : 'text-slate-400 hover:bg-slate-200/70 hover:text-sky-600'
+                        }`}
+                        title={isListening ? 'Listening... click to stop' : 'Voice Input (Speech-to-Text)'}
+                      >
+                        {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleOpenCameraModal}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-sky-600 transition"
+                        title="Camera Capture & OCR Problem Solver"
+                      >
+                        <Camera size={14} />
+                      </button>
+                    </div>
+                  </div>
                   <button
                     type="submit"
                     disabled={!input.trim() || loading}
-                    className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-white shadow-sm transition hover:bg-sky-600 active:scale-95 disabled:opacity-40"
+                    className="clay-btn-yellow flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center text-slate-900 shadow-sm transition active:scale-95 disabled:opacity-40"
                     title="Send inquiry"
                   >
                     <Send size={15} />
@@ -946,16 +1107,38 @@ export default function FloatingChatbot() {
           {/* ========================================================= */}
           {activeTab === 'history' && (
             <div className="flex flex-1 flex-col overflow-hidden p-3.5 space-y-3 bg-slate-50/50">
-              {/* Search Chat Input Bar */}
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+              {/* Search Chat Input Bar with Voice & Camera options */}
+              <div className="relative flex items-center">
+                <Search size={14} className="absolute left-3 text-slate-400" />
                 <input
                   type="text"
                   value={historySearchQuery}
                   onChange={(e) => setHistorySearchQuery(e.target.value)}
                   placeholder="Search past conversations & messages..."
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white pl-9 pr-16 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 shadow-2xs"
                 />
+                <div className="absolute right-1.5 flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={toggleVoiceListening}
+                    className={`flex h-6 w-6 items-center justify-center rounded-lg transition-all ${
+                      isListening
+                        ? 'bg-amber-400 text-slate-950 animate-pulse ring-2 ring-amber-200'
+                        : 'text-slate-400 hover:bg-slate-100 hover:text-sky-600'
+                    }`}
+                    title={isListening ? 'Listening... click to stop' : 'Voice Search (Speech-to-Text)'}
+                  >
+                    {isListening ? <MicOff size={12} /> : <Mic size={12} />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenCameraModal}
+                    className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-sky-600 transition"
+                    title="Camera Capture & OCR Problem Solver"
+                  >
+                    <Camera size={12} />
+                  </button>
+                </div>
               </div>
 
               {/* Action: Start New Chat */}
@@ -1272,6 +1455,104 @@ export default function FloatingChatbot() {
               </div>
             </div>
           )}
+
+          {/* CAMERA CAPTURE / OCR MODAL (HANDCRAFTED CLAY UI) */}
+          {isCameraModalOpen && (
+            <div className="clay-card absolute inset-0 z-50 flex flex-col rounded-3xl bg-white/98 p-4 text-slate-900 backdrop-blur-md animate-in fade-in duration-200 border-2 border-sky-200 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-sky-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-300 text-slate-950 font-bold border-b-2 border-amber-400">
+                    <Camera size={15} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-900">Handcrafted Problem Scanner</h4>
+                    <p className="text-[10px] text-slate-500">Point camera at handwritten equations or choose sample</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseCameraModal}
+                  className="clay-btn-circle flex h-7 w-7 items-center justify-center text-slate-400 hover:text-slate-700 transition"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              {/* Video Stream or Error */}
+              <div className="relative my-3 flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl bg-sky-50/60 border-2 border-dashed border-sky-300 shadow-inner">
+                {cameraError ? (
+                  <div className="p-4 text-center space-y-2">
+                    <AlertCircle size={28} className="mx-auto text-amber-500" />
+                    <p className="text-xs text-slate-700 font-medium">{cameraError}</p>
+                  </div>
+                ) : (
+                  <>
+                    <video
+                      ref={videoRef}
+                      playsInline
+                      muted
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="pointer-events-none absolute inset-4 rounded-xl border-2 border-dashed border-sky-400/80 flex items-center justify-center">
+                      <span className="bg-white/95 text-sky-900 px-3 py-1 rounded-full text-[10px] font-black border border-sky-200 shadow-sm backdrop-blur-xs">
+                        Align problem inside frame
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-center gap-2.5">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleUploadImageFile}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="clay-card flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-sky-50 transition"
+                  >
+                    <Image size={14} /> Upload Photo
+                  </button>
+
+                  {!cameraError && (
+                    <button
+                      type="button"
+                      onClick={handleCaptureSnapshot}
+                      className="clay-btn-yellow flex items-center gap-1.5 px-5 py-2 text-xs font-black text-slate-950 shadow-md"
+                    >
+                      <Camera size={14} /> Snap Photo & Solve
+                    </button>
+                  )}
+                </div>
+
+                {/* Instant Demo Presets */}
+                <div className="border-t border-sky-100 pt-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5 text-center">
+                    Or Test With 1-Click Science Preset:
+                  </p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {DEMO_PRESET_PROBLEMS.slice(0, 3).map((demo) => (
+                      <button
+                        key={demo.id}
+                        type="button"
+                        onClick={() => handleSelectDemoPreset(demo)}
+                        className="truncate rounded-xl border border-sky-100 bg-white px-2 py-1.5 text-[10px] font-bold text-slate-700 hover:border-amber-400 hover:bg-amber-50/30 transition shadow-2xs"
+                        title={demo.title}
+                      >
+                        {demo.title.split(' ')[0]} {demo.title.split(' ')[1] || ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1292,7 +1573,7 @@ export default function FloatingChatbot() {
           className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
             isOpen
               ? 'bg-slate-800 text-white shadow-slate-900/20'
-              : 'bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-sky-500/30 hover:shadow-sky-500/50'
+              : 'bg-gradient-to-tr from-sky-500 to-sky-400 text-white shadow-sky-500/30 hover:shadow-sky-500/50'
           }`}
           title={isOpen ? 'Close Science Assistant' : 'Open Science Assistant, Notes & Libraries'}
           data-testid="floating-chatbot-launcher"

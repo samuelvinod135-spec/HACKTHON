@@ -60,6 +60,10 @@ class AmbientAudioEngine {
     this.currentTrack = null;
   }
 
+  stopAll() {
+    this.stop();
+  }
+
   isPlaying() {
     return !!this.currentTrack;
   }
@@ -127,6 +131,14 @@ class AmbientAudioEngine {
     lfo.start(now);
 
     this.activeNodes.push(osc1, osc2, lfo, lfoGain, filter, trackGain);
+  }
+
+  startSpaceshipDrone(vol) {
+    this.startSpaceship();
+  }
+
+  startRainfall(vol) {
+    this.startCosmicRain();
   }
 
   /**

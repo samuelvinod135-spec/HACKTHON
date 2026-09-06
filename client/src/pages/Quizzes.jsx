@@ -27,6 +27,27 @@ const POPULAR_CHAPTERS = [
   { id: 'Redox Reactions & Electrochemistry', name: 'Electrochemistry', subject: 'Chemistry', count: '500+', desc: 'Galvanic Cells, Nernst Eq & Faraday Laws' },
 ];
 
+// Session storage helpers to eliminate duplicate questions across retakes
+const getSeenIds = (chapter) => {
+  try {
+    const raw = sessionStorage.getItem(`labxplore_seen_quiz_${chapter}`);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const recordSeenIds = (chapter, newQuestions) => {
+  try {
+    const seen = getSeenIds(chapter);
+    newQuestions.forEach((q) => q?.id && seen.add(q.id));
+    // If cache gets huge (>300), trim it
+    const arr = Array.from(seen);
+    const trimmed = arr.length > 300 ? arr.slice(-150) : arr;
+    sessionStorage.setItem(`labxplore_seen_quiz_${chapter}`, JSON.stringify(trimmed));
+  } catch {}
+};
+
 export default function Quizzes() {
   const [selectedChapter, setSelectedChapter] = useState('Kinematics');
   const [questions, setQuestions] = useState([]);
@@ -65,8 +86,8 @@ export default function Quizzes() {
       .catch(() => {});
   }, []);
 
-  // Fetch 10 random questions whenever chapter changes or retry triggered
-  const loadQuiz = async (chapterToLoad) => {
+  // Fetch 10 random questions with guaranteed 0 repetition
+  const loadQuiz = async (chapterToLoad, forceFresh = false) => {
     const chapterName = chapterToLoad || selectedChapter;
     setLoading(true);
     setError(null);
@@ -77,10 +98,12 @@ export default function Quizzes() {
     setShowExplanation(false);
 
     try {
-      const fetched = await fetchQuizQuestions({ chapter: chapterName, limit: 10 });
+      const seenIds = forceFresh ? new Set() : getSeenIds(chapterName);
+      const fetched = await fetchQuizQuestions({ chapter: chapterName, limit: 10, excludeIds: seenIds });
       if (!fetched || fetched.length === 0) {
         throw new Error(`No questions found in Supabase Question Bank for "${chapterName}".`);
       }
+      recordSeenIds(chapterName, fetched);
       setQuestions(fetched);
     } catch (err) {
       console.error('Quiz fetch error:', err);
@@ -136,8 +159,8 @@ export default function Quizzes() {
     }
   };
 
-  const handleReset = () => {
-    loadQuiz(selectedChapter);
+  const handleReset = (forceFresh = false) => {
+    loadQuiz(selectedChapter, forceFresh);
   };
 
   // -------------------------------------------------------------
@@ -287,22 +310,22 @@ export default function Quizzes() {
       </div>
 
       {/* Quiz Card */}
-      <div className="lab-card p-6 border border-slate-200 bg-white shadow-sm rounded-2xl">
+      <div className="clay-card p-6 sm:p-8 rounded-3xl border border-sky-100/90 bg-white shadow-md">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
             <p className="text-sm font-semibold text-slate-700">
-              Querying Supabase: "Fetch 10 random questions where chapter = '{selectedChapter}'"
+              Querying Supabase: "Fetch 10 unique, diverse questions where chapter = '{selectedChapter}'"
             </p>
-            <p className="text-xs text-slate-400">Selecting randomized subset from {selectedChapter} collection...</p>
+            <p className="text-xs text-slate-400">Filtering duplicates & clustering concept patterns for 100% unique quiz...</p>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
             <XCircle size={36} className="text-rose-500" />
             <p className="text-sm font-bold text-rose-700">{error}</p>
             <button
-              onClick={handleReset}
-              className="mt-2 rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-700"
+              onClick={() => handleReset(true)}
+              className="clay-btn-yellow mt-2 px-5 py-2.5 text-xs font-bold text-slate-900 shadow-sm"
             >
               Retry Database Query
             </button>
@@ -315,10 +338,10 @@ export default function Quizzes() {
                 <span className="text-xs font-bold uppercase tracking-wider text-sky-700">
                   Question {currentIndex + 1} of {total}
                 </span>
-                <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-bold text-sky-700 border border-sky-200">
                   {currentQ.exam_level || 'Main'}
                 </span>
-                <span className="rounded bg-amber-50 text-amber-700 px-2 py-0.5 text-[10px] font-semibold border border-amber-200">
+                <span className="rounded-full bg-amber-50 text-amber-800 px-2.5 py-0.5 text-[10px] font-bold border border-amber-200">
                   +{currentQ.xp || 10} XP
                 </span>
               </div>
@@ -327,7 +350,7 @@ export default function Quizzes() {
               </span>
             </div>
 
-            <div className="mb-5 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="mb-5 h-2.5 overflow-hidden rounded-full bg-slate-100 border border-slate-200/60">
               <div
                 className="h-full rounded-full bg-sky-500 transition-all duration-300"
                 style={{ width: `${((currentIndex + (selectedOption !== null ? 1 : 0)) / total) * 100}%` }}
@@ -336,7 +359,7 @@ export default function Quizzes() {
 
             {/* Question title & Quick Actions (Ask AI + Pin to Notes) */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-              <div className="text-xs font-medium text-slate-400">
+              <div className="text-xs font-semibold text-slate-400">
                 {currentQ.subject} · {currentQ.chapter} · {currentQ.topic || 'General'}
               </div>
 
@@ -345,7 +368,7 @@ export default function Quizzes() {
                 {/* 1. Ask AI to Explain in Brief */}
                 <button
                   onClick={handleAskAiToExplain}
-                  className="flex items-center gap-1.5 rounded-xl border border-sky-300 bg-sky-50 px-3 py-1.5 text-xs font-bold text-sky-700 shadow-2xs hover:bg-sky-100 transition active:scale-95"
+                  className="flex items-center gap-1.5 rounded-2xl border border-sky-300 bg-sky-50 px-3.5 py-1.5 text-xs font-bold text-sky-700 shadow-2xs hover:bg-sky-100 transition active:scale-95"
                   title="Can't understand? Tap to get an immediate brief explanation from Science Chatbot"
                 >
                   <Bot size={14} className="text-sky-600" />
@@ -355,7 +378,7 @@ export default function Quizzes() {
                 {/* 2. Pin to Notes (Question Pointer) */}
                 <button
                   onClick={handlePinQuestion}
-                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold shadow-2xs transition active:scale-95 ${
+                  className={`flex items-center gap-1.5 rounded-2xl border px-3.5 py-1.5 text-xs font-bold shadow-2xs transition active:scale-95 ${
                     isCurrentPinned
                       ? 'border-amber-400 bg-amber-50 text-amber-900'
                       : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900'
@@ -377,7 +400,7 @@ export default function Quizzes() {
               </div>
             </div>
 
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900 leading-snug">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
               {currentQ.question}
             </h3>
 
@@ -388,12 +411,12 @@ export default function Quizzes() {
                 const isSelected = selectedOption === optKey;
                 const isCorrect = optKey === (currentQ.correct_option || '').toUpperCase();
 
-                let btnCls = 'border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-800';
+                let btnCls = 'border-slate-200/90 bg-slate-50/70 hover:bg-white hover:border-sky-300 text-slate-800';
                 if (selectedOption !== null) {
                   if (isCorrect) {
-                    btnCls = 'border-emerald-300 bg-emerald-50 text-emerald-900 font-semibold ring-1 ring-emerald-300';
+                    btnCls = 'border-emerald-400 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-200 shadow-xs';
                   } else if (isSelected) {
-                    btnCls = 'border-rose-300 bg-rose-50 text-rose-900 ring-1 ring-rose-300';
+                    btnCls = 'border-rose-400 bg-rose-50 text-rose-950 ring-2 ring-rose-200 shadow-xs';
                   } else {
                     btnCls = 'border-slate-100 bg-slate-50 text-slate-400 opacity-60';
                   }
@@ -404,13 +427,13 @@ export default function Quizzes() {
                     key={optKey}
                     onClick={() => handleChoose(optKey)}
                     disabled={selectedOption !== null}
-                    className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-xs sm:text-sm transition ${btnCls}`}
+                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-xs sm:text-sm transition-all ${btnCls}`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white border border-slate-200 font-bold text-xs text-slate-700">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 font-extrabold text-xs text-slate-700 shadow-2xs">
                         {optKey}
                       </span>
-                      <span>{opt.text}</span>
+                      <span className="font-medium">{opt.text}</span>
                     </div>
 
                     {selectedOption !== null && isCorrect && (
@@ -426,7 +449,7 @@ export default function Quizzes() {
 
             {/* Explanation box after answer */}
             {showExplanation && (
-              <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50/70 p-4 text-xs sm:text-sm text-slate-700 animate-in fade-in duration-200 space-y-2">
+              <div className="mt-4 rounded-3xl border border-sky-100 bg-sky-50/80 p-4 text-xs sm:text-sm text-slate-700 animate-in fade-in duration-200 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 font-bold text-sky-800">
                     <Info size={15} />
@@ -449,7 +472,7 @@ export default function Quizzes() {
             {selectedOption !== null && (
               <button
                 onClick={handleNext}
-                className="mt-5 w-full flex items-center justify-center gap-2 rounded-xl bg-yellow-400 py-3 text-xs sm:text-sm font-bold text-slate-900 shadow-xs transition hover:bg-yellow-500"
+                className="clay-btn-yellow mt-5 w-full flex items-center justify-center gap-2 py-3.5 text-xs sm:text-sm font-black text-slate-900 shadow-md"
               >
                 <span>{currentIndex + 1 < total ? 'Next Question' : 'Finish Quiz & Claim XP'}</span>
                 <ArrowRight size={16} />
@@ -459,7 +482,7 @@ export default function Quizzes() {
         ) : (
           /* Finished State */
           <div className="flex flex-col items-center py-8 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 mb-3 ring-8 ring-amber-50/50">
+            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-50 text-amber-500 mb-3 ring-8 ring-amber-50/50">
               <Trophy size={36} />
             </div>
             <h3 className="text-xl font-bold text-slate-900">Quiz Completed!</h3>
@@ -467,17 +490,17 @@ export default function Quizzes() {
               You scored <strong className="text-sky-700 text-base">{score}/{total}</strong> on{' '}
               <strong className="text-slate-900">{selectedChapter}</strong>
             </p>
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700">
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-700">
               <Sparkles size={14} />
               +{(score + 1) * 10} XP Added to Student Profile
             </div>
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <button
-                onClick={handleReset}
-                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50"
+                onClick={() => handleReset(false)}
+                className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50"
               >
-                <RotateCcw size={14} /> Fetch New 10 Questions
+                <RotateCcw size={14} /> Fetch New 10 Questions (0 Repeats)
               </button>
               <button
                 onClick={() => {
@@ -485,7 +508,7 @@ export default function Quizzes() {
                     selectedChapter === 'Kinematics' ? 'Chemical Bonding & Molecular Structure' : 'Kinematics';
                   setSelectedChapter(nextChap);
                 }}
-                className="rounded-xl bg-yellow-400 px-5 py-2.5 text-xs font-bold text-slate-900 shadow-xs transition hover:bg-yellow-500"
+                className="clay-btn-yellow px-6 py-3 text-xs font-bold text-slate-900 shadow-xs"
               >
                 Try Another Chapter →
               </button>

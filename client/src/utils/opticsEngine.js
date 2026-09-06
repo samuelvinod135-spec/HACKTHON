@@ -8,7 +8,7 @@ export const WAVELENGTH_COLORS = {
   green: '#34c759',   // 532 nm
   cyan: '#00c7be',    // 490 nm
   blue: '#007aff',    // 450 nm
-  violet: '#af52de',  // 405 nm
+  violet: '#0369a1',  // 405 nm (Deep Sky Blue ray)
 };
 
 // Cauchy's Dispersion formula for optical glass
