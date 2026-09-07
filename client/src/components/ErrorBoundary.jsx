@@ -36,9 +36,20 @@ export default class ErrorBoundary extends React.Component {
             <h2 className="text-xl font-black text-slate-900 mb-2">
               Something went slightly sideways!
             </h2>
-            <p className="text-xs text-slate-600 mb-6 font-medium leading-relaxed">
+            <p className="text-xs text-slate-600 mb-4 font-medium leading-relaxed">
               LabXplore encountered an unexpected state. Don't worry, your laboratory progress and notes are preserved.
             </p>
+
+            {this.state.error && (
+              <details className="mt-2 mb-5 text-left">
+                <summary className="text-[11px] font-bold text-slate-500 cursor-pointer hover:text-slate-700">
+                  Diagnostic details
+                </summary>
+                <pre className="mt-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-[10px] text-slate-700 font-mono overflow-auto max-h-36 leading-tight whitespace-pre-wrap">
+                  {this.state.error.toString()}
+                </pre>
+              </details>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button

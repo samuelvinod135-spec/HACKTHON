@@ -25,11 +25,13 @@ import {
   Compass,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { usePerformance } from '../context/PerformanceContext.jsx';
 import { audioEngine } from '../utils/ambientAudioEngine.js';
 
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { isLiteMode } = usePerformance();
 
   // Active Rig Mode: 'reaction' | 'pendulum' | 'optics'
   const [activeTab, setActiveTab] = useState('reaction');
@@ -60,9 +62,15 @@ export default function Landing() {
   useEffect(() => {
     let animId;
     let t0 = performance.now();
+    let lastTick = t0;
     const omega = Math.sqrt(gravity.g / pendulumLength);
 
     const animate = (now) => {
+      if (isLiteMode && now - lastTick < 33.33) {
+        animId = requestAnimationFrame(animate);
+        return;
+      }
+      lastTick = now;
       const elapsed = (now - t0) / 1000;
       const angle = 28 * Math.cos(omega * elapsed) * Math.exp(-0.02 * elapsed);
       setPendulumAngle(angle);
@@ -71,7 +79,7 @@ export default function Landing() {
 
     animId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animId);
-  }, [gravity.g, pendulumLength]);
+  }, [gravity.g, pendulumLength, isLiteMode]);
 
   // Clean up audio on unmount
   useEffect(() => {

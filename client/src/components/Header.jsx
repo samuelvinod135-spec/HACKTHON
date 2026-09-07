@@ -31,6 +31,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 import CreditStageModal from './CreditStages/CreditStageModal.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
+import { usePerformance } from '../context/PerformanceContext.jsx';
 
 const SEARCH_INDEX = [
   { title: 'Snap & Solve (Smart OCR)', type: 'Innovation', to: '/snap-solve', icon: Camera },
@@ -52,6 +53,7 @@ const SEARCH_INDEX = [
 export default function Header({ onMenuClick }) {
   const { student } = useProgress();
   const { user, profile, signOut, isAuthenticated } = useAuth();
+  const { isLiteMode, toggleLiteMode } = usePerformance();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
@@ -217,7 +219,22 @@ export default function Header({ onMenuClick }) {
       </div>
 
       {/* Right: Clay Credit Stage Capsule, Notifications, Cart/Tools, and 3D Avatar Profile */}
-      <div className="flex items-center gap-2.5 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {/* Lite Mode Performance Toggle */}
+        <button
+          type="button"
+          onClick={toggleLiteMode}
+          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black transition-all border shadow-xs active:scale-95 cursor-pointer ${
+            isLiteMode
+              ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-amber-400/20 animate-pulse'
+              : 'bg-white text-slate-600 border-sky-100 hover:bg-sky-50 hover:text-sky-700'
+          }`}
+          title={isLiteMode ? "Lite Mode Active (30 FPS, Flat CSS, Low Compute) - Click to restore 60 FPS" : "Click to activate Lite Mode for low-spec demo devices"}
+        >
+          <Zap size={13} className={isLiteMode ? "text-slate-950 fill-slate-950" : "text-amber-500"} />
+          <span className="hidden md:inline">{isLiteMode ? 'Lite Mode' : 'Lite Mode'}</span>
+        </button>
+
         {/* Credit Stage Capsule Button */}
         <button
           type="button"

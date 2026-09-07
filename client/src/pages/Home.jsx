@@ -44,38 +44,48 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 pb-16">
-      {/* 1. Page Header Greeting */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-          Welcome back, {name} <span className="text-2xl">👋</span>
-        </h1>
-        <p className="mt-1 text-xs sm:text-sm font-medium text-slate-500">
-          Ready to explore, experiment and learn today?
-        </p>
+      {/* 1. Page Header Greeting & Quick AI Launcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            Welcome back, {name} <span className="text-2xl">👋</span>
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm font-medium text-slate-500">
+            Ready to explore, experiment and learn today?
+          </p>
+        </div>
+
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('labxplore:ask-ai', { detail: { prompt: 'Hello! Can you help me understand key physics & chemistry principles today?' } }))}
+          className="clay-btn-yellow inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black text-slate-900 shadow-md self-start sm:self-auto hover:scale-105 transition-transform"
+        >
+          <Sparkles size={15} className="text-slate-950" />
+          <span>Launch AI Science Tutor</span>
+        </button>
       </div>
 
       {/* 2. Top Hero Modules Grid (matches reference image row 1) */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-        {/* Card 1: New Chemistry Workspace (Blue-Tinted White Clay) */}
+        {/* Card 1: Chemistry Canvas (Tactile Drag & Drop Canvas) */}
         <div className="clay-card-blue relative flex flex-col justify-between p-6 overflow-hidden min-h-[220px]">
           <div className="z-10">
             <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-100/70 text-[10px] font-bold text-sky-800 mb-2">
-              Chemistry Lab
+              Chemistry Lab · Core
             </span>
             <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
-              New Chemistry Workspace
+              Chemistry Canvas
             </h3>
             <p className="mt-1 text-[11px] font-medium text-sky-700/90">
-              Reaction balancing & synthesis
+              118 elements, 5,000+ reactions & stoichiometry
             </p>
           </div>
 
           <div className="z-10 mt-6">
             <Link
-              to="/chemistry"
+              to="/chemistry?tab=drag-and-drop"
               className="clay-btn-yellow inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-900"
             >
-              Start Experiment <ArrowRight size={13} strokeWidth={2.5} />
+              Open Canvas <ArrowRight size={13} strokeWidth={2.5} />
             </Link>
           </div>
         </div>

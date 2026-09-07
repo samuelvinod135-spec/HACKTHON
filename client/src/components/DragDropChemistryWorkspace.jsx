@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { usePerformance } from '../context/PerformanceContext.jsx';
 import { MATERIAL_CHEMICALS, CATEGORIES, ORGANIC_SUBGROUPS } from '../chemistryData.js';
 import { matchReactionLocally, getReactionCount } from '../data/massiveReactionsData.js';
 import { explainInvalidReaction } from '../utils/invalidReactionExplainer.js';
@@ -95,6 +96,7 @@ function productMeta(formula) {
 }
 
 function ProductVisualObservationStage({ output, simulating, replayingFlare, onReplayFlare }) {
+  const { isLiteMode } = usePerformance();
   if (!output) return null;
 
   const isDazzlingWhiteLight =
@@ -221,9 +223,15 @@ function ProductVisualObservationStage({ output, simulating, replayingFlare, onR
           <div className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-sky-50 to-blue-50/80 p-4 border border-sky-100 text-center">
             <div className="relative h-16 w-8 rounded-full border-2 border-sky-400 bg-sky-200/40 overflow-hidden flex flex-col justify-end p-1">
               <div className="h-8 bg-sky-400/50 rounded-b-full relative overflow-hidden">
-                <div className="obs-bubble absolute bottom-1 left-1.5 w-2 h-2 rounded-full bg-white shadow-xs" />
-                <div className="obs-bubble absolute bottom-2 right-1.5 w-1.5 h-1.5 rounded-full bg-white shadow-xs" style={{ animationDelay: '0.4s' }} />
-                <div className="obs-bubble absolute bottom-0.5 left-3 w-2.5 h-2.5 rounded-full bg-white shadow-xs" style={{ animationDelay: '0.8s' }} />
+                {!isLiteMode ? (
+                  <>
+                    <div className="obs-bubble absolute bottom-1 left-1.5 w-2 h-2 rounded-full bg-white shadow-xs" />
+                    <div className="obs-bubble absolute bottom-2 right-1.5 w-1.5 h-1.5 rounded-full bg-white shadow-xs" style={{ animationDelay: '0.4s' }} />
+                    <div className="obs-bubble absolute bottom-0.5 left-3 w-2.5 h-2.5 rounded-full bg-white shadow-xs" style={{ animationDelay: '0.8s' }} />
+                  </>
+                ) : (
+                  <div className="absolute bottom-2 left-2.5 w-2.5 h-2.5 rounded-full bg-white/90" />
+                )}
               </div>
             </div>
             <p className="mt-2 text-xs font-bold text-slate-900">Vigorous Gas Effervescence 💨</p>
@@ -424,6 +432,7 @@ function InvalidReactionCard({ invalidReaction, onAskAiTutor }) {
 
 export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
   const { record } = useProgress();
+  const { isLiteMode } = usePerformance();
 
   const [title, setTitle] = useState('Magnesium Combustion Lab');
   const [editingTitle, setEditingTitle] = useState(false);
@@ -557,7 +566,13 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
     setElapsed(0);
     const id = ++runId.current;
     const start = performance.now();
-    const tick = () => {
+    let lastTick = start;
+    const tick = (now) => {
+      if (isLiteMode && now - lastTick < 33.33) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      lastTick = now || performance.now();
       const t = performance.now() - start;
       setElapsed(t);
       if (t < DURATION_MS) {
@@ -571,7 +586,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
       }
     };
     rafRef.current = requestAnimationFrame(tick);
-  }, [simulating, inputs, arrow.conditions, record]);
+  }, [simulating, inputs, arrow.conditions, record, isLiteMode]);
 
   const handleAskAiTutor = useCallback(() => {
     if (!invalidReaction) return;

@@ -17,6 +17,7 @@ import {
   calculateRampPhysics,
 } from '../../utils/mechanicsEngine.js';
 import { sounds } from '../../utils/soundEffects.js';
+import { usePerformance } from '../../context/PerformanceContext.jsx';
 
 export default function PhysicsCanvas({
   components,
@@ -33,6 +34,7 @@ export default function PhysicsCanvas({
   elapsedMs,
   onTelemetryUpdate,
 }) {
+  const { isLiteMode } = usePerformance();
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -44,9 +46,10 @@ export default function PhysicsCanvas({
 
   // Animation frame & particles
   const photonOffsetRef = useRef(0);
+  const lastTimeRef = useRef(performance.now());
+  const lastFrameTimeRef = useRef(0);
   const pendulumStateRef = useRef({ theta: 0.6, omega: 0 });
   const springStateRef = useRef({ displacement: 40, velocity: 0 });
-  const lastTimeRef = useRef(performance.now());
 
   // Grid snap helper
   const snap = useCallback(
@@ -177,6 +180,12 @@ export default function PhysicsCanvas({
     let animationFrameId;
 
     const render = (timeNow) => {
+      animationFrameId = requestAnimationFrame(render);
+      if (isLiteMode && timeNow - lastFrameTimeRef.current < 33.33) {
+        return;
+      }
+      lastFrameTimeRef.current = timeNow;
+
       const dtSec = Math.min(0.05, (timeNow - lastTimeRef.current) / 1000);
       lastTimeRef.current = timeNow;
 
@@ -276,12 +285,11 @@ export default function PhysicsCanvas({
       }
 
       ctx.restore();
-      animationFrameId = requestAnimationFrame(render);
     };
 
     animationFrameId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [components, selectedId, env, running, elapsedMs, onTelemetryUpdate]);
+  }, [components, selectedId, env, running, elapsedMs, onTelemetryUpdate, isLiteMode]);
 
   const selectedComp = components.find((c) => c.id === selectedId);
 

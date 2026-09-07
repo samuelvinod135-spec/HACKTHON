@@ -17,6 +17,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { usePerformance } from '../context/PerformanceContext.jsx';
 import PhysicsCanvas from './physics/PhysicsCanvas.jsx';
 import PhysicsPalette from './physics/PhysicsPalette.jsx';
 import EnvironmentControls from './physics/EnvironmentControls.jsx';
@@ -38,6 +39,7 @@ function fmtTime(ms) {
 
 export default function PhysicsWorkspace() {
   const { record } = useProgress();
+  const { isLiteMode } = usePerformance();
 
   // Project title
   const [title, setTitle] = useState('Ray Optics & Focal Refraction Lab');
@@ -94,19 +96,25 @@ export default function PhysicsWorkspace() {
   const lastTimeRef = useRef(performance.now());
 
   useEffect(() => {
+    let lastTick = 0;
     const tick = (now) => {
+      rafRef.current = requestAnimationFrame(tick);
+      if (isLiteMode && now - lastTick < 33.33) {
+        return;
+      }
+      lastTick = now;
+
       if (running) {
         const delta = now - lastTimeRef.current;
         setElapsedMs((prev) => prev + delta);
       }
       lastTimeRef.current = now;
-      rafRef.current = requestAnimationFrame(tick);
     };
 
     lastTimeRef.current = performance.now();
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [running]);
+  }, [running, isLiteMode]);
 
   // Selected component reference
   const selectedComp = components.find((c) => c.id === selectedId);

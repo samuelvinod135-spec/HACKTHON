@@ -7,9 +7,12 @@ import {
   Shield,
   Palette,
   CheckCircle2,
+  Zap,
 } from 'lucide-react';
+import { usePerformance } from '../context/PerformanceContext.jsx';
 
 export default function Settings() {
+  const { isLiteMode, toggleLiteMode } = usePerformance();
   const [soundEffects, setSoundEffects] = useState(true);
   const [soundVolume, setSoundVolume] = useState(80);
   const [notifications, setNotifications] = useState(true);
@@ -99,7 +102,36 @@ export default function Settings() {
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
             <Monitor size={16} className="text-emerald-500" /> Graphics & Performance
           </h2>
-          <div className="flex items-center justify-between py-2">
+
+          {/* Performance Mode (Lite Mode) Toggle */}
+          <div className="flex items-center justify-between py-3 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-bold text-slate-800">Performance Mode (Lite Mode)</p>
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${isLiteMode ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                  {isLiteMode ? '⚡ Active (30 FPS & Flat CSS)' : '60 FPS Full Graphics'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Caps physics loops to 30 FPS, disables backdrop-blur filters, and reduces effervescence particles for demo stability.
+              </p>
+            </div>
+            <button
+              onClick={toggleLiteMode}
+              type="button"
+              className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
+                isLiteMode ? 'bg-amber-500' : 'bg-slate-200'
+              }`}
+            >
+              <div
+                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                  isLiteMode ? 'translate-x-6' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between py-3">
             <div>
               <p className="text-xs font-bold text-slate-800">Particle Simulation Quality</p>
               <p className="text-[11px] text-slate-400">Rendering fidelity for bubbles, gas effervescence, and sparks</p>

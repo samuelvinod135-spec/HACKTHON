@@ -84,10 +84,9 @@ const PRIMARY_MENU = [
 
 const HACKATHON_MENU = [
   { to: '/snap-solve', label: 'Snap & Solve', icon: Camera, badge: 'OCR' },
-  { to: '/pomodoro', label: 'Pomodoro Lounge', icon: Clock, badge: 'Audio' },
   { to: '/sandbox', label: 'Sandbox Labs', icon: Sliders, badge: 'Sim' },
-  { to: '/battles', label: 'Peer Battles', icon: Swords, badge: '1v1' },
   { to: '/spaced-repetition', label: 'Spaced Repetition', icon: Brain, badge: 'AI' },
+  { to: '/experimental', label: 'Experimental / Beta', icon: Sparkles, badge: 'Beta' },
 ];
 
 const SECONDARY_MENU = [

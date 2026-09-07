@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { seededRandom, seededShuffle, seededChoice, seededInt } from './utils/prng.js';
 
 const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : (typeof process !== 'undefined' && process.env ? process.env : {});
 const supabaseUrl = env.VITE_SUPABASE_URL || 'https://htgsiuqtlfdebxepsslh.supabase.co';
@@ -69,12 +70,12 @@ export function selectDiverseQuestions(allQuestions, count = 10, excludeIds = ne
   }
 
   // 3. Pick 1 question from each unique concept bucket first
-  const buckets = Array.from(bucketMap.values()).sort(() => 0.5 - Math.random());
+  const buckets = seededShuffle(Array.from(bucketMap.values()));
   const selected = [];
   const selectedIds = new Set();
 
   for (const b of buckets) {
-    const pick = b[Math.floor(Math.random() * b.length)];
+    const pick = seededChoice(b);
     if (pick && !selectedIds.has(pick.id)) {
       selected.push(pick);
       selectedIds.add(pick.id);
@@ -84,9 +85,9 @@ export function selectDiverseQuestions(allQuestions, count = 10, excludeIds = ne
 
   // 4. If count not reached, fill with remaining distinct questions
   if (selected.length < count) {
-    const remaining = uniqueQuestions
-      .filter((q) => !selectedIds.has(q.id))
-      .sort(() => 0.5 - Math.random());
+    const remaining = seededShuffle(
+      uniqueQuestions.filter((q) => !selectedIds.has(q.id))
+    );
     for (const r of remaining) {
       selected.push(r);
       selectedIds.add(r.id);
@@ -94,7 +95,7 @@ export function selectDiverseQuestions(allQuestions, count = 10, excludeIds = ne
     }
   }
 
-  return selected.sort(() => 0.5 - Math.random());
+  return seededShuffle(selected);
 }
 
 /**
@@ -104,7 +105,7 @@ export function selectDiverseQuestions(allQuestions, count = 10, excludeIds = ne
 export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, subject, excludeIds } = {}) {
   try {
     // 1. Try Supabase with broader pool and random offset sampling
-    const randomOffset = Math.floor(Math.random() * 80);
+    const randomOffset = seededInt(0, 80);
     let query = supabase
       .from('question_bank')
       .select('*')

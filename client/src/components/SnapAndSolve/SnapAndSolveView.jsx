@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { DEMO_PRESET_PROBLEMS } from '../../utils/ocrSolverHelper.js';
 import { pinQuestionToNotes } from '../../utils/studentNotes.js';
+import { api } from '../../api.js';
 
 export default function SnapAndSolveView() {
   // State: 'idle' | 'scanning' | 'solved'
@@ -143,6 +144,9 @@ export default function SnapAndSolveView() {
     setStage('scanning');
     setScanStepIndex(0);
     setIsPinned(false);
+
+    // Trigger guarded OCR network call with 3000ms AbortController timeout & fallback
+    api.solveOcrProblem(imageUrl, problemData).catch(() => {});
 
     // Simulate scanning progression
     let step = 0;

@@ -1,6 +1,44 @@
 import { matchReactionLocally } from './data/massiveReactionsData.js';
+import { getOfflineFallbackResponse } from './data/offlineFallbackData.js';
 
 const BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '') + '/api';
+
+/**
+ * Executes a network fetch with an AbortController timeout (default 3000ms).
+ */
+export async function fetchWithTimeout(url, options = {}, timeoutMs = 3000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return res;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Emits the graceful network degradation event to notify the UI toast
+ */
+export function notifyNetworkFallback(reason = 'latency') {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('labxplore:network-fallback', {
+        detail: {
+          message: 'Network latency detected. Loading locally cached module...',
+          reason,
+          timestamp: Date.now(),
+        },
+      })
+    );
+  }
+}
 
 // Safe localStorage helper
 function getLocal(key, fallback = null) {
@@ -18,12 +56,16 @@ function setLocal(key, val) {
   } catch {}
 }
 
-async function request(path, options = {}) {
+async function request(path, options = {}, timeoutMs = 3000) {
   try {
-    const res = await fetch(BASE + path, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options,
-    });
+    const res = await fetchWithTimeout(
+      BASE + path,
+      {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+      },
+      timeoutMs
+    );
     
     // Check if the server returned HTML (SPA fallback on Vercel) instead of JSON
     const contentType = res.headers.get('content-type') || '';
@@ -152,15 +194,19 @@ export const api = {
   sendChatMessage: async (message, context = {}) => {
     const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
     try {
-      return await request('/chat/message', {
-        method: 'POST',
-        body: JSON.stringify({ message, context, geminiApiKey }),
-      });
+      return await request(
+        '/chat/message',
+        {
+          method: 'POST',
+          body: JSON.stringify({ message, context, geminiApiKey }),
+        },
+        3000
+      );
     } catch {
-      // Direct client-side Gemini fallback if backend is unreachable
+      // Direct client-side Gemini fallback if backend is unreachable (with 3000ms timeout)
       if (geminiApiKey) {
         try {
-          const resp = await fetch(
+          const resp = await fetchWithTimeout(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
             {
               method: 'POST',
@@ -176,7 +222,8 @@ export const api = {
                   },
                 ],
               }),
-            }
+            },
+            3000
           );
           if (resp.ok) {
             const data = await resp.json();
@@ -192,11 +239,26 @@ export const api = {
         } catch {}
       }
 
-      return {
-        reply: `Here is the scientific breakdown for **${message}**:\n\n1. **Core Principle**: Observed in Physics & Chemistry laboratories under standard temperature and pressure.\n2. **Apparatus & Observation**: Monitor color changes, effervescence, or refractive deflection on the LabXplore canvas.\n3. **Pro Tip**: Use the Bunsen burner or multi-chemical glassware on the Chemistry workspace to simulate real-time transformations!`,
-        isScienceRelated: true,
-        timestamp: new Date().toISOString(),
-      };
+      // Latency threshold exceeded (>3000ms) or network offline:
+      // Trigger toast event and return hardcoded pre-saved JSON fallback response
+      notifyNetworkFallback('chat_latency');
+      return getOfflineFallbackResponse(message, context);
+    }
+  },
+
+  solveOcrProblem: async (imageData, problemMetadata = {}) => {
+    try {
+      return await request(
+        '/ocr/solve',
+        {
+          method: 'POST',
+          body: JSON.stringify({ imageData, problemMetadata }),
+        },
+        3000
+      );
+    } catch {
+      notifyNetworkFallback('ocr_latency');
+      return getOfflineFallbackResponse(`photo ocr ${problemMetadata.title || ''}`, problemMetadata);
     }
   },
 

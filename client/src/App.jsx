@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ProgressProvider } from './context/ProgressContext.jsx';
+import { PerformanceProvider } from './context/PerformanceContext.jsx';
 import Layout from './components/Layout.jsx';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
@@ -22,8 +23,10 @@ import PomodoroPage from './pages/PomodoroPage.jsx';
 import SandboxLabPage from './pages/SandboxLabPage.jsx';
 import PeerBattlesPage from './pages/PeerBattlesPage.jsx';
 import SpacedRepetitionPage from './pages/SpacedRepetitionPage.jsx';
+import ExperimentalBetaPage from './pages/ExperimentalBetaPage.jsx';
 
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import NetworkFallbackToast from './components/NetworkFallbackToast.jsx';
 
 // Smart Home: Displays Landing for visitors, redirects or displays Dashboard
 function RootRoute() {
@@ -41,48 +44,53 @@ function RootRoute() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <ProgressProvider>
-          <BrowserRouter>
-          <Routes>
-            {/* Standalone Public Pages */}
-            <Route path="/" element={<RootRoute />} />
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+      <PerformanceProvider>
+        <AuthProvider>
+          <ProgressProvider>
+            <BrowserRouter>
+              <NetworkFallbackToast />
+              <Routes>
+              {/* Standalone Public Pages */}
+              <Route path="/" element={<RootRoute />} />
+              <Route path="/landing" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
 
-            {/* Main Application Layout */}
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<Home />} />
-              <Route path="/physics" element={<PhysicsLab />} />
-              <Route path="/chemistry" element={<ChemistryLab initialTab="drag-and-drop" />} />
-              <Route path="/chemistry/drag-and-drop" element={<ChemistryLab initialTab="drag-and-drop" />} />
-              <Route path="/chemistry/organic" element={<ChemistryLab initialTab="organic" />} />
-              <Route path="/organic" element={<ChemistryLab initialTab="organic" />} />
-              <Route path="/organic-chemistry" element={<ChemistryLab initialTab="organic" />} />
-              <Route path="/quizzes" element={<Quizzes />} />
-              <Route path="/daily-challenge" element={<DailyChallenge />} />
-              <Route path="/mock-tests" element={<MockTests />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/achievements" element={<Achievements />} />
-              <Route path="/games" element={<FunGames />} />
-              <Route path="/saved" element={<SavedExperiments />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/snap-solve" element={<SnapAndSolvePage />} />
-              <Route path="/pomodoro" element={<PomodoroPage />} />
-              <Route path="/sandbox" element={<SandboxLabPage />} />
-              <Route path="/battles" element={<PeerBattlesPage />} />
-              <Route path="/spaced-repetition" element={<SpacedRepetitionPage />} />
-              <Route path="/help" element={<Settings />} />
-            </Route>
+              {/* Main Application Layout */}
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Home />} />
+                <Route path="/physics" element={<PhysicsLab />} />
+                <Route path="/chemistry" element={<ChemistryLab initialTab="drag-and-drop" />} />
+                <Route path="/chemistry/drag-and-drop" element={<ChemistryLab initialTab="drag-and-drop" />} />
+                <Route path="/chemistry/organic" element={<ChemistryLab initialTab="organic" />} />
+                <Route path="/organic" element={<ChemistryLab initialTab="organic" />} />
+                <Route path="/organic-chemistry" element={<ChemistryLab initialTab="organic" />} />
+                <Route path="/quizzes" element={<Quizzes />} />
+                <Route path="/daily-challenge" element={<DailyChallenge />} />
+                <Route path="/mock-tests" element={<MockTests />} />
+                <Route path="/progress" element={<Progress />} />
+                <Route path="/achievements" element={<Achievements />} />
+                <Route path="/games" element={<FunGames />} />
+                <Route path="/saved" element={<SavedExperiments />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/snap-solve" element={<SnapAndSolvePage />} />
+                <Route path="/experimental" element={<ExperimentalBetaPage />} />
+                <Route path="/beta" element={<ExperimentalBetaPage />} />
+                <Route path="/pomodoro" element={<ExperimentalBetaPage />} />
+                <Route path="/battles" element={<ExperimentalBetaPage />} />
+                <Route path="/sandbox" element={<SandboxLabPage />} />
+                <Route path="/spaced-repetition" element={<SpacedRepetitionPage />} />
+                <Route path="/help" element={<Settings />} />
+              </Route>
 
-            {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </ProgressProvider>
-    </AuthProvider>
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ProgressProvider>
+      </AuthProvider>
+    </PerformanceProvider>
     </ErrorBoundary>
   );
 }
