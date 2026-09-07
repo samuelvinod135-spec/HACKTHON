@@ -29,29 +29,24 @@ import { useAuth } from '../context/AuthContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
 
-export function LabXploreLogo() {
+export function LabXploreLogo({ className = '' }) {
   return (
-    <Link to="/dashboard" className="flex items-center gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-sky-400 text-white shadow-md">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="h-5 w-5"
-        >
-          <path d="M9 3h6" />
-          <path d="M10 3v4.5L5.5 17a3 3 0 0 0 2.5 4h8a3 3 0 0 0 2.5-4L14 7.5V3" />
-          <ellipse cx="12" cy="14" rx="7" ry="2.5" transform="rotate(-15 12 14)" strokeWidth="1.5" strokeOpacity="0.85" />
-        </svg>
+    <Link to="/dashboard" className={`flex items-center gap-3 group ${className}`}>
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white border border-sky-100 p-1 shadow-md shadow-sky-500/10 group-hover:scale-105 group-hover:shadow-sky-500/20 transition-all">
+        <img
+          src="/logo-icon-transparent.png"
+          alt="LabXplore Logo"
+          className="h-full w-full object-contain"
+        />
       </div>
       <div>
-        <div className="flex items-center text-lg font-extrabold tracking-tight text-slate-900">
-          <span>Lab</span>
-          <span className="text-blue-600">Xplore</span>
+        <div className="flex items-center text-lg font-black tracking-tight text-slate-900 leading-none">
+          <span className="text-sky-500">Lab</span>
+          <span className="text-amber-500 ml-0.5">Xplore</span>
         </div>
+        <span className="text-[9px] uppercase tracking-wider font-extrabold text-slate-400 block mt-1">
+          Virtual Science Lab
+        </span>
       </div>
     </Link>
   );

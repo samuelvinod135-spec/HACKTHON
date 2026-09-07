@@ -878,8 +878,8 @@ export default function FloatingChatbot() {
           {/* Header Bar */}
           <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/90 px-3.5 py-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-sky-400 text-white shadow-xs">
-                <Atom size={18} className="animate-spin" style={{ animationDuration: '12s' }} />
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white border border-sky-100 p-0.5 shadow-xs">
+                <img src="/logo-icon-transparent.png" alt="LabXplore" className="h-full w-full object-contain" />
                 <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
               </div>
               <div className="min-w-0">
@@ -1624,10 +1624,10 @@ export default function FloatingChatbot() {
             <X size={24} />
           ) : (
             <>
-              <Atom
-                size={28}
-                className="transition-transform group-hover:rotate-45"
-                style={{ animation: 'spin 16s linear infinite' }}
+              <img
+                src="/logo-icon-transparent.png"
+                alt="Open LabXplore Assistant"
+                className="w-8 h-8 object-contain drop-shadow-sm transition-transform group-hover:scale-110"
               />
               <span className="absolute -top-1 -right-1 flex h-4 w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />

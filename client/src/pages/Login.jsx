@@ -84,11 +84,17 @@ export default function Login() {
         <div className="card-sky-glass p-6 sm:p-9 rounded-3xl shadow-xl">
           {/* Brand Header */}
           <div className="text-center mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-sky-400 text-white flex items-center justify-center font-black mx-auto mb-3 shadow-md shadow-sky-500/25">
-              <span className="text-xl">🧪</span>
-            </div>
+            <Link to="/" className="inline-block group mb-3">
+              <div className="w-16 h-16 rounded-3xl bg-white border border-sky-100 p-2 shadow-lg shadow-sky-500/15 mx-auto group-hover:scale-105 group-hover:shadow-sky-500/25 transition-all flex items-center justify-center">
+                <img
+                  src="/logo-icon-transparent.png"
+                  alt="LabXplore Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </Link>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-              Sign in to <span className="text-sky-500">LabXplore</span>
+              Sign in to <span className="text-sky-500">Lab</span><span className="text-amber-500">Xplore</span>
             </h1>
             <p className="text-xs text-slate-500 mt-1">
               Enter your credentials to access your research notebooks.

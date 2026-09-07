@@ -126,8 +126,8 @@ export default function Header({ onMenuClick }) {
 
   return (
     <header className="sticky top-0 z-30 flex h-20 w-full shrink-0 items-center justify-between px-4 sm:px-8 transition-all">
-      {/* Left: Mobile Toggle Button */}
-      <div className="flex items-center gap-3">
+      {/* Left: Mobile Toggle Button & Brand */}
+      <div className="flex items-center gap-2.5">
         <button
           onClick={onMenuClick}
           aria-label="Open sidebar"
@@ -135,6 +135,9 @@ export default function Header({ onMenuClick }) {
         >
           <Menu size={18} />
         </button>
+        <Link to="/dashboard" className="flex items-center gap-2 md:hidden">
+          <img src="/logo-icon-transparent.png" alt="LabXplore" className="h-8 w-8 object-contain" />
+        </Link>
       </div>
 
       {/* Center: Clay Capsule Search Bar (matches reference image) */}

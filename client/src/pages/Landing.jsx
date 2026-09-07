@@ -136,12 +136,17 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-sky-400 text-white flex items-center justify-center font-black shadow-md shadow-sky-500/25 group-hover:scale-105 transition-transform">
-              <span className="text-lg">🧪</span>
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white border border-sky-100 p-1 shadow-md shadow-sky-500/10 group-hover:scale-105 group-hover:shadow-sky-500/20 transition-all flex items-center justify-center">
+              <img
+                src="/logo-icon-transparent.png"
+                alt="LabXplore Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center gap-1">
-                Lab<span className="text-sky-500">Xplore</span>
+                <span className="text-sky-500">Lab</span>
+                <span className="text-amber-500">Xplore</span>
                 <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-950 border border-yellow-300 ml-1 shadow-2xs">
                   Clay UI
                 </span>
@@ -1046,8 +1051,12 @@ export default function Landing() {
       {/* 7. FOOTER (WHITE, SKY BLUE & YELLOW PALETTE) */}
       <footer className="bg-white border-t border-sky-100 py-10 px-4 sm:px-6 text-xs text-slate-500">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
-          <div className="flex items-center gap-2 font-bold text-slate-800">
-            <span className="text-sm text-sky-600 font-black">LabXplore Studio</span>
+          <div className="flex items-center gap-2.5 font-bold text-slate-800">
+            <img src="/logo-icon-transparent.png" alt="LabXplore" className="w-6 h-6 object-contain" />
+            <span className="text-sm font-black">
+              <span className="text-sky-600">Lab</span>
+              <span className="text-amber-500">Xplore</span> Studio
+            </span>
             <span className="text-slate-300">|</span>
             <span className="text-slate-500 font-semibold">White, Sky Blue & Banana Yellow Clay Edition</span>
           </div>
