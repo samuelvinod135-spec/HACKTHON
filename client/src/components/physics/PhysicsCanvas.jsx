@@ -27,6 +27,7 @@ export default function PhysicsCanvas({
   onDuplicateComponent,
   onOpenLensSettings,
   onDropNewComponent,
+  onQuickLoadPreset,
   env,
   running,
   elapsedMs,
@@ -201,8 +202,10 @@ export default function PhysicsCanvas({
       // 2. Draw 20px engineering grid
       drawGrid(ctx, width, height, env.snapToGrid);
 
-      // 3. Update photon particle offset
-      photonOffsetRef.current = (photonOffsetRef.current + 2) % 40;
+      // 3. Update photon particle offset only when running
+      if (running) {
+        photonOffsetRef.current = (photonOffsetRef.current + 2) % 40;
+      }
 
       // 4. Trace optics rays
       const { rays, telemetry: opticsTelemetry } = traceRays(components, { width, height });
@@ -302,16 +305,57 @@ export default function PhysicsCanvas({
         className="h-full w-full cursor-crosshair"
       />
 
-      {/* Empty Canvas Placeholder */}
+      {/* Setup Mode Guidance Pill */}
+      {!running && components.length > 0 && (
+        <div
+          data-testid="setup-mode-banner"
+          className="pointer-events-none absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2.5 rounded-2xl bg-white/95 px-4 py-2 shadow-lg border border-teal-200/90 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-300"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-teal-100 text-teal-800 font-black text-xs shadow-2xs">
+            🛠️
+          </span>
+          <div className="text-left">
+            <p className="text-xs font-black text-slate-900 leading-tight">
+              Apparatus Setup Mode
+            </p>
+            <p className="text-[10px] font-semibold text-slate-500 leading-tight mt-0.5">
+              Drag apparatus to arrange, tweak angles or lenses, then click <b className="text-amber-800">"Run Experiment"</b> above!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty Canvas Placeholder with Quick-Load Templates */}
       {components.length === 0 && (
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-slate-300">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-50 border border-slate-200 text-slate-400 shadow-inner">
             <Atom size={34} />
           </div>
-          <p className="mt-3 text-sm font-bold text-slate-600">Build Canvas is Empty</p>
-          <p className="text-xs text-slate-400">
-            Drag components from the right palette or click <b>Experiments</b> for presets
+          <p className="mt-3 text-sm font-black text-slate-800">Your Physics Workbench is Ready</p>
+          <p className="text-xs text-slate-500 max-w-sm text-center mt-1">
+            Drag apparatus from the palette on the right to arrange your experiment, or quick-load a standard lab setup:
           </p>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 pointer-events-auto">
+            <button
+              onClick={() => onQuickLoadPreset?.('convex-lens')}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
+            >
+              <span>🔬 Convex Lens Optics</span>
+            </button>
+            <button
+              onClick={() => onQuickLoadPreset?.('pendulum')}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
+            >
+              <span>⏱️ Simple Pendulum</span>
+            </button>
+            <button
+              onClick={() => onQuickLoadPreset?.('projectile')}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
+            >
+              <span>🚀 Projectile Motion</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -525,6 +569,32 @@ function drawProjectileTrajectory(ctx, traj, running, elapsedMs) {
     ctx.font = '9px monospace';
     ctx.fillStyle = '#c2410c';
     ctx.fillText(`Range: ${traj.maxRange.toFixed(1)}m`, endPt.x - 30, endPt.y + 16);
+  }
+
+  // Cannonball: animates along arc when running, loaded at launcher in setup mode
+  if (running) {
+    const flightTimeMs = Math.max(800, (traj.totalTimeSec || 2.5) * 1000);
+    const progress = ((elapsedMs || 0) % flightTimeMs) / flightTimeMs;
+    const ptIdx = Math.min(pts.length - 1, Math.floor(progress * pts.length));
+    const ballPos = pts[ptIdx];
+    if (ballPos) {
+      ctx.fillStyle = '#ea580c';
+      ctx.beginPath();
+      ctx.arc(ballPos.x, ballPos.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  } else if (pts[0]) {
+    // Loaded in launcher muzzle (pts[0]) in setup mode
+    ctx.fillStyle = '#ea580c';
+    ctx.beginPath();
+    ctx.arc(pts[0].x, pts[0].y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
   }
 
   ctx.restore();

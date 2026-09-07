@@ -14,6 +14,7 @@ import {
   Maximize2,
   Share2,
   Check,
+  Trash2,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import PhysicsCanvas from './physics/PhysicsCanvas.jsx';
@@ -26,6 +27,14 @@ import FormulaPanel from './physics/FormulaPanel.jsx';
 import PresetsModal from './physics/PresetsModal.jsx';
 import { PRESET_EXPERIMENTS, PHYSICS_COMPONENTS } from '../physicsData.js';
 import { sounds } from '../utils/soundEffects.js';
+
+function fmtTime(ms) {
+  const total = Math.max(0, ms || 0);
+  const m = Math.floor(total / 60000);
+  const s = Math.floor((total % 60000) / 1000);
+  const cs = Math.floor((total % 1000) / 10);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+}
 
 export default function PhysicsWorkspace() {
   const { record } = useProgress();
@@ -44,8 +53,8 @@ export default function PhysicsWorkspace() {
     snapToGrid: true,
   });
 
-  // Simulation clock state
-  const [running, setRunning] = useState(true);
+  // Simulation clock state: defaults to false (Setup Mode) so students arrange first
+  const [running, setRunning] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
 
   // Canvas Components - default with high-priority Ray Optics setup
@@ -171,7 +180,7 @@ export default function PhysicsWorkspace() {
     );
     setTitle(preset.title);
     setElapsedMs(0);
-    setRunning(true);
+    setRunning(false); // Load in Setup Mode so student can arrange & inspect first
     setSelectedId(null);
     setLensPopoverOpen(false);
 
@@ -183,7 +192,28 @@ export default function PhysicsWorkspace() {
     });
   }, [record]);
 
+  const handleToggleRun = () => {
+    if (running) {
+      sounds.playSimPause();
+      setRunning(false);
+    } else {
+      sounds.playSimStart();
+      setRunning(true);
+    }
+  };
+
   const handleReset = () => {
+    sounds.playClick();
+    setElapsedMs(0);
+    setRunning(false);
+  };
+
+  const handleClearAll = () => {
+    sounds.playClick();
+    setComponents([]);
+    setSelectedId(null);
+    setLensPopoverOpen(false);
+    setInspectorOpen(false);
     setElapsedMs(0);
     setRunning(false);
   };
@@ -207,7 +237,7 @@ export default function PhysicsWorkspace() {
       {/* ================= TOP TOOLBAR ================= */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-100/90 bg-white/80 px-5 py-3 backdrop-blur-md">
         {/* Left: Editable Title & Status */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           {editingTitle ? (
             <input
               autoFocus
@@ -246,17 +276,74 @@ export default function PhysicsWorkspace() {
           <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-500">
             {components.length} components
           </span>
+
+          {/* Setup Mode vs. Running Mode Status Pill */}
+          <span
+            data-testid="physics-status-pill"
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-extrabold border transition ${
+              running
+                ? 'bg-amber-100/90 border-amber-300 text-amber-950 shadow-xs'
+                : 'bg-teal-50 border-teal-200 text-teal-800'
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                running ? 'bg-amber-500 animate-pulse' : 'bg-teal-500'
+              }`}
+            />
+            <span>
+              {running ? `Running (${fmtTime(elapsedMs)})` : 'Setup Mode — Arrange & Run'}
+            </span>
+          </span>
         </div>
 
-        {/* Right: Environment Controls & Actions */}
-        <div className="flex items-center gap-2">
-          {/* Environment Controls: Gravity, Air Resistance, Snap, Play/Pause */}
+        {/* Right: Primary Run Controls & Environment */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Primary Run / Pause CTA Button */}
+          <button
+            onClick={handleToggleRun}
+            data-testid="run-experiment-btn"
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-black shadow-md transition active:scale-[0.98] cursor-pointer ${
+              running
+                ? 'bg-amber-400 text-slate-950 hover:bg-amber-500 animate-pulse'
+                : 'clay-btn-yellow text-slate-950 hover:brightness-105 hover:scale-102'
+            }`}
+            title={running ? 'Pause physics simulation' : 'Run physics experiment'}
+          >
+            {running ? <Pause size={14} /> : <Play size={14} fill="currentColor" />}
+            <span>{running ? 'Pause Experiment' : 'Run Experiment'}</span>
+          </button>
+
+          {/* Reset Setup */}
+          <button
+            onClick={handleReset}
+            data-testid="reset-setup-btn"
+            className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition cursor-pointer"
+            title="Reset elapsed time and return apparatus to setup position"
+          >
+            <RotateCcw size={13} className="text-slate-600" />
+            <span className="hidden sm:inline">Reset</span>
+          </button>
+
+          {/* Clear Workspace */}
+          {components.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              data-testid="clear-workspace-btn"
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 hover:border-red-200 transition cursor-pointer"
+              title="Clear all apparatus to start new arrangement from scratch"
+            >
+              <Trash2 size={13} />
+              <span className="hidden md:inline">Clear</span>
+            </button>
+          )}
+
+          <div className="h-5 w-px bg-slate-200 mx-1 hidden sm:block" />
+
+          {/* Environment Controls: Gravity, Air Resistance, Snap, Presets */}
           <EnvironmentControls
             env={env}
             onEnvChange={setEnv}
-            running={running}
-            onTogglePlay={() => setRunning((r) => !r)}
-            onReset={handleReset}
             onOpenPresets={() => setPresetsModalOpen(true)}
           />
 
@@ -290,7 +377,7 @@ export default function PhysicsWorkspace() {
           {/* Save / Export */}
           <button
             onClick={handleSaveWorkspace}
-            className="clay-card flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+            className="clay-card flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition cursor-pointer"
             title="Save experiment setup"
           >
             {savedToast ? <Check size={14} className="text-emerald-600" /> : <Save size={14} />}
@@ -321,6 +408,10 @@ export default function PhysicsWorkspace() {
               setLensPopoverOpen(true);
             }}
             onDropNewComponent={handleDropNewComponent}
+            onQuickLoadPreset={(presetId) => {
+              const preset = PRESET_EXPERIMENTS.find((p) => p.id === presetId) || PRESET_EXPERIMENTS[0];
+              handleSelectPreset(preset);
+            }}
             env={env}
             running={running}
             elapsedMs={elapsedMs}

@@ -141,39 +141,6 @@ export default function EnvironmentControls({
       >
         {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
       </button>
-
-      {/* Play / Pause Simulation Button */}
-      <button
-        onClick={() => {
-          if (running) {
-            sounds.playSimPause();
-          } else {
-            sounds.playSimStart();
-          }
-          onTogglePlay();
-        }}
-        className={`flex items-center gap-2 rounded-xl px-4 py-1.5 text-xs font-bold shadow-sm transition ${
-          running
-            ? 'bg-amber-400 text-slate-900 hover:bg-amber-500 animate-pulse'
-            : 'clay-btn-yellow text-slate-900 hover:brightness-105'
-        }`}
-        data-testid="sim-toggle-btn"
-      >
-        {running ? <Pause size={13} /> : <Play size={13} fill="currentColor" />}
-        <span>{running ? 'Pause Sim' : 'Start Sim'}</span>
-      </button>
-
-      {/* Reset Simulation */}
-      <button
-        onClick={() => {
-          sounds.playClick();
-          onReset();
-        }}
-        className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-xs hover:bg-slate-50 hover:text-slate-900 transition"
-        title="Reset Simulation Canvas"
-      >
-        <RotateCcw size={13} />
-      </button>
     </div>
   );
 }
