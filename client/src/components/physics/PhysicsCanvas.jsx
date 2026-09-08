@@ -7,7 +7,12 @@ import {
   Plus,
   Atom,
   Maximize2,
+  Minimize2,
   Eye,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Move,
 } from 'lucide-react';
 import { traceRays } from '../../utils/opticsEngine.js';
 import {
@@ -33,10 +38,66 @@ export default function PhysicsCanvas({
   running,
   elapsedMs,
   onTelemetryUpdate,
+  isMaximized = false,
+  onToggleMaximize,
 }) {
   const { isLiteMode } = usePerformance();
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+
+  // View controls: Zoom and Pan State (Task 2)
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panStartRef = useRef({ x: 0, y: 0 });
+  const initialPanRef = useRef({ x: 0, y: 0 });
+
+  // Zoom and Pan Handlers
+  const handleZoomIn = () => {
+    sounds.playClick();
+    setZoom((prev) => Math.min(2.5, +(prev + 0.15).toFixed(2)));
+  };
+
+  const handleZoomOut = () => {
+    sounds.playClick();
+    setZoom((prev) => Math.max(0.3, +(prev - 0.15).toFixed(2)));
+  };
+
+  const handleResetView = () => {
+    sounds.playClick();
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Mouse wheel zoom centered on cursor
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      setZoom((prevZoom) => {
+        const newZoom = Math.max(0.3, Math.min(2.5, +(prevZoom * zoomFactor).toFixed(2)));
+        if (newZoom === prevZoom) return prevZoom;
+
+        // Keep cursor coordinate anchor point stable during zoom
+        setPan((prevPan) => ({
+          x: mouseX - ((mouseX - prevPan.x) / prevZoom) * newZoom,
+          y: mouseY - ((mouseY - prevPan.y) / prevZoom) * newZoom,
+        }));
+
+        return newZoom;
+      });
+    };
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', handleWheel);
+  }, []);
 
   // Dragging state on canvas
   const [draggingCompId, setDraggingCompId] = useState(null);
@@ -68,6 +129,7 @@ export default function PhysicsCanvas({
     setDragOverCanvas(false);
   };
 
+  // Drag & Drop Boundary Expansion (Task 3)
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOverCanvas(false);
@@ -76,29 +138,42 @@ export default function PhysicsCanvas({
       if (!data) return;
       const compDef = JSON.parse(data);
       const rect = canvasRef.current.getBoundingClientRect();
-      const rawX = e.clientX - rect.left;
-      const rawY = e.clientY - rect.top;
 
-      const newX = snap(Math.max(50, Math.min(rect.width - 50, rawX)));
-      const newY = snap(Math.max(50, Math.min(rect.height - 50, rawY)));
+      // Convert drop coordinates to world coordinates accounting for camera pan & zoom
+      const rawX = (e.clientX - rect.left - pan.x) / zoom;
+      const rawY = (e.clientY - rect.top - pan.y) / zoom;
+
+      // Dynamic boundaries: scale with visible viewport, pan, and zoom
+      // Guarantees apparatus is placed within visible world space across 20-lens setups
+      const margin = 50 / zoom;
+      const visibleMinX = (-pan.x) / zoom + margin;
+      const visibleMaxX = (rect.width - pan.x) / zoom - margin;
+      const visibleMinY = (-pan.y) / zoom + margin;
+      const visibleMaxY = (rect.height - pan.y) / zoom - margin;
+
+      const newX = snap(Math.max(visibleMinX, Math.min(visibleMaxX, rawX)));
+      const newY = snap(Math.max(visibleMinY, Math.min(visibleMaxY, rawY)));
 
       sounds.playSnap();
       onDropNewComponent(compDef, newX, newY);
     } catch (_) {}
   };
 
-  // Canvas Mouse Down: Check component selection or rotation handle
+  // Canvas Mouse Down: Check component selection, rotation handle, or start camera pan
   const handleMouseDown = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+    const clickX = (e.clientX - rect.left - pan.x) / zoom;
+    const clickY = (e.clientY - rect.top - pan.y) / zoom;
 
     // Check if clicked near rotation handle of selected component
     const selectedComp = components.find((c) => c.id === selectedId);
     if (selectedComp) {
-      const rotHandleY = selectedComp.y - 48;
-      const distToRot = Math.hypot(clickX - selectedComp.x, clickY - rotHandleY);
-      if (distToRot < 14) {
+      const r = getComponentHitRadius(selectedComp) + 12;
+      const rotAngleRad = ((selectedComp.rotation || 0) - 90) * (Math.PI / 180);
+      const rotHandleX = selectedComp.x + Math.cos(rotAngleRad) * (r + 20);
+      const rotHandleY = selectedComp.y + Math.sin(rotAngleRad) * (r + 20);
+      const distToRot = Math.hypot(clickX - rotHandleX, clickY - rotHandleY);
+      if (distToRot < 16 / zoom) {
         setRotatingCompId(selectedComp.id);
         sounds.playClick();
         return;
@@ -125,19 +200,32 @@ export default function PhysicsCanvas({
       }
     }
 
-    // Clicked empty canvas
+    // Clicked empty canvas: start camera view pan (Task 2)
     onSelectComponent(null);
+    setIsPanning(true);
+    panStartRef.current = { x: e.clientX, y: e.clientY };
+    initialPanRef.current = { ...pan };
   };
 
-  // Mouse Move: Drag or Rotate component
+  // Mouse Move: Drag, Rotate component, or Pan Viewport
   const handleMouseMove = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
-    const curX = e.clientX - rect.left;
-    const curY = e.clientY - rect.top;
+
+    if (isPanning) {
+      const dx = e.clientX - panStartRef.current.x;
+      const dy = e.clientY - panStartRef.current.y;
+      setPan({
+        x: initialPanRef.current.x + dx,
+        y: initialPanRef.current.y + dy,
+      });
+      return;
+    }
 
     if (rotatingCompId) {
       const comp = components.find((c) => c.id === rotatingCompId);
       if (!comp) return;
+      const curX = (e.clientX - rect.left - pan.x) / zoom;
+      const curY = (e.clientY - rect.top - pan.y) / zoom;
       const angleRad = Math.atan2(curY - comp.y, curX - comp.x) + Math.PI / 2;
       let angleDeg = Math.round((angleRad * 180) / Math.PI);
       if (env.snapToGrid) {
@@ -150,10 +238,21 @@ export default function PhysicsCanvas({
     if (draggingCompId) {
       const comp = components.find((c) => c.id === draggingCompId);
       if (!comp) return;
+      const curX = (e.clientX - rect.left - pan.x) / zoom;
+      const curY = (e.clientY - rect.top - pan.y) / zoom;
       const rawX = curX - dragOffsetRef.current.x;
       const rawY = curY - dragOffsetRef.current.y;
-      const newX = snap(Math.max(40, Math.min(rect.width - 40, rawX)));
-      const newY = snap(Math.max(40, Math.min(rect.height - 40, rawY)));
+
+      // Dynamic boundaries: scale with visible viewport, pan, and zoom (Task 3)
+      // Supports multi-lens setups across 2000-3000px and ensures lenses never slip off-screen
+      const margin = 40 / zoom;
+      const visibleMinX = (-pan.x) / zoom + margin;
+      const visibleMaxX = (rect.width - pan.x) / zoom - margin;
+      const visibleMinY = (-pan.y) / zoom + margin;
+      const visibleMaxY = (rect.height - pan.y) / zoom - margin;
+
+      const newX = snap(Math.max(visibleMinX, Math.min(visibleMaxX, rawX)));
+      const newY = snap(Math.max(visibleMinY, Math.min(visibleMaxY, rawY)));
 
       if (newX !== comp.x || newY !== comp.y) {
         onUpdateComponent({ ...comp, x: newX, y: newY });
@@ -162,6 +261,9 @@ export default function PhysicsCanvas({
   };
 
   const handleMouseUp = () => {
+    if (isPanning) {
+      setIsPanning(false);
+    }
     if (draggingCompId) {
       sounds.playSnap();
       setDraggingCompId(null);
@@ -208,18 +310,31 @@ export default function PhysicsCanvas({
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Draw 20px engineering grid
-      drawGrid(ctx, width, height, env.snapToGrid);
+      // 2. Camera View Transform (Zoom & Pan - Task 2)
+      ctx.save();
+      ctx.translate(pan.x, pan.y);
+      ctx.scale(zoom, zoom);
 
-      // 3. Update photon particle offset only when running
+      // 3. Draw 20px engineering grid with principal axis in world space
+      drawGrid(ctx, width, height, env.snapToGrid, pan, zoom);
+
+      // 4. Update photon particle offset only when running
       if (running) {
         photonOffsetRef.current = (photonOffsetRef.current + 2) % 40;
       }
 
-      // 4. Trace optics rays
-      const { rays, telemetry: opticsTelemetry } = traceRays(components, { width, height });
+      // 5. Trace optics rays across expanded world boundaries (supports 10-20 lenses)
+      const maxCompX = components.reduce((max, c) => Math.max(max, c.x + 500), 1600);
+      const visibleWorldWidth = (width - pan.x) / zoom + 400;
+      const effectiveWorldWidth = Math.max(visibleWorldWidth, maxCompX);
+      const effectiveWorldHeight = Math.max((height - pan.y) / zoom + 400, 1200);
 
-      // 5. Update mechanics if simulation is running
+      const { rays, telemetry: opticsTelemetry } = traceRays(components, {
+        width: effectiveWorldWidth,
+        height: effectiveWorldHeight,
+      });
+
+      // Update mechanics if simulation is running
       let mechanicsTelemetry = {};
       const pendulumComp = components.find((c) => c.type === 'pendulum');
       if (pendulumComp) {
@@ -284,12 +399,13 @@ export default function PhysicsCanvas({
         drawSelectionOverlay(ctx, selectedComp);
       }
 
-      ctx.restore();
+      ctx.restore(); // restore Camera transform
+      ctx.restore(); // restore DPR transform
     };
 
     animationFrameId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [components, selectedId, env, running, elapsedMs, onTelemetryUpdate, isLiteMode]);
+  }, [components, selectedId, env, running, elapsedMs, onTelemetryUpdate, isLiteMode, zoom, pan]);
 
   const selectedComp = components.find((c) => c.id === selectedId);
 
@@ -310,8 +426,87 @@ export default function PhysicsCanvas({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        className="h-full w-full cursor-crosshair"
+        className={`h-full w-full select-none ${
+          isPanning
+            ? 'cursor-grabbing'
+            : draggingCompId
+            ? 'cursor-grabbing'
+            : rotatingCompId
+            ? 'cursor-crosshair'
+            : 'cursor-grab'
+        }`}
       />
+
+      {/* Floating View Controls & Maximize Toolbar (Tasks 1 & 2) */}
+      <div
+        data-testid="canvas-view-controls"
+        className="pointer-events-auto absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white/95 p-1 shadow-md backdrop-blur-md transition-all hover:shadow-lg"
+      >
+        {/* Zoom Out Button */}
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          className="flex h-7 w-7 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition active:scale-90 cursor-pointer"
+          title="Zoom Out (Scroll Down)"
+          aria-label="Zoom Out"
+        >
+          <ZoomOut size={14} />
+        </button>
+
+        {/* Zoom Level Indicator / 100% Reset */}
+        <button
+          type="button"
+          onClick={handleResetView}
+          className="min-w-[44px] px-1.5 py-0.5 rounded-lg text-center font-mono text-[11px] font-extrabold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+          title="Zoom Level (Click to Reset 100%)"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+
+        {/* Zoom In Button */}
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          className="flex h-7 w-7 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition active:scale-90 cursor-pointer"
+          title="Zoom In (Scroll Up)"
+          aria-label="Zoom In"
+        >
+          <ZoomIn size={14} />
+        </button>
+
+        {/* Reset View Button */}
+        <button
+          type="button"
+          onClick={handleResetView}
+          className="flex h-7 w-7 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition active:scale-90 cursor-pointer"
+          title="Reset View (Zoom 100% & Pan Centered)"
+          aria-label="Reset View"
+        >
+          <RotateCcw size={13} />
+        </button>
+
+        <div className="h-4 w-px bg-slate-200 mx-0.5" />
+
+        {/* Maximize / Minimize Fullscreen Toggle Button (Task 1) */}
+        {onToggleMaximize && (
+          <button
+            type="button"
+            onClick={onToggleMaximize}
+            className={`flex h-7 items-center gap-1.5 px-2.5 rounded-xl font-extrabold text-xs transition active:scale-90 cursor-pointer ${
+              isMaximized
+                ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 shadow-2xs'
+                : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
+            }`}
+            title={isMaximized ? 'Exit Fullscreen (Esc)' : 'Maximize Canvas (Fullscreen)'}
+            aria-label={isMaximized ? 'Minimize Canvas' : 'Maximize Canvas'}
+          >
+            {isMaximized ? <Minimize2 size={13} className="text-amber-800" /> : <Maximize2 size={13} className="text-slate-700" />}
+            <span className="text-[10px] tracking-wider uppercase font-black">
+              {isMaximized ? 'Minimize' : 'Maximize'}
+            </span>
+          </button>
+        )}
+      </div>
 
       {/* Setup Mode Guidance Pill */}
       {!running && components.length > 0 && (
@@ -346,6 +541,12 @@ export default function PhysicsCanvas({
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 pointer-events-auto">
             <button
+              onClick={() => onQuickLoadPreset?.('multi-lens-bench')}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-bold text-teal-800 shadow-xs hover:border-teal-400 hover:scale-102 transition cursor-pointer"
+            >
+              <span>🔬 12-Lens Optical Bench</span>
+            </button>
+            <button
               onClick={() => onQuickLoadPreset?.('convex-lens')}
               className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
             >
@@ -367,13 +568,13 @@ export default function PhysicsCanvas({
         </div>
       )}
 
-      {/* Floating Action Bar above Selected Component */}
+      {/* Floating Action Bar above Selected Component (Anchored in screen coordinates) */}
       {selectedComp && !draggingCompId && !rotatingCompId && (
         <div
           className="clay-card pointer-events-auto absolute flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 shadow-lg border border-slate-100/90 -translate-x-1/2 -translate-y-full mb-12 animate-in fade-in zoom-in-95 duration-100"
           style={{
-            left: Math.max(70, Math.min(window.innerWidth - 320, selectedComp.x)),
-            top: Math.max(50, selectedComp.y - 35),
+            left: Math.max(70, Math.min(window.innerWidth - 320, pan.x + selectedComp.x * zoom)),
+            top: Math.max(50, pan.y + selectedComp.y * zoom - 35),
           }}
         >
           {(selectedComp.type === 'convex_lens' || selectedComp.type === 'concave_lens') && (
@@ -429,34 +630,50 @@ export default function PhysicsCanvas({
 
 // ===================== CANVAS RENDERING UTILS =====================
 
-function drawGrid(ctx, width, height, snapToGrid) {
+function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1) {
   const step = 20;
   ctx.save();
   ctx.strokeStyle = snapToGrid ? 'rgba(203, 213, 225, 0.4)' : 'rgba(226, 232, 240, 0.25)';
-  ctx.lineWidth = 0.6;
+  ctx.lineWidth = 0.6 / zoom;
 
-  for (let x = 0; x < width; x += step) {
+  // Calculate visible world boundaries
+  const startX = Math.floor((-pan.x / zoom) / step) * step - step;
+  const endX = Math.ceil(((width - pan.x) / zoom) / step) * step + step;
+  const startY = Math.floor((-pan.y / zoom) / step) * step - step;
+  const endY = Math.ceil(((height - pan.y) / zoom) / step) * step + step;
+
+  for (let x = startX; x <= endX; x += step) {
     ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
+    ctx.moveTo(x, startY);
+    ctx.lineTo(x, endY);
     ctx.stroke();
   }
 
-  for (let y = 0; y < height; y += step) {
+  for (let y = startY; y <= endY; y += step) {
     ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
+    ctx.moveTo(startX, y);
+    ctx.lineTo(endX, y);
     ctx.stroke();
   }
 
-  // Draw coordinate axis accent
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
-  ctx.lineWidth = 1;
+  // Optical bench principal optical axis line (y = 350)
+  ctx.strokeStyle = 'rgba(20, 184, 166, 0.35)';
+  ctx.lineWidth = 1 / zoom;
+  ctx.setLineDash([8 / zoom, 6 / zoom]);
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(0, height);
-  ctx.moveTo(0, 0);
-  ctx.lineTo(width, 0);
+  ctx.moveTo(startX, 350);
+  ctx.lineTo(endX, 350);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Coordinate axis origin accents
+  ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+  ctx.lineWidth = 1 / zoom;
+  ctx.beginPath();
+  ctx.moveTo(0, startY);
+  ctx.lineTo(0, endY);
+  ctx.moveTo(startX, 0);
+  ctx.lineTo(endX, 0);
   ctx.stroke();
 
   ctx.restore();

@@ -167,7 +167,8 @@ export function traceRays(components, canvasBounds = { width: 1200, height: 750 
  * Traces a single ray path through potential multiple reflections/refractions
  */
 function traceSingleRay(origin, dir, color, wavelengthNm, elements, bounds, telemetry, depth = 0) {
-  const maxDepth = 6;
+  // Support complex optical benches with 10 to 20+ lenses in a row
+  const maxDepth = 40;
   const points = [origin];
   const virtualRays = [];
   let currentOrigin = { ...origin };
@@ -649,7 +650,7 @@ function handleOpticalInteraction(hit, incidentDir, element, wavelengthNm, telem
  * Extends ray to edge of canvas bounds
  */
 function extendToCanvasEdge(origin, dir, bounds) {
-  let t = 2000;
+  let t = Math.max(8000, ((bounds?.width || 2500) + (bounds?.height || 2000)) * 2);
   if (dir.x > 0) t = Math.min(t, (bounds.width - origin.x) / dir.x);
   else if (dir.x < 0) t = Math.min(t, -origin.x / dir.x);
 

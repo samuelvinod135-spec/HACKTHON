@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Maximize2,
+  Minimize2,
   Share2,
   Check,
   Trash2,
@@ -79,6 +80,18 @@ export default function PhysicsWorkspace() {
   const [showLiveReadings, setShowLiveReadings] = useState(true);
   const [showFormula, setShowFormula] = useState(true);
   const [isPaletteOpen, setIsPaletteOpen] = useState(true);
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  // Handle ESC key to exit maximized mode
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isMaximized) {
+        setIsMaximized(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMaximized]);
 
   // Telemetry stream
   const [telemetry, setTelemetry] = useState({
@@ -398,8 +411,12 @@ export default function PhysicsWorkspace() {
 
       {/* ================= MAIN WORKSPACE BODY ================= */}
       <div className="relative flex flex-1 overflow-hidden">
-        {/* CENTER: Canvas Engine */}
-        <div className="relative flex-1 overflow-hidden bg-white">
+        {/* CENTER: Canvas Engine (Fullscreen Maximize Support - Task 1) */}
+        <div
+          className={`relative flex-1 overflow-hidden bg-white transition-all duration-300 ${
+            isMaximized ? 'fixed inset-0 z-50 h-screen w-screen' : ''
+          }`}
+        >
           <PhysicsCanvas
             components={components}
             selectedId={selectedId}
@@ -426,6 +443,8 @@ export default function PhysicsWorkspace() {
             running={running}
             elapsedMs={elapsedMs}
             onTelemetryUpdate={setTelemetry}
+            isMaximized={isMaximized}
+            onToggleMaximize={() => setIsMaximized((prev) => !prev)}
           />
 
           {/* Bottom Left Overlays: Live Readings & Key Formula */}
@@ -469,11 +488,11 @@ export default function PhysicsWorkspace() {
           )}
 
           {/* Re-Open Palette Floating Trigger when Collapsed (Task 2) */}
-          {!isPaletteOpen && (
+          {!isPaletteOpen && !isMaximized && (
             <button
               type="button"
               onClick={() => setIsPaletteOpen(true)}
-              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:text-teal-600 hover:shadow-md active:scale-95 cursor-pointer"
+              className="absolute right-64 top-3 z-30 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:text-teal-600 hover:shadow-md active:scale-95 cursor-pointer"
               title="Open Physics Palette"
               aria-label="Open Physics Palette"
             >
