@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Search,
   ChevronDown,
+  ChevronRight,
   GripVertical,
   Atom,
   Timer,
@@ -45,7 +46,7 @@ function ComponentIcon({ id, type, size = 18 }) {
   }
 }
 
-export default function PhysicsPalette({ onSelectComponent }) {
+export default function PhysicsPalette({ onSelectComponent, isOpen = true, onToggle }) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
@@ -66,17 +67,37 @@ export default function PhysicsPalette({ onSelectComponent }) {
   });
 
   return (
-    <div className="flex h-full w-64 shrink-0 flex-col border-l border-slate-100 bg-white/90 backdrop-blur-md">
-      {/* Search & Category Filter Header */}
-      <div className="border-b border-slate-100 p-3 space-y-2.5">
-        <div className="flex items-center justify-between">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            Physics Palette
-          </p>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">
-            {filteredComponents.length} items
-          </span>
-        </div>
+    <aside
+      className={`relative h-full shrink-0 transition-all duration-300 ease-in-out ${
+        isOpen
+          ? 'w-64 opacity-100'
+          : 'w-0 opacity-0 overflow-hidden border-l-0 pointer-events-none'
+      }`}
+    >
+      <div className="flex h-full w-64 flex-col border-l border-slate-100 bg-white/90 backdrop-blur-md">
+        {/* Search & Category Filter Header */}
+        <div className="border-b border-slate-100 p-3 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              {onToggle && (
+                <button
+                  type="button"
+                  onClick={onToggle}
+                  className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer active:scale-90"
+                  title="Collapse palette"
+                  aria-label="Collapse physics palette"
+                >
+                  <ChevronRight size={15} />
+                </button>
+              )}
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                PHYSICS PALETTE
+              </p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">
+              {filteredComponents.length} items
+            </span>
+          </div>
 
         {/* Search Input */}
         <div className="relative">
@@ -174,5 +195,6 @@ export default function PhysicsPalette({ onSelectComponent }) {
         ⇄ Drag items onto canvas to build
       </div>
     </div>
+  </aside>
   );
 }

@@ -5,6 +5,8 @@ import {
   Pencil,
   Search,
   ChevronDown,
+  ChevronRight,
+  ChevronLeft,
   GripVertical,
   ArrowRight,
   Trash2,
@@ -438,6 +440,9 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(title);
 
+  // Apparatus Palette Collapsible State (Task 1)
+  const [isPaletteOpen, setIsPaletteOpen] = useState(true);
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [showCategory, setShowCategory] = useState(false);
@@ -774,6 +779,20 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
             backgroundSize: '20px 20px',
           }}
         >
+          {/* Re-Open Palette Floating Trigger when Collapsed (Task 2) */}
+          {!isPaletteOpen && (
+            <button
+              type="button"
+              onClick={() => setIsPaletteOpen(true)}
+              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:text-sky-600 hover:shadow-md active:scale-95 cursor-pointer"
+              title="Open Chemistry Palette"
+              aria-label="Open Chemistry Palette"
+            >
+              <ChevronLeft size={14} className="text-sky-600" />
+              <span className="text-[11px] font-extrabold uppercase tracking-wider">Chemistry Palette</span>
+            </button>
+          )}
+
           {showHelp && (
             <div className="absolute right-3 top-3 z-10 w-72 rounded-xl border border-slate-200 bg-white/95 p-3 text-[11px] leading-relaxed text-slate-700 shadow-lg backdrop-blur-xs">
               <div className="flex items-center justify-between mb-1">
@@ -943,16 +962,34 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
         </div>
 
         {/* Right component palette with Search & Organic Filters */}
-        <div className="flex w-64 shrink-0 flex-col border-l border-slate-200 bg-white">
-          <div className="border-b border-slate-100 p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                <GripVertical size={12} /> Component Library
-              </p>
-              <span className="text-[10px] font-semibold text-sky-600">
-                {visible.length} items
-              </span>
-            </div>
+        <aside
+          className={`relative h-full shrink-0 transition-all duration-300 ease-in-out ${
+            isPaletteOpen
+              ? 'w-64 opacity-100'
+              : 'w-0 opacity-0 overflow-hidden border-l-0 pointer-events-none'
+          }`}
+        >
+          <div className="flex h-full w-64 flex-col border-l border-slate-200 bg-white">
+            <div className="border-b border-slate-100 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsPaletteOpen(false)}
+                    className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer active:scale-90"
+                    title="Collapse palette"
+                    aria-label="Collapse chemistry palette"
+                  >
+                    <ChevronRight size={15} />
+                  </button>
+                  <p className="flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                    <GripVertical size={12} className="text-slate-400" /> CHEMISTRY PALETTE
+                  </p>
+                </div>
+                <span className="text-[10px] font-semibold text-sky-600">
+                  {visible.length} items
+                </span>
+              </div>
 
             {/* Quick Filter Pill Buttons */}
             <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar">
@@ -1168,6 +1205,7 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
             </p>
           </div>
         </div>
+      </aside>
       </div>
     </div>
   );

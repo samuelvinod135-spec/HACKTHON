@@ -11,6 +11,7 @@ import {
   Activity,
   Layers,
   ChevronRight,
+  ChevronLeft,
   Maximize2,
   Share2,
   Check,
@@ -77,6 +78,7 @@ export default function PhysicsWorkspace() {
   // Panels visibility
   const [showLiveReadings, setShowLiveReadings] = useState(true);
   const [showFormula, setShowFormula] = useState(true);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(true);
 
   // Telemetry stream
   const [telemetry, setTelemetry] = useState({
@@ -466,6 +468,20 @@ export default function PhysicsWorkspace() {
             />
           )}
 
+          {/* Re-Open Palette Floating Trigger when Collapsed (Task 2) */}
+          {!isPaletteOpen && (
+            <button
+              type="button"
+              onClick={() => setIsPaletteOpen(true)}
+              className="absolute right-3 top-3 z-30 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-sm backdrop-blur-md transition-all hover:bg-slate-100 hover:text-teal-600 hover:shadow-md active:scale-95 cursor-pointer"
+              title="Open Physics Palette"
+              aria-label="Open Physics Palette"
+            >
+              <ChevronLeft size={14} className="text-teal-600" />
+              <span className="text-[11px] font-extrabold uppercase tracking-wider">Physics Palette</span>
+            </button>
+          )}
+
           {/* Canvas Watermark / Hint */}
           <div className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 bg-white/70 px-3 py-1 rounded-full backdrop-blur-xs border border-slate-100 shadow-xs">
             <Maximize2 size={12} />
@@ -475,6 +491,8 @@ export default function PhysicsWorkspace() {
 
         {/* RIGHT: Searchable Component Palette */}
         <PhysicsPalette
+          isOpen={isPaletteOpen}
+          onToggle={() => setIsPaletteOpen((prev) => !prev)}
           onSelectComponent={(comp) => {
             // Clicking a component in palette auto-adds it near the center
             handleDropNewComponent(comp, 450, 320);
