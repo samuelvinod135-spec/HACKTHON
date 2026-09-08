@@ -5,6 +5,10 @@ const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.met
 const supabaseUrl = env.VITE_SUPABASE_URL || 'https://htgsiuqtlfdebxepsslh.supabase.co';
 const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0Z3NpdXF0bGZkZWJ4ZXBzc2xoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgxNTYsImV4cCI6MjEwMjI5NDE1Nn0.d_3FLVrNK-3jc8drkTKqRAey1eWlsQr4lNmauy4Wz8E';
 
+if (typeof window === 'undefined' && typeof globalThis.WebSocket === 'undefined') {
+  globalThis.WebSocket = class WebSocketDummy {};
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
