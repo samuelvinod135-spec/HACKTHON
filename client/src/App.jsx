@@ -25,6 +25,8 @@ import SandboxLabPage from './pages/SandboxLabPage.jsx';
 import PeerBattlesPage from './pages/PeerBattlesPage.jsx';
 import SpacedRepetitionPage from './pages/SpacedRepetitionPage.jsx';
 import ExperimentalBetaPage from './pages/ExperimentalBetaPage.jsx';
+import TeacherCockpit from './pages/TeacherCockpit.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
 
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import NetworkFallbackToast from './components/NetworkFallbackToast.jsx';
@@ -84,6 +86,11 @@ export default function App() {
                 <Route path="/sandbox" element={<SandboxLabPage />} />
                 <Route path="/spaced-repetition" element={<SpacedRepetitionPage />} />
                 <Route path="/help" element={<Settings />} />
+
+                {/* Institutional Learning Operating System (ILOS) Routes */}
+                <Route path="/teacher" element={<TeacherCockpit />} />
+                <Route path="/cockpit" element={<TeacherCockpit />} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Route>
 
               {/* Fallback route */}

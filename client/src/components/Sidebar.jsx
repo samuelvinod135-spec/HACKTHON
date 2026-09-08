@@ -23,6 +23,7 @@ import {
   GripVertical,
   Sparkles,
   ChevronDown,
+  Building2,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -85,6 +86,11 @@ const PRIMARY_MENU = [
   { to: '/quizzes', label: 'Quizzes', tKey: 'nav.quizzes', icon: TestTubes },
   { to: '/daily-challenge', label: 'Daily Challenge', tKey: 'nav.dailyTasks', icon: Zap },
   { to: '/mock-tests', label: 'Mock Tests', tKey: 'nav.mockTests', icon: GraduationCap },
+];
+
+const INSTITUTIONAL_MENU = [
+  { to: '/teacher', label: 'Teacher Cockpit', icon: GraduationCap, badge: 'Faculty' },
+  { to: '/admin', label: 'Admin Dashboard', icon: Building2, badge: 'Campus' },
 ];
 
 const HACKATHON_MENU = [
@@ -269,6 +275,40 @@ export default function Sidebar({ isOpen, onClose }) {
                 </NavLink>
               );
             })}
+          </nav>
+
+          {/* Institutional Learning Operating System (ILOS) Portal */}
+          <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
+            <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-amber-800 flex items-center justify-between">
+              <span>Institutional ILOS Portal</span>
+              <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-extrabold text-[8px] border border-amber-200">
+                B2B Multi-Tenant
+              </span>
+            </div>
+            {INSTITUTIONAL_MENU.map(({ to, label, icon: Icon, badge }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold transition ${
+                    isActive
+                      ? 'bg-amber-100/80 text-amber-950 font-black border border-amber-300 shadow-xs'
+                      : 'text-slate-700 hover:bg-amber-50/60 hover:text-amber-900 active:bg-amber-100'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={16} className="text-amber-700" />
+                  <span>{label}</span>
+                </div>
+                {badge && (
+                  <span className="rounded bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                    {badge}
+                  </span>
+                )}
+              </NavLink>
+            ))}
           </nav>
 
           {/* Hackathon Innovations Navigation */}

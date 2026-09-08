@@ -26,6 +26,7 @@ import {
   Brain,
   Languages,
   Check,
+  Building2,
 } from 'lucide-react';
 import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
@@ -55,7 +56,7 @@ const SEARCH_INDEX = [
 
 export default function Header({ onMenuClick }) {
   const { student } = useProgress();
-  const { user, profile, signOut, isAuthenticated } = useAuth();
+  const { user, profile, signOut, isAuthenticated, isTeacher, isAdmin, switchPersona } = useAuth();
   const { isLiteMode, toggleLiteMode } = usePerformance();
   const navigate = useNavigate();
 
@@ -307,6 +308,26 @@ export default function Header({ onMenuClick }) {
           <span className="hidden md:inline">{isLiteMode ? 'Lite Mode' : 'Lite Mode'}</span>
         </button>
 
+        {/* Institutional ILOS Role Capsule */}
+        <div className="hidden lg:flex items-center gap-1.5 rounded-full bg-slate-100/90 px-3 py-1.5 border border-slate-200 text-xs shadow-2xs">
+          <Building2 size={13} className="text-slate-500" />
+          <span className="text-[10px] font-black uppercase text-slate-700">
+            {profile?.school_code || 'DPS-RKP-2026'}
+          </span>
+          <span className="text-slate-300">·</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase shadow-2xs ${
+              isAdmin
+                ? 'bg-emerald-500 text-white'
+                : isTeacher
+                ? 'bg-amber-400 text-slate-950'
+                : 'bg-sky-500 text-white'
+            }`}
+          >
+            {profile?.role || 'student'}
+          </span>
+        </div>
+
         {/* Credit Stage Capsule Button */}
         <button
           type="button"
@@ -372,20 +393,56 @@ export default function Header({ onMenuClick }) {
 
           {/* Profile Dropdown */}
           {profileOpen && (
-            <div className="clay-card absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-xl z-50">
+            <div className="clay-card absolute right-0 top-full mt-2 w-64 rounded-2xl bg-white p-2 shadow-xl z-50">
               <div className="px-3 py-2 border-b border-slate-100">
                 <p className="text-xs font-bold text-slate-900">
                   {profile?.full_name || student?.name || 'Science Scholar'}
                 </p>
-                <p className="text-[11px] text-slate-400">
-                  Level {profile?.level ?? (student?.level ?? 1)} · {profile?.grade_level || 'Student'}
-                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span
+                    className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase ${
+                      isAdmin
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : isTeacher
+                        ? 'bg-amber-100 text-amber-900'
+                        : 'bg-sky-100 text-sky-800'
+                    }`}
+                  >
+                    {profile?.role || 'student'}
+                  </span>
+                  <span className="text-[10px] text-slate-400">
+                    {profile?.institution_name || 'DPS R.K. Puram'}
+                  </span>
+                </div>
                 {user?.email && (
                   <p className="text-[10px] text-gray-400 truncate mt-0.5">{user.email}</p>
                 )}
               </div>
 
-              <div className="py-1">
+              <div className="py-1 space-y-0.5">
+                {/* Direct Institutional Portal Links */}
+                {(isTeacher || isAdmin) && (
+                  <Link
+                    to="/teacher"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-black text-amber-950 bg-amber-50 hover:bg-amber-100 transition"
+                  >
+                    <GraduationCap size={15} className="text-amber-700" />
+                    <span>Teacher Cockpit</span>
+                  </Link>
+                )}
+
+                {isAdmin && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-black text-emerald-950 bg-emerald-50 hover:bg-emerald-100 transition"
+                  >
+                    <Building2 size={15} className="text-emerald-700" />
+                    <span>Admin Dashboard</span>
+                  </Link>
+                )}
+
                 <Link
                   to="/profile"
                   onClick={() => setProfileOpen(false)}
@@ -401,26 +458,82 @@ export default function Header({ onMenuClick }) {
                   <Settings size={15} className="text-slate-400" /> Settings
                 </Link>
 
-                {isAuthenticated ? (
-                  <button
-                    onClick={async () => {
-                      setProfileOpen(false);
-                      await signOut();
-                      navigate('/');
-                    }}
-                    className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition text-left"
-                  >
-                    <LogOut size={15} /> Sign Out
-                  </button>
-                ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-sky-600 hover:bg-sky-50 transition"
-                  >
-                    <LogIn size={15} /> Sign In
-                  </Link>
-                )}
+                {/* Instant Role Persona Switcher for Evaluation */}
+                <div className="pt-2 mt-1 border-t border-slate-100 px-2">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
+                    Demo Persona Switcher:
+                  </span>
+                  <div className="grid grid-cols-3 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchPersona('student');
+                        navigate('/dashboard');
+                        setProfileOpen(false);
+                      }}
+                      className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
+                        !isTeacher && !isAdmin
+                          ? 'bg-sky-500 text-white font-black shadow-2xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      Student
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchPersona('teacher');
+                        navigate('/teacher');
+                        setProfileOpen(false);
+                      }}
+                      className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
+                        isTeacher
+                          ? 'bg-amber-400 text-slate-950 font-black shadow-2xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      Teacher
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchPersona('admin');
+                        navigate('/admin');
+                        setProfileOpen(false);
+                      }}
+                      className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
+                        isAdmin
+                          ? 'bg-emerald-500 text-white font-black shadow-2xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      Admin
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-1 border-t border-slate-100 mt-1">
+                  {isAuthenticated ? (
+                    <button
+                      onClick={async () => {
+                        setProfileOpen(false);
+                        await signOut();
+                        navigate('/');
+                      }}
+                      className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition text-left"
+                    >
+                      <LogOut size={15} /> Sign Out
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-sky-600 hover:bg-sky-50 transition"
+                    >
+                      <LogIn size={15} /> Sign In
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           )}

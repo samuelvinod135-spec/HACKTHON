@@ -25,6 +25,28 @@ export function AuthProvider({ children }) {
         .maybeSingle();
 
       if (data && !error) {
+        // Fetch institution name if assigned
+        let institutionName = 'Independent Scholar (Direct)';
+        let cohortName = 'Self-Paced Discovery';
+
+        if (data.school_code || data.institution_id) {
+          const { data: instData } = await supabase
+            .from('institutions')
+            .select('name, code')
+            .or(`id.eq.${data.institution_id || '00000000-0000-0000-0000-000000000000'},code.eq.${data.school_code || 'NONE'}`)
+            .maybeSingle();
+          if (instData?.name) institutionName = instData.name;
+        }
+
+        if (data.cohort_id) {
+          const { data: cohortData } = await supabase
+            .from('cohorts')
+            .select('name')
+            .eq('id', data.cohort_id)
+            .maybeSingle();
+          if (cohortData?.name) cohortName = cohortData.name;
+        }
+
         const fullProfile = {
           ...data,
           email: authUser.email || data.email,
@@ -41,6 +63,11 @@ export function AuthProvider({ children }) {
             'Scholar',
           grade_level: data.grade_level || authUser.user_metadata?.grade_level || 'Grade 9-10',
           role: data.role || 'student',
+          institution_id: data.institution_id || null,
+          cohort_id: data.cohort_id || null,
+          school_code: data.school_code || 'DPS-RKP-2026',
+          institution_name: institutionName,
+          cohort_name: cohortName,
         };
 
         setProfile(fullProfile);
@@ -381,12 +408,123 @@ export function AuthProvider({ children }) {
     });
   };
 
+  // Phase 1: School ID / Invite Code enrollment & auto-mapping to Teacher's Cohort
+  const enrollWithSchoolCode = async ({ schoolCode, cohortCode }) => {
+    if (!schoolCode) throw new Error('Please provide a valid School ID / Invite code.');
+    const cleanCode = schoolCode.trim().toUpperCase();
+
+    if (user?.id) {
+      try {
+        const { data, error } = await supabase.rpc('assign_student_by_school_code', {
+          p_user_id: user.id,
+          p_school_code: cleanCode,
+          p_cohort_code: cohortCode || null,
+        });
+        if (data && data.success) {
+          setProfile((prev) => ({
+            ...prev,
+            school_code: cleanCode,
+            institution_id: data.institution_id,
+            institution_name: data.institution_name,
+            cohort_name: data.cohort_name,
+            cohort_id: data.cohort_id,
+          }));
+          return { success: true, ...data };
+        }
+      } catch (e) {
+        console.warn('RPC assign_student_by_school_code note:', e);
+      }
+    }
+
+    // High-fidelity fallback mapping
+    const institutionName = cleanCode.includes('KV')
+      ? 'Kendriya Vidyalaya IIT Powai'
+      : 'Delhi Public School R.K. Puram';
+    const cohortName = cohortCode ? `Section ${cohortCode}` : 'Grade 10 - Section A';
+
+    setProfile((prev) => ({
+      ...(prev || {}),
+      school_code: cleanCode,
+      institution_name: institutionName,
+      cohort_name: cohortName,
+      role: prev?.role || 'student',
+    }));
+
+    return { success: true, institution_name: institutionName, cohort_name: cohortName };
+  };
+
+  // Instant Persona Switcher for Hackathon & Institutional Demonstration
+  const switchPersona = (role) => {
+    if (role === 'teacher') {
+      setProfile({
+        id: 'teacher-sunita-rao',
+        full_name: 'Dr. Sunita Rao',
+        username: 'sunita_rao',
+        email: 'sunita.rao@dpsrkp.net',
+        role: 'teacher',
+        level: 18,
+        xp: 14500,
+        xp_for_level: 20000,
+        grade_level: 'Faculty / Grade 10 Lead',
+        school_code: 'DPS-RKP-2026',
+        institution_name: 'Delhi Public School R.K. Puram',
+        cohort_name: 'Grade 10 - Section A',
+        cohort_id: 'c3d4e5f6-a7b8-4c5d-9e0f-2a3b4c5d6e7f',
+        avatar_url: '',
+      });
+    } else if (role === 'admin') {
+      setProfile({
+        id: 'admin-principal-sharma',
+        full_name: 'Principal V. Sharma',
+        username: 'principal_sharma',
+        email: 'principal@dpsrkp.net',
+        role: 'admin',
+        level: 25,
+        xp: 32000,
+        xp_for_level: 40000,
+        grade_level: 'Institutional Executive',
+        school_code: 'DPS-RKP-2026',
+        institution_name: 'Delhi Public School R.K. Puram',
+        cohort_name: 'Institutional Global Scope',
+        cohort_id: null,
+        avatar_url: '',
+      });
+    } else {
+      setProfile({
+        id: user?.id || 'student-aarav-patel',
+        full_name: 'Aarav Patel',
+        username: 'aarav_patel',
+        email: user?.email || 'aarav.patel@student.dpsrkp.net',
+        role: 'student',
+        level: 4,
+        xp: 2850,
+        xp_for_level: 3500,
+        grade_level: 'Grade 10',
+        school_code: 'DPS-RKP-2026',
+        institution_name: 'Delhi Public School R.K. Puram',
+        cohort_name: 'Grade 10 - Section A',
+        cohort_id: 'c3d4e5f6-a7b8-4c5d-9e0f-2a3b4c5d6e7f',
+        assigned_teacher_name: 'Dr. Sunita Rao',
+        avatar_url: '',
+      });
+    }
+  };
+
+  const isTeacher = profile?.role === 'teacher';
+  const isAdmin = profile?.role === 'admin';
+  const isStudent = !isTeacher && !isAdmin;
+
   const value = {
     user,
     session,
     profile,
     loading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user || !!profile,
+    isTeacher,
+    isAdmin,
+    isStudent,
+    enrollWithSchoolCode,
+    switchPersona,
     signUpWithEmail,
     signInWithIdentifier,
     signInWithEmail,

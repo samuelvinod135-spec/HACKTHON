@@ -12,10 +12,11 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInWithIdentifier, signInWithGoogle, isAuthenticated } = useAuth();
+  const { signInWithIdentifier, signInWithGoogle, isAuthenticated, switchPersona, enrollWithSchoolCode } = useAuth();
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [schoolCode, setSchoolCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,11 @@ export default function Login() {
     if (authErr) {
       setError(authErr.message || 'Incorrect credentials. Please check your username or password.');
     } else {
+      if (schoolCode.trim()) {
+        try {
+          await enrollWithSchoolCode({ schoolCode: schoolCode.trim() });
+        } catch {}
+      }
       navigate('/dashboard');
     }
   };
@@ -219,6 +225,21 @@ export default function Login() {
               </div>
             </div>
 
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                <span>School ID / Invite Code <span className="text-slate-400 font-normal">(Optional)</span></span>
+                <span className="text-[10px] text-sky-600 font-mono font-bold">e.g. DPS-RKP-2026</span>
+              </label>
+              <input
+                type="text"
+                autoCapitalize="characters"
+                value={schoolCode}
+                onChange={(e) => setSchoolCode(e.target.value)}
+                placeholder="DPS-RKP-2026 or KV-IIT-101"
+                className="input-sky-clean w-full px-3.5 py-2 sm:py-2.5 text-base sm:text-xs placeholder-slate-400 font-mono uppercase"
+              />
+            </div>
+
             <div className="flex items-center justify-between pt-0.5">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -247,6 +268,53 @@ export default function Login() {
               )}
             </button>
           </form>
+
+          {/* Institutional Persona Quick-Switch (Evaluator & Demo Sandbox) */}
+          <div className="mt-6 pt-4 border-t border-sky-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Institutional Demo Personas
+              </span>
+              <span className="text-[9px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                ILOS Multi-Tenant
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  switchPersona('student');
+                  navigate('/dashboard');
+                }}
+                className="p-2 rounded-xl bg-sky-50/70 hover:bg-sky-100 border border-sky-200 text-left transition cursor-pointer"
+              >
+                <div className="text-[10px] font-black text-sky-900 leading-tight">Student</div>
+                <div className="text-[9px] text-sky-600 truncate">Aarav (10A)</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  switchPersona('teacher');
+                  navigate('/teacher');
+                }}
+                className="p-2 rounded-xl bg-amber-50/70 hover:bg-amber-100 border border-amber-200 text-left transition cursor-pointer"
+              >
+                <div className="text-[10px] font-black text-amber-900 leading-tight">Teacher</div>
+                <div className="text-[9px] text-amber-700 truncate">Dr. Sunita</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  switchPersona('admin');
+                  navigate('/admin');
+                }}
+                className="p-2 rounded-xl bg-emerald-50/70 hover:bg-emerald-100 border border-emerald-200 text-left transition cursor-pointer"
+              >
+                <div className="text-[10px] font-black text-emerald-900 leading-tight">Admin</div>
+                <div className="text-[9px] text-emerald-700 truncate">Principal</div>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Footer Link */}

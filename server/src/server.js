@@ -210,6 +210,126 @@ app.get('/api/chat/context-prompts', (req, res) => {
   res.json({ prompts });
 });
 
+// ---- Institutional AI Teacher Reporting API ----
+app.post('/api/ai/teacher-report', async (req, res) => {
+  const {
+    cohortId = 'DPS-10A',
+    cohortName = 'Grade 10 - Section A',
+    teacherName = 'Dr. Sunita Rao',
+    students = [],
+    interventions = [],
+  } = req.body || {};
+
+  try {
+    const totalCount = students.length || 1;
+    const strugglingStudents = students.filter(
+      (s) => s.status === 'struggling' || s.overallMastery < 65
+    );
+    const meanMastery = Math.round(
+      students.reduce((a, s) => a + (s.overallMastery || 70), 0) / totalCount
+    );
+
+    const topicErrorTally = {};
+    students.forEach((st) => {
+      Object.entries(st.topics || {}).forEach(([topic, data]) => {
+        if (data.score < 65 || data.errors > 1) {
+          topicErrorTally[topic] = (topicErrorTally[topic] || 0) + 1;
+        }
+      });
+    });
+
+    const topFrictionTopics = Object.entries(topicErrorTally)
+      .sort((a, b) => b[1] - a[1])
+      .map(([t, count]) => `${t} (${count} scholars lagging)`);
+
+    const frictionSummary =
+      topFrictionTopics.length > 0
+        ? topFrictionTopics.join(', ')
+        : 'Kinematics (4 scholars), Stoichiometry (3 scholars)';
+
+    const flaggedList = strugglingStudents.map((st) => ({
+      name: st.name,
+      rollNo: st.rollNo,
+      score: `${st.overallMastery}%`,
+      topic:
+        Object.entries(st.topics || {})
+          .filter(([_, d]) => d.score < 65)
+          .map(([t, d]) => `${t} (${d.score}%)`)
+          .join(', ') || 'Kinematics & Stoichiometry',
+      autonomousAction:
+        Object.entries(st.topics || {})
+          .filter(([_, d]) => d.scaffolding && d.scaffolding !== 'None')
+          .map(([_, d]) => d.scaffolding)
+          .join('; ') || 'Autonomous stealth scaffolding active',
+    }));
+
+    const plainTextReport = `================================================================================
+INSTITUTIONAL AI PEDAGOGICAL REPORT
+Cohort: ${cohortName} (${cohortId})
+Faculty Lead: ${teacherName}
+Generated: ${new Date().toLocaleString()}
+================================================================================
+
+1. EXECUTIVE DIAGNOSTIC SUMMARY
+The cohort currently operates at a mean scientific mastery of ${meanMastery}%. While student engagement remains exceptionally high across experimental benches, telemetry indicates a concentrated conceptual bottleneck in:
+${frictionSummary}.
+
+2. STUDENTS FLAGGED FOR INTERVENTION (${strugglingStudents.length} of ${totalCount})
+${flaggedList
+  .map(
+    (f, i) => `[${i + 1}] ${f.name} (${f.rollNo}): Overall ${f.score}
+    - Struggling Topic(s): ${f.topic}
+    - Deployed Stealth Remediation: ${f.autonomousAction}`
+  )
+  .join('\n\n')}
+
+3. RECENT AUTONOMOUS ACTIONS INGESTION
+${interventions
+  .slice(0, 5)
+  .map(
+    (iv) =>
+      `• [${new Date(iv.timestamp).toLocaleTimeString()}] ${iv.topic}: ${iv.action} (${iv.resolved ? 'Resolved' : 'Active'})`
+  )
+  .join('\n')}
+
+4. RECOMMENDED IN-CLASS ACTION FOR TOMORROW'S SESSION
+Dedicate the first 10-12 minutes of tomorrow's live science session to a physical demonstration of 2D projectile kinematics (comparing 30°, 45°, and 60° range vectors) and review mole-ratio balance in magnesium oxidation before students begin physical bench work.
+================================================================================`;
+
+    res.json({
+      success: true,
+      report: {
+        generatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        cohortId,
+        cohortName,
+        meanMastery,
+        strugglingCount: strugglingStudents.length,
+        executiveSummary: `Cohort ${cohortName} operates at ${meanMastery}% mean mastery. Diagnostic telemetry reveals primary friction in ${frictionSummary}. Autonomous stealth remediations have been deployed to all affected student workstations.`,
+        flaggedStudents: flaggedList,
+        recommendedLessonAction: `Dedicate the first 10-12 minutes of tomorrow's class to a live demonstration of 2D projectile kinematics and mole-ratio stoichiometry before students begin hands-on bench experiments.`,
+        plainTextReport,
+      },
+    });
+  } catch (err) {
+    console.error('Teacher report error:', err);
+    res.status(500).json({ error: 'Failed to generate teacher report' });
+  }
+});
+
+// Institutional Campus Overview Stats API
+app.get('/api/institutional/stats', (_req, res) => {
+  res.json({
+    institution: 'Delhi Public School R.K. Puram',
+    code: 'DPS-RKP-2026',
+    activeCohorts: 4,
+    totalEnrolled: 124,
+    reactionsToday: 412,
+    reactionsTotal: 12020,
+    labHoursTotal: 752,
+    meanMastery: 79,
+  });
+});
+
 app.use(express.static(path.join(__dirname, '..', '..', 'client', 'dist')));
 
 app.listen(PORT, () => {

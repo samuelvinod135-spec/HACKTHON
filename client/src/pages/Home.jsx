@@ -18,6 +18,7 @@ import CommandCenter from '../components/Dashboard/CommandCenter.jsx';
 import MasteryDeltaView from '../components/MasteryDelta/MasteryDeltaView.jsx';
 import SmartVernacularCard from '../components/Vernacular/SmartVernacularCard.jsx';
 import UtilityFocusTab from '../components/Dashboard/UtilityFocusTab.jsx';
+import StealthScaffoldingOverlay from '../components/StealthScaffolding/StealthScaffoldingOverlay.jsx';
 
 export default function Home() {
   const { user, profile } = useAuth();
@@ -95,6 +96,9 @@ export default function Home() {
       {/* 2. Main Content View */}
       {activeTab === 'engine' ? (
         <div className="space-y-8 animate-in fade-in duration-200">
+          {/* Autonomous Stealth Scaffolding Ambient Layer */}
+          <StealthScaffoldingOverlay currentTopic="Kinematics" />
+
           {/* Centerpiece Component: Adaptive Scientific Intelligence Command Center */}
           <CommandCenter />
 
