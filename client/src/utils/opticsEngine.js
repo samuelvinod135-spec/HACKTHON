@@ -167,37 +167,56 @@ export function traceRays(components, canvasBounds = { width: 1200, height: 750 
  * Traces a single ray path through potential multiple reflections/refractions
  */
 function traceSingleRay(origin, dir, color, wavelengthNm, elements, bounds, telemetry, depth = 0) {
-  // Support complex optical benches with 10 to 20+ lenses in a row
-  const maxDepth = 40;
+  // Task 1: Support complex optical benches with up to 50 sequential lens interactions
+  const maxIntersections = 50;
   const points = [origin];
   const virtualRays = [];
   let currentOrigin = { ...origin };
   let currentDir = { ...dir };
+  let lastHitElement = null;
+  let reachedInfinity = false;
 
-  for (let step = 0; step < maxDepth; step++) {
-    // Find closest intersection among all optical elements
-    let closestHit = null;
-    let hitElement = null;
+  for (let step = 0; step < maxIntersections; step++) {
+    // 1. Collect all forward intersections from all optical elements
+    const candidateHits = [];
 
-    elements.forEach((el) => {
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      // Prevent ray from self-intersecting with the exact element it just exited
+      const minAcceptableDist = el === lastHitElement ? 2.0 : 0.01;
+
       const hit = checkElementIntersection(currentOrigin, currentDir, el);
-      if (hit && (!closestHit || hit.dist < closestHit.dist)) {
-        closestHit = hit;
-        hitElement = el;
+      if (hit && hit.dist > minAcceptableDist) {
+        candidateHits.push({
+          hit,
+          element: el,
+          dist: hit.dist,
+        });
       }
-    });
+    }
 
-    if (!closestHit) {
-      // Ray extends to edge of canvas
+    // 2. Strictly sort candidate hits by forward distance along ray vector (Task 1)
+    // Guarantees overlapping or closely spaced lenses are never skipped
+    candidateHits.sort((a, b) => a.dist - b.dist);
+
+    if (candidateHits.length === 0) {
+      // 3. Infinite Ray Extension: Final ray extends to infinity (Task 2)
       const edgePoint = extendToCanvasEdge(currentOrigin, currentDir, bounds);
       points.push(edgePoint);
+      reachedInfinity = true;
       break;
     }
+
+    // Strictly select the closest element along the forward ray path
+    const closest = candidateHits[0];
+    const closestHit = closest.hit;
+    const hitElement = closest.element;
+    lastHitElement = hitElement;
 
     // Record hit point
     points.push(closestHit.point);
 
-    // Calculate response (Refraction or Reflection)
+    // Calculate optical response (Refraction or Reflection)
     const interaction = handleOpticalInteraction(
       closestHit,
       currentDir,
@@ -221,6 +240,12 @@ function traceSingleRay(origin, dir, color, wavelengthNm, elements, bounds, tele
 
     currentOrigin = interaction.newOrigin;
     currentDir = interaction.newDir;
+  }
+
+  // Safety: If maxIntersections was exhausted, ensure final ray still extends to infinity
+  if (!reachedInfinity && points.length > 0) {
+    const finalEdgePoint = extendToCanvasEdge(currentOrigin, currentDir, bounds);
+    points.push(finalEdgePoint);
   }
 
   return {
@@ -647,20 +672,22 @@ function handleOpticalInteraction(hit, incidentDir, element, wavelengthNm, telem
 }
 
 /**
- * Extends ray to edge of canvas bounds
+ * Extends ray infinitely to canvas bounds / infinity (Task 2)
+ * Ensures final rays shoot to infinity without terminating prematurely or clipping at a fixed box.
  */
-function extendToCanvasEdge(origin, dir, bounds) {
-  let t = Math.max(8000, ((bounds?.width || 2500) + (bounds?.height || 2000)) * 2);
-  if (dir.x > 0) t = Math.min(t, (bounds.width - origin.x) / dir.x);
-  else if (dir.x < 0) t = Math.min(t, -origin.x / dir.x);
+export function extendToCanvasEdge(origin, dir, bounds) {
+  const len = Math.hypot(dir.x, dir.y);
+  const ndx = len > 1e-9 ? dir.x / len : 1;
+  const ndy = len > 1e-9 ? dir.y / len : 0;
 
-  if (dir.y > 0) t = Math.min(t, (bounds.height - origin.y) / dir.y);
-  else if (dir.y < 0) t = Math.min(t, -origin.y / dir.y);
-
-  t = Math.max(0, t);
+  // Arbitrarily massive ray length multiplier (e.g., 25,000px) that scales dynamically
+  // with our newly implemented Zoom/Pan coordinates and canvas bounds
+  const baseInfinity = 25000;
+  const dynamicSpan = bounds ? Math.max(bounds.width || 0, bounds.height || 0) * 15 : 0;
+  const infiniteRayLength = Math.max(baseInfinity, dynamicSpan);
 
   return {
-    x: origin.x + dir.x * t,
-    y: origin.y + dir.y * t,
+    x: origin.x + ndx * infiniteRayLength,
+    y: origin.y + ndy * infiniteRayLength,
   };
 }

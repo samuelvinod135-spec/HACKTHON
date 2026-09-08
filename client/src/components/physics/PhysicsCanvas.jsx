@@ -755,7 +755,8 @@ function drawOpticalRays(ctx, rays, photonOffset) {
       if (segLen <= 0) continue;
 
       const spacing = 36;
-      const numPhotons = Math.floor(segLen / spacing);
+      // Cap photon particle dots per segment so massive infinite rays animate at silky 60 FPS
+      const numPhotons = Math.min(80, Math.floor(segLen / spacing));
       for (let j = 0; j < numPhotons; j++) {
         const dist = (j * spacing + photonOffset) % segLen;
         const frac = dist / segLen;
