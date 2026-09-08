@@ -63,7 +63,7 @@ CREATE POLICY "Tenant bounded profiles visibility" ON public.profiles
     id = public.get_auth_user_teacher()
   );
 
--- 4. Clean Telemetry Policy
+-- 4. Clean Telemetry Policy (SELECT & INSERT)
 CREATE POLICY "Strict cohort isolation for telemetry" ON public.student_telemetry_events
   FOR SELECT USING (
     auth.uid() = user_id
@@ -81,7 +81,15 @@ CREATE POLICY "Strict cohort isolation for telemetry" ON public.student_telemetr
     )
   );
 
--- 5. Clean Scaffolding Policy
+DROP POLICY IF EXISTS "Users can insert own telemetry" ON public.student_telemetry_events;
+CREATE POLICY "Users can insert own telemetry" ON public.student_telemetry_events
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id 
+    OR user_id IS NULL 
+    OR auth.role() IN ('anon', 'authenticated')
+  );
+
+-- 5. Clean Scaffolding Policy (SELECT & INSERT)
 CREATE POLICY "Strict cohort isolation for scaffolding" ON public.scaffolding_interventions
   FOR SELECT USING (
     auth.uid() = user_id
@@ -97,4 +105,12 @@ CREATE POLICY "Strict cohort isolation for scaffolding" ON public.scaffolding_in
         SELECT id FROM public.cohorts WHERE teacher_id = auth.uid()
       )
     )
+  );
+
+DROP POLICY IF EXISTS "Users can insert scaffolding" ON public.scaffolding_interventions;
+CREATE POLICY "Users can insert scaffolding" ON public.scaffolding_interventions
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id 
+    OR user_id IS NULL 
+    OR auth.role() IN ('anon', 'authenticated')
   );
