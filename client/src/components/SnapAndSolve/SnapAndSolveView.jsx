@@ -24,7 +24,7 @@ import {
   X,
 } from 'lucide-react';
 import { DEMO_PRESET_PROBLEMS } from '../../utils/ocrSolverHelper.js';
-import { pinQuestionToNotes } from '../../utils/studentNotes.js';
+import { pinQuestionToNotes, saveNote } from '../../utils/studentNotes.js';
 import { api } from '../../api.js';
 
 export default function SnapAndSolveView() {
@@ -33,6 +33,8 @@ export default function SnapAndSolveView() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentProblem, setCurrentProblem] = useState(null);
   const [scanStepIndex, setScanStepIndex] = useState(0);
+  const [generatingNotes, setGeneratingNotes] = useState(false);
+  const [smartNotesSaved, setSmartNotesSaved] = useState(false);
 
   // Camera modal state
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -234,6 +236,36 @@ export default function SnapAndSolveView() {
     });
     setIsPinned(true);
     showToast('📌 Problem and step-by-step breakdown pinned to your Notepad!');
+  };
+
+  // Generate AI Smart Notes for solved OCR Problem
+  const handleGenerateSmartNotes = async () => {
+    if (!currentProblem || generatingNotes) return;
+    setGeneratingNotes(true);
+    try {
+      const res = await api.generateSmartNotes({
+        problem: currentProblem,
+        activeExperiment: currentProblem.title,
+        chapter: currentProblem.chapter,
+        path: '/snap-solve',
+      });
+      const noteContent =
+        res.reply ||
+        res.message ||
+        currentProblem.steps?.map((s) => `${s.stepNumber}. ${s.title}: ${s.description}`).join('\n');
+
+      saveNote({
+        title: `📸 Smart Notes: ${currentProblem.title}`,
+        content: noteContent,
+        tags: ['Snap & Solve', currentProblem.subject, currentProblem.chapter || 'Problem', 'Smart Notes'],
+      });
+      setSmartNotesSaved(true);
+      showToast('📝 AI Smart Notes generated & saved to Notepad!');
+    } catch (err) {
+      console.warn('Failed to generate smart notes:', err);
+    } finally {
+      setGeneratingNotes(false);
+    }
   };
 
   return (
@@ -576,14 +608,32 @@ export default function SnapAndSolveView() {
               </p>
             </div>
 
-            {/* Quick Actions (Pin to Notes) */}
-            <div className="flex items-center gap-2 pt-1">
+            {/* Quick Actions (Smart Notes & Pin to Notes) */}
+            <div className="flex flex-col gap-2 pt-1">
               <button
-                onClick={handlePinToNotes}
-                className="clay-btn-yellow w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black text-slate-950 shadow-xs active:scale-95 transition"
+                type="button"
+                onClick={handleGenerateSmartNotes}
+                disabled={generatingNotes}
+                className="clay-btn-yellow w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black text-slate-950 shadow-xs active:scale-95 transition disabled:opacity-50 cursor-pointer"
+                title="Generate AI Smart Revision Notes (definitions, equations, observations)"
               >
-                {isPinned ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
-                <span>{isPinned ? 'Pinned to Student Notes' : 'Pin to Notes (+25 XP)'}</span>
+                <Sparkles size={14} className={generatingNotes ? "animate-spin text-amber-700" : "text-amber-700"} />
+                <span>
+                  {generatingNotes
+                    ? 'Synthesizing Smart Notes...'
+                    : smartNotesSaved
+                    ? '✓ Smart Notes Saved to Notepad'
+                    : '✨ Generate Smart Notes'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePinToNotes}
+                className="clay-card w-full flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-sky-200 hover:bg-sky-50 shadow-xs active:scale-95 transition cursor-pointer"
+              >
+                {isPinned ? <BookmarkCheck size={14} className="text-sky-600" /> : <Bookmark size={14} className="text-slate-500" />}
+                <span>{isPinned ? 'Pinned to Student Notes' : 'Pin Problem to Notes (+25 XP)'}</span>
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ProgressProvider } from './context/ProgressContext.jsx';
 import { PerformanceProvider } from './context/PerformanceContext.jsx';
+import { LanguageProvider } from './context/LanguageContext.jsx';
 import Layout from './components/Layout.jsx';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
@@ -44,9 +45,10 @@ function RootRoute() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <PerformanceProvider>
-        <AuthProvider>
-          <ProgressProvider>
+      <LanguageProvider>
+        <PerformanceProvider>
+          <AuthProvider>
+            <ProgressProvider>
             <BrowserRouter>
               <NetworkFallbackToast />
               <Routes>
@@ -91,6 +93,7 @@ export default function App() {
         </ProgressProvider>
       </AuthProvider>
     </PerformanceProvider>
+    </LanguageProvider>
     </ErrorBoundary>
   );
 }

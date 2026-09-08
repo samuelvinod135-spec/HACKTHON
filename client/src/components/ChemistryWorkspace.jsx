@@ -35,6 +35,8 @@ import {
   getReactionCount,
 } from '../data/massiveReactionsData.js';
 import ElementCartoon from './ElementCartoon.jsx';
+import { saveNote } from '../utils/studentNotes.js';
+import { useLanguage } from '../context/LanguageContext.jsx';
 
 export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab }) {
   const { record } = useProgress();
@@ -64,10 +66,38 @@ export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab
   const [heatIntensity, setHeatIntensity] = useState(50); // 0 - 100%
 
   // Simulation & Reaction Results
+  const { t, getLocalizedElement } = useLanguage();
   const [simulating, setSimulating] = useState(false);
   const [outputReaction, setOutputReaction] = useState(null);
+  const [generatingNotes, setGeneratingNotes] = useState(false);
+  const [smartNotesSaved, setSmartNotesSaved] = useState(false);
   const [lastMessage, setLastMessage] = useState('Ready on bench: Diazotization of Aniline (0-5°C). Click "Ignite Reaction" to synthesize Benzene Diazonium Chloride!');
   const [dropletAnimation, setDropletAnimation] = useState(null);
+
+  const handleGenerateSmartNotes = async () => {
+    if (!outputReaction || generatingNotes) return;
+    setGeneratingNotes(true);
+    try {
+      const res = await api.generateSmartNotes({
+        experiment: outputReaction,
+        activeExperiment: outputReaction.name,
+        path: '/chemistry',
+      });
+      const noteContent = res.reply || res.message || outputReaction.description;
+      saveNote({
+        title: `🧪 Smart Notes: ${outputReaction.name}`,
+        content: noteContent,
+        tags: ['Chemistry', outputReaction.type || 'Reaction', 'Smart Notes'],
+      });
+      setSmartNotesSaved(true);
+      setXpToast('📝 Smart Notes generated & saved to Notepad!');
+      setTimeout(() => setXpToast(null), 4000);
+    } catch (err) {
+      console.warn('Failed to generate smart notes:', err);
+    } finally {
+      setGeneratingNotes(false);
+    }
+  };
 
   // Material Inventory & Palette
   const [searchQuery, setSearchQuery] = useState('');
@@ -847,9 +877,27 @@ export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab
                   </span>
                 </div>
               </div>
-              <span className="rounded-full bg-white border border-sky-200 px-3 py-1 text-xs font-mono font-black text-slate-800 shadow-xs">
-                +{outputReaction.xp || 150} XP
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleGenerateSmartNotes}
+                  disabled={generatingNotes}
+                  className="clay-btn-yellow flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-slate-900 shadow-xs active:scale-95 disabled:opacity-50 cursor-pointer"
+                  title="Generate AI Smart Revision Notes and save directly to Notepad"
+                >
+                  <Sparkles size={13} className={generatingNotes ? "animate-spin text-amber-700" : "text-amber-700"} />
+                  <span>
+                    {generatingNotes
+                      ? t('common.generatingNotes', 'Synthesizing Notes...')
+                      : smartNotesSaved
+                      ? '✓ Notes Saved'
+                      : t('common.generateSmartNotes', '✨ Generate Smart Notes')}
+                  </span>
+                </button>
+                <span className="rounded-full bg-white border border-sky-200 px-3 py-1 text-xs font-mono font-black text-slate-800 shadow-xs">
+                  +{outputReaction.xp || 150} XP
+                </span>
+              </div>
             </div>
 
             {/* Balanced Equation */}

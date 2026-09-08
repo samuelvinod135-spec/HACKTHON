@@ -51,6 +51,8 @@ import {
   pinQuestionToNotes,
 } from '../../utils/studentNotes.js';
 import { SCIENCE_LIBRARY } from '../../data/scienceLibraryData.js';
+import { useLanguage } from '../../context/LanguageContext.jsx';
+import { getVideoRecommendation } from '../../data/curricularVideoTimestamps.js';
 
 function VisualReactionCard({ rawString }) {
   const [equationPart, subtitlePart] = rawString.split('|').map((s) => s?.trim() || '');
@@ -324,11 +326,16 @@ export default function FloatingChatbot() {
   const [toastMessage, setToastMessage] = useState(null);
 
   // Voice & Camera state
+  const { currentLang, speechLangCode, t, isRegional } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
   const [cameraError, setCameraError] = useState(null);
+
+  const isHoldingRef = useRef(false);
+  const speechCapturedRef = useRef('');
   const recognitionRef = useRef(null);
   const videoRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -336,62 +343,129 @@ export default function FloatingChatbot() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Speech Recognition (Web Speech API)
+  // Speech Recognition (Web Speech API with Multilingual Support)
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       setVoiceSupported(true);
       const recog = new SpeechRecognition();
-      recog.continuous = false;
+      recog.continuous = true;
       recog.interimResults = true;
-      recog.lang = 'en-US';
+      recog.lang = speechLangCode || 'en-IN';
 
       recog.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map((res) => res[0].transcript)
-          .join('');
+        let currentInterim = '';
+        let currentFinal = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            currentFinal += event.results[i][0].transcript;
+          } else {
+            currentInterim += event.results[i][0].transcript;
+          }
+        }
+
+        const combined = (currentFinal + ' ' + currentInterim).trim();
+        speechCapturedRef.current = combined;
+        setInterimTranscript(combined);
+
         if (activeTab === 'history') {
-          setHistorySearchQuery(transcript);
+          setHistorySearchQuery(combined);
         } else {
-          setInput(transcript);
+          setInput(combined);
         }
       };
 
       recog.onerror = (e) => {
         console.warn('Speech recognition error:', e.error);
         setIsListening(false);
-        setToastMessage('Microphone access unavailable or denied');
-        setTimeout(() => setToastMessage(null), 3000);
+        isHoldingRef.current = false;
+        if (e.error !== 'no-speech') {
+          setToastMessage(t('aiTutor.micPermissionDenied', 'Microphone access unavailable or denied'));
+          setTimeout(() => setToastMessage(null), 3000);
+        }
       };
 
       recog.onend = () => {
         setIsListening(false);
+        if (isHoldingRef.current) {
+          try {
+            recog.start();
+            setIsListening(true);
+          } catch {}
+        } else if (speechCapturedRef.current && activeTab === 'chat') {
+          const textToSubmit = speechCapturedRef.current.trim();
+          speechCapturedRef.current = '';
+          setInterimTranscript('');
+          if (textToSubmit.length > 2) {
+            handleSend(textToSubmit);
+          }
+        }
       };
 
       recognitionRef.current = recog;
     }
-  }, [activeTab]);
+  }, [activeTab, speechLangCode, t]);
+
+  const handleVoiceHoldStart = (e) => {
+    if (!voiceSupported || !recognitionRef.current) {
+      setToastMessage(t('aiTutor.speechUnsupported', 'Speech recognition not supported in this browser'));
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+    isHoldingRef.current = true;
+    speechCapturedRef.current = '';
+    setInterimTranscript('');
+
+    try {
+      recognitionRef.current.lang = speechLangCode || 'en-IN';
+      recognitionRef.current.start();
+      setIsListening(true);
+      setToastMessage(`🎙️ Listening (${speechLangCode})... Speak your question`);
+    } catch (err) {
+      console.warn('Speech start error:', err);
+    }
+  };
+
+  const handleVoiceHoldEnd = (e) => {
+    if (!isHoldingRef.current) return;
+    isHoldingRef.current = false;
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+    }
+    setIsListening(false);
+  };
 
   const toggleVoiceListening = () => {
     if (!voiceSupported || !recognitionRef.current) {
-      setToastMessage('Speech recognition not supported in this browser');
+      setToastMessage(t('aiTutor.speechUnsupported', 'Speech recognition not supported in this browser'));
       setTimeout(() => setToastMessage(null), 3000);
       return;
     }
 
     if (isListening) {
+      isHoldingRef.current = false;
       recognitionRef.current.stop();
       setIsListening(false);
+      if (speechCapturedRef.current && activeTab === 'chat') {
+        const textToSubmit = speechCapturedRef.current.trim();
+        speechCapturedRef.current = '';
+        setInterimTranscript('');
+        if (textToSubmit.length > 2) {
+          handleSend(textToSubmit);
+        }
+      }
     } else {
       try {
+        isHoldingRef.current = false;
+        speechCapturedRef.current = '';
+        setInterimTranscript('');
+        recognitionRef.current.lang = speechLangCode || 'en-IN';
         recognitionRef.current.start();
         setIsListening(true);
-        setToastMessage(
-          activeTab === 'history'
-            ? '🎙️ Listening... Speak to search conversations'
-            : '🎙️ Listening... Speak your physics or chemistry question'
-        );
-        setTimeout(() => setToastMessage(null), 3000);
+        setToastMessage(`🎙️ Listening (${speechLangCode})... Click mic again to stop & send`);
       } catch (err) {
         console.warn('Speech start error:', err);
       }
@@ -716,11 +790,19 @@ export default function FloatingChatbot() {
     setLoading(true);
 
     try {
-      const res = await api.sendChatMessage(query, {
+      const outgoingQuery = isRegional
+        ? `[Language directive: Please explain in ${currentLang === 'hi' ? 'Hindi (हिन्दी)' : currentLang === 'ta' ? 'Tamil (தமிழ்)' : 'Telugu (తెలుగు)'} using standard regional terminology]: ${query}`
+        : query;
+
+      const res = await api.sendChatMessage(outgoingQuery, {
         path: activeContext.path,
         activeExperiment: activeContext.activeExperiment,
         title: activeContext.label,
+        language: currentLang,
       });
+
+      // Feature 5: Low-Bandwidth Smart Video Timestamps mapping
+      const videoRec = getVideoRecommendation(query) || (res.reply ? getVideoRecommendation(res.reply) : null);
 
       const botMsg = {
         id: `bot-${Date.now()}`,
@@ -728,6 +810,7 @@ export default function FloatingChatbot() {
         text: res.reply,
         timestamp: res.timestamp || new Date().toISOString(),
         isScienceRelated: res.isScienceRelated,
+        videoRecommendation: videoRec,
       };
 
       setMessages((prev) => [...prev, botMsg]);
@@ -1031,6 +1114,40 @@ export default function FloatingChatbot() {
                           {formatMessageContent(msg.text)}
                         </div>
 
+                        {/* Feature 5: Direct Theory YouTube Timestamp Recommendation */}
+                        {msg.videoRecommendation && (
+                          <a
+                            href={msg.videoRecommendation.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2.5 flex items-center justify-between p-2 rounded-xl bg-amber-50/90 border border-amber-200/90 hover:bg-amber-100 transition text-slate-800 shadow-2xs group cursor-pointer select-none"
+                            title="Open direct theory timestamp in low-bandwidth YouTube"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-white font-bold text-[10px] shrink-0 shadow-xs group-hover:scale-105 transition">
+                                ▶
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[9px] font-black uppercase text-amber-900 tracking-wider">
+                                    Direct Theory Jump
+                                  </span>
+                                  <span className="text-[9px] font-mono font-black bg-amber-200 text-amber-950 px-1.5 py-0.2 rounded">
+                                    &t={msg.videoRecommendation.time}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] font-bold text-slate-900 truncate group-hover:text-red-700 transition">
+                                  {msg.videoRecommendation.concept}
+                                </p>
+                                <p className="text-[9px] text-slate-500 truncate">
+                                  {msg.videoRecommendation.channel} · Skipping intro banter
+                                </p>
+                              </div>
+                            </div>
+                            <ExternalLink size={12} className="text-slate-400 group-hover:text-red-600 transition shrink-0 ml-2" />
+                          </a>
+                        )}
+
                         <div
                           className={`mt-1 flex justify-end text-[9px] font-medium ${
                             isUser ? 'text-sky-100/90' : 'text-slate-400'
@@ -1084,6 +1201,24 @@ export default function FloatingChatbot() {
 
               {/* Input Bar */}
               <div className="border-t border-slate-200/80 bg-white p-2.5 sm:p-3">
+                {/* Feature 2: Voice-Based Interface Live Audio Status */}
+                {isListening && (
+                  <div className="mb-2 flex items-center justify-between rounded-xl bg-amber-50 border border-amber-300 px-3 py-1.5 text-xs animate-in fade-in">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-ping" />
+                      <span className="font-black text-amber-950 text-[11px]">
+                        {interimTranscript ? `"${interimTranscript}"` : `🎙️ ${t('common.listening', 'Listening')} (${speechLangCode}) · ${t('common.holdToSpeak', 'Hold to Speak')}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="h-2 w-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="h-4 w-1 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="h-2.5 w-1 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="h-4 w-1 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '200ms' }} />
+                    </div>
+                  </div>
+                )}
+
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -1098,7 +1233,7 @@ export default function FloatingChatbot() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="Ask about formulas, Snell's law, reaction equations…"
+                      placeholder={t('aiTutor.inputPlaceholder', "Ask about formulas, Snell's law, reaction equations…")}
                       disabled={loading}
                       className="w-full rounded-2xl border border-slate-200 bg-slate-50 pl-3.5 pr-16 py-2.5 text-xs sm:text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-2 focus:ring-sky-100 disabled:opacity-50 shadow-2xs"
                     />
@@ -1106,19 +1241,23 @@ export default function FloatingChatbot() {
                       <button
                         type="button"
                         onClick={toggleVoiceListening}
-                        className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all ${
+                        onMouseDown={handleVoiceHoldStart}
+                        onMouseUp={handleVoiceHoldEnd}
+                        onTouchStart={handleVoiceHoldStart}
+                        onTouchEnd={handleVoiceHoldEnd}
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg transition-all select-none cursor-pointer ${
                           isListening
-                            ? 'bg-amber-400 text-slate-950 animate-pulse ring-2 ring-amber-200'
-                            : 'text-slate-400 hover:bg-slate-200/70 hover:text-sky-600'
+                            ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300 scale-105 shadow-xs'
+                            : 'text-slate-400 hover:bg-slate-200/70 hover:text-sky-600 active:scale-95'
                         }`}
-                        title={isListening ? 'Listening... click to stop' : 'Voice Input (Speech-to-Text)'}
+                        title="Hold mic to speak verbally (Release to ask), or click to toggle voice"
                       >
-                        {isListening ? <MicOff size={14} /> : <Mic size={14} />}
+                        {isListening ? <MicOff size={14} className="text-red-600 animate-pulse" /> : <Mic size={14} />}
                       </button>
                       <button
                         type="button"
                         onClick={handleOpenCameraModal}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-sky-600 transition"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-sky-600 transition cursor-pointer"
                         title="Camera Capture & OCR Problem Solver"
                       >
                         <Camera size={14} />

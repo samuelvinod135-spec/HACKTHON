@@ -187,13 +187,13 @@ app.post('/api/reactions/match', (req, res) => {
 // ---- Science Virtual Teaching Assistant Chatbot API ----
 
 app.post('/api/chat/message', async (req, res) => {
-  const { message = '', context = {}, geminiApiKey = '' } = req.body || {};
+  const { message = '', context = {}, geminiApiKey = '', mode = 'chat' } = req.body || {};
   if (!message || typeof message !== 'string') {
     return res.status(400).json({ error: 'Valid message string is required.' });
   }
 
   try {
-    const result = await processChatMessage(message, context, geminiApiKey);
+    const result = await processChatMessage(message, context, geminiApiKey, mode);
     res.json({
       ...result,
       timestamp: new Date().toISOString(),

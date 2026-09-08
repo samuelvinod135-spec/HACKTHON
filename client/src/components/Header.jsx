@@ -24,6 +24,8 @@ import {
   Sliders,
   Swords,
   Brain,
+  Languages,
+  Check,
 } from 'lucide-react';
 import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
@@ -32,6 +34,7 @@ import UserAvatar from './UserAvatar.jsx';
 import CreditStageModal from './CreditStages/CreditStageModal.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
 import { usePerformance } from '../context/PerformanceContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
 
 const SEARCH_INDEX = [
   { title: 'Snap & Solve (Smart OCR)', type: 'Innovation', to: '/snap-solve', icon: Camera },
@@ -55,6 +58,10 @@ export default function Header({ onMenuClick }) {
   const { user, profile, signOut, isAuthenticated } = useAuth();
   const { isLiteMode, toggleLiteMode } = usePerformance();
   const navigate = useNavigate();
+
+  const { currentLang, setLanguage, supportedLanguages, t } = useLanguage();
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const langRef = useRef(null);
 
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -86,6 +93,9 @@ export default function Header({ onMenuClick }) {
       }
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
+      }
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setLangDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -218,8 +228,70 @@ export default function Header({ onMenuClick }) {
         </div>
       </div>
 
-      {/* Right: Clay Credit Stage Capsule, Notifications, Cart/Tools, and 3D Avatar Profile */}
+      {/* Right: Regional Language Selector, Lite Mode, Clay Credit Stage Capsule, Notifications, Cart/Tools, and 3D Avatar Profile */}
       <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {/* Regional Language Selector (Offline Cached) */}
+        <div className="relative" ref={langRef}>
+          <button
+            type="button"
+            onClick={() => setLangDropdownOpen((prev) => !prev)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black transition-all border shadow-xs bg-white text-slate-700 border-sky-200 hover:border-sky-400 hover:bg-sky-50 active:scale-95 cursor-pointer"
+            title="Switch Language (English, हिन्दी, தமிழ், తెలుగు) - 100% Offline Cached"
+          >
+            <Languages size={14} className="text-sky-600" />
+            <span className="font-bold text-slate-800">
+              {supportedLanguages.find((l) => l.code === currentLang)?.native || 'English'}
+            </span>
+            <span className="bg-sky-100 text-sky-700 text-[10px] font-extrabold px-1.5 py-0.2 rounded uppercase">
+              {supportedLanguages.find((l) => l.code === currentLang)?.badge || 'EN'}
+            </span>
+            <ChevronDown size={12} className={`text-slate-400 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {langDropdownOpen && (
+            <div className="clay-card absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-2xl z-50 border border-sky-100 animate-in fade-in slide-in-from-top-2">
+              <div className="px-3 py-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Regional Languages
+                </span>
+                <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                  <Check size={10} /> Offline Ready
+                </span>
+              </div>
+              <div className="space-y-1">
+                {supportedLanguages.map((lang) => {
+                  const isSelected = currentLang === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setLangDropdownOpen(false);
+                      }}
+                      className={`flex w-full items-center justify-between px-3 py-2 rounded-xl text-xs transition text-left cursor-pointer ${
+                        isSelected
+                          ? 'bg-sky-50 text-sky-900 font-black border border-sky-200'
+                          : 'text-slate-700 hover:bg-slate-50 font-medium'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-slate-900">{lang.native}</span>
+                        <span className="text-[10px] text-slate-400">{lang.label} ({lang.script})</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                          {lang.badge}
+                        </span>
+                        {isSelected && <Check size={14} className="text-sky-600 stroke-[3]" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Lite Mode Performance Toggle */}
         <button
           type="button"

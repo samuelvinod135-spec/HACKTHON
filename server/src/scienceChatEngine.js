@@ -551,19 +551,85 @@ CRITICAL FORMATTING RULES:
 }
 
 /**
+ * Synthesizes concise, structured Smart Notes for completed experiments or OCR sessions.
+ */
+export function generateSmartNotesResponse(message, context = {}) {
+  const exp = context.experiment || {};
+  const prob = context.problem || {};
+  const title = exp.name || prob.title || context.activeExperiment || (context.chapter ? `${context.chapter} Key Principles` : 'Scientific Investigation');
+  const eq = exp.equation || prob.formula || prob.finalAnswer || '';
+  const obs = exp.description || exp.observation || 'Reaction verified with thermodynamic color shift and state change.';
+  const relev = exp.jeeRelevance || prob.explanation || 'Key NCERT & competitive examination core concept.';
+
+  const reply = `### 📝 AI Smart Revision Notes: ${title}
+
+#### 📌 Key Definitions
+• **Concept Core:** ${title} represents a fundamental scientific transformation governed by conservation of energy and atomic stoichiometry.
+• **Curriculum Focus:** ${relev}
+
+#### ⚡ Core Formulas & Balanced Equations
+• **Primary Expression:** \`${eq || '2Mg + O₂ → 2MgO | n₁·sin(θ₁) = n₂·sin(θ₂)'}\`
+• **Theoretical Relations:** Quantified by precise molar ratios, activation energy thresholds, and wave propagation laws.
+
+#### 🔬 Key Laboratory Observations & Pitfalls
+• **Experimental Observations:** ${obs}
+• **Practical Laboratory Gotcha:** Always calibrate apparatus to standard temperature (298 K) and verify that all reagents are dry to prevent premature side reactions.`;
+
+  return {
+    reply,
+    isScienceRelated: true,
+    suggestedPrompts: [
+      `Review key formulas for ${title}`,
+      `What are the practical applications of ${title}?`,
+      `How is this concept tested in JEE / NEET?`,
+    ],
+    source: 'smart_notes_engine',
+  };
+}
+
+/**
  * Top-level message processor.
  * Connects to Google Gemini API (if key is configured), OpenAI, or falls back to local Science Teaching Engine.
  */
-export async function processChatMessage(message, context = {}, overrideApiKey = '') {
+export async function processChatMessage(message, context = {}, overrideApiKey = '', mode = 'chat') {
   // Pre-check strict domain guardrails
   const intent = classifyScienceIntent(message);
-  if (!intent) {
+  if (!intent && mode !== 'smart_notes') {
     return {
       reply: FALLBACK_DECLINE_MESSAGE,
       isScienceRelated: false,
       suggestedPrompts: getContextPrompts(context),
       source: 'guardrail',
     };
+  }
+
+  // Handle Smart Notes Mode
+  if (mode === 'smart_notes') {
+    const geminiKey =
+      overrideApiKey ||
+      process.env.GEMINI_API_KEY ||
+      process.env.VITE_GEMINI_API_KEY;
+
+    if (geminiKey) {
+      try {
+        const smartNotesPrompt = `You are the LabXplore AI Smart Notes Synthesizer.
+Based on the completed laboratory experiment or OCR problem:
+${message}
+Context: ${JSON.stringify(context)}
+
+Produce a HIGHLY CONCISE, high-yield Smart Revision Note formatted in Markdown with EXACTLY these 3 sections:
+1. 📌 Key Definitions (1-2 crisp definitions of core concepts)
+2. ⚡ Core Formulas & Equations (balanced chemical equations, mathematical laws)
+3. 🔬 Key Laboratory Observations & Pitfalls (color changes, state changes, common mistakes to avoid)
+Keep it direct, bulleted, and student-friendly.`;
+
+        return await callGeminiAPI(geminiKey, smartNotesPrompt, context);
+      } catch (err) {
+        console.warn('Gemini Smart Notes generation error, using local synthesizer:', err.message);
+      }
+    }
+
+    return generateSmartNotesResponse(message, context);
   }
 
   // 1. Check for Gemini API key (passed from client or environment)
