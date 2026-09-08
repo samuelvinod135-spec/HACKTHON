@@ -8,10 +8,12 @@ import {
   GripVertical,
   Layers,
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext.jsx';
 import ChemistryWorkspace from '../components/ChemistryWorkspace.jsx';
 import DragDropChemistryWorkspace from '../components/DragDropChemistryWorkspace.jsx';
 
 export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawTab = searchParams.get('tab');
   // If tab is drag-and-drop or canvas, use drag-and-drop; otherwise if specified use it; else fallback to initialTab
@@ -42,13 +44,13 @@ export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
             </span>
             <div>
               <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <span>Chemistry Laboratory Hub</span>
+                <span>{t('chemistry.title', 'Chemistry Laboratory Hub')}</span>
                 <span className="rounded-full bg-yellow-300 px-2 py-0.5 text-[10px] font-black text-slate-900 shadow-xs">
                   2 Workspaces
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                Choose between the classic Drag & Drop Reaction Canvas or the new Organic & Anime RPG Studio
+                {t('chemistry.subtitle', 'Choose between the classic Drag & Drop Reaction Canvas or the new Organic & Anime RPG Studio')}
               </p>
             </div>
           </div>
@@ -66,7 +68,7 @@ export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
             >
               <GripVertical size={16} />
               <div className="text-left">
-                <div className="leading-tight">✋ Drag & Drop Lab</div>
+                <div className="leading-tight">✋ {t('nav.dragAndDropLab', 'Drag & Drop Lab')}</div>
                 <div className="text-[9px] font-bold opacity-80">Interactive Canvas</div>
               </div>
             </button>
@@ -82,7 +84,7 @@ export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
             >
               <Sparkles size={16} className={isOrganicRealm ? 'text-yellow-300' : ''} />
               <div className="text-left">
-                <div className="leading-tight">🌿 Organic & Anime RPG</div>
+                <div className="leading-tight">🌿 {t('nav.organicChemistry', 'Organic Chemistry')}</div>
                 <div className="text-[9px] font-bold opacity-80">2,209 Rx & 118 Heroes</div>
               </div>
             </button>

@@ -539,34 +539,38 @@ export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab
 
           {/* Materials List */}
           <div className="flex-1 overflow-y-auto pr-1 space-y-1.5">
-            {filteredMaterials.map((chem) => (
-              <div
-                key={chem.id}
-                onClick={() => addChemicalToVessel(chem, 10)}
-                className="group flex items-center justify-between rounded-xl border border-sky-100 bg-white p-2 shadow-xs transition hover:border-sky-300 hover:bg-sky-50/50 hover:shadow-sm cursor-pointer active:scale-98"
-                title={`Click to pour ${chem.name} into vessel`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-white p-0.5 shadow-xs">
-                    <ElementCartoon formula={chem.formula} size="sm" />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-mono text-xs font-black text-slate-800 truncate">
-                      {chem.formula}
-                    </span>
-                    <span className="text-[10px] text-slate-500 truncate max-w-[140px]">
-                      {chem.name}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  className="rounded-lg bg-yellow-100 p-1 text-yellow-800 opacity-0 group-hover:opacity-100 transition hover:bg-yellow-200"
-                  title="Add to vessel"
+            {filteredMaterials.map((chem) => {
+              const locChem = getLocalizedElement(chem);
+              const displayName = locChem?.displayName || chem.name;
+              return (
+                <div
+                  key={chem.id}
+                  onClick={() => addChemicalToVessel(chem, 10)}
+                  className="group flex items-center justify-between rounded-xl border border-sky-100 bg-white p-2 shadow-xs transition hover:border-sky-300 hover:bg-sky-50/50 hover:shadow-sm cursor-pointer active:scale-98"
+                  title={`Click to pour ${displayName} into vessel`}
                 >
-                  <Plus size={14} />
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-white p-0.5 shadow-xs">
+                      <ElementCartoon formula={chem.formula} size="sm" />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-mono text-xs font-black text-slate-800 truncate">
+                        {chem.formula}
+                      </span>
+                      <span className="text-[10px] text-slate-500 truncate max-w-[140px]">
+                        {displayName}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    className="rounded-lg bg-yellow-100 p-1 text-yellow-800 opacity-0 group-hover:opacity-100 transition hover:bg-yellow-200"
+                    title="Add to vessel"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -936,10 +940,10 @@ export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab
                 </span>
                 <div>
                   <h3 className="text-base font-black text-slate-900">
-                    118 Periodic Table Anime Champions
+                    {t('codex.championsTitle', '118 Periodic Table Anime Champions')}
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Inspect all 118 cartoon element champions and summon them to your vessel!
+                    {t('codex.championsSubtitle', 'Inspect all 118 cartoon element champions and summon them to your vessel!')}
                   </p>
                 </div>
               </div>
@@ -961,7 +965,7 @@ export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab
                     : 'bg-white text-slate-600 border border-sky-100'
                 }`}
               >
-                All 118 Champions
+                {t('codex.allChampions', 'All 118 Champions')}
               </button>
               {Object.entries(ELEMENT_AFFINITIES).map(([key, aff]) => (
                 <button
@@ -983,84 +987,98 @@ export default function ChemistryWorkspace({ activeTab = 'organic', setActiveTab
             <div className="flex flex-1 overflow-hidden">
               {/* 118 Elements Cards Grid */}
               <div className="flex-1 overflow-y-auto p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5">
-                {filteredElements.map((el) => (
-                  <div
-                    key={el.number}
-                    onClick={() => setSelectedChampion(el)}
-                    className={`flex flex-col items-center justify-center rounded-2xl border p-2 text-center cursor-pointer transition active:scale-95 ${
-                      selectedChampion.number === el.number
-                        ? 'border-sky-400 bg-sky-50/80 shadow-sm'
-                        : 'border-sky-100 bg-white hover:border-sky-200 hover:bg-sky-50/30'
-                    }`}
-                  >
-                    <span className="self-start text-[9px] font-mono font-extrabold text-slate-400">
-                      {el.number}
-                    </span>
-                    <div className="my-1">
-                      <ElementCartoon formula={el.symbol} size="md" />
+                {filteredElements.map((el) => {
+                  const locEl = getLocalizedElement(el);
+                  return (
+                    <div
+                      key={el.number}
+                      onClick={() => setSelectedChampion(el)}
+                      className={`flex flex-col items-center justify-center rounded-2xl border p-2 text-center cursor-pointer transition active:scale-95 ${
+                        selectedChampion.number === el.number
+                          ? 'border-sky-400 bg-sky-50/80 shadow-sm'
+                          : 'border-sky-100 bg-white hover:border-sky-200 hover:bg-sky-50/30'
+                      }`}
+                    >
+                      <span className="self-start text-[9px] font-mono font-extrabold text-slate-400">
+                        {el.number}
+                      </span>
+                      <div className="my-1">
+                        <ElementCartoon formula={el.symbol} size="md" />
+                      </div>
+                      <span className="font-mono text-xs font-black text-slate-800">
+                        {el.symbol}
+                      </span>
+                      <span className="text-[10px] text-slate-500 truncate max-w-full">
+                        {locEl?.displayName || el.name}
+                      </span>
                     </div>
-                    <span className="font-mono text-xs font-black text-slate-800">
-                      {el.symbol}
-                    </span>
-                    <span className="text-[10px] text-slate-500 truncate max-w-full">
-                      {el.name}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Champion Details Side Drawer */}
-              {selectedChampion && (
-                <div className="w-80 border-l border-sky-100 bg-sky-50/20 p-5 flex flex-col justify-between overflow-y-auto">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl border-2 border-sky-200 bg-white p-2 shadow-md">
-                      <ElementCartoon formula={selectedChampion.symbol} size="lg" />
-                    </div>
-                    <h4 className="mt-3 font-mono text-xl font-black text-slate-900">
-                      {selectedChampion.name} ({selectedChampion.symbol})
-                    </h4>
-                    <span className="text-xs font-black text-sky-700">
-                      {selectedChampion.animeTitle}
-                    </span>
+              {selectedChampion && (() => {
+                const locChamp = getLocalizedElement(selectedChampion);
+                return (
+                  <div className="w-80 border-l border-sky-100 bg-sky-50/20 p-5 flex flex-col justify-between overflow-y-auto">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="flex h-20 w-20 items-center justify-center rounded-3xl border-2 border-sky-200 bg-white p-2 shadow-md">
+                        <ElementCartoon formula={selectedChampion.symbol} size="lg" />
+                      </div>
+                      <h4 className="mt-3 font-mono text-xl font-black text-slate-900">
+                        {locChamp?.displayName || selectedChampion.name} ({selectedChampion.symbol})
+                      </h4>
+                      <span className="text-xs font-black text-sky-700">
+                        {locChamp?.displayCategory || selectedChampion.animeTitle}
+                      </span>
 
-                    {/* Stats Pill Matrix */}
-                    <div className="mt-4 grid grid-cols-2 gap-2 w-full text-left">
-                      <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
-                        <span className="text-[9px] text-slate-400 font-bold uppercase">Atomic #</span>
-                        <p className="font-mono text-xs font-black text-slate-800">{selectedChampion.number}</p>
+                      {/* Stats Pill Matrix */}
+                      <div className="mt-4 grid grid-cols-2 gap-2 w-full text-left">
+                        <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase">
+                            {t('codex.atomicNumber', 'Atomic #')}
+                          </span>
+                          <p className="font-mono text-xs font-black text-slate-800">{selectedChampion.number}</p>
+                        </div>
+                        <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase">
+                            {t('codex.mass', 'Mass')}
+                          </span>
+                          <p className="font-mono text-xs font-black text-slate-800">{selectedChampion.atomicMass} u</p>
+                        </div>
+                        <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase">
+                            {t('codex.power', 'Power')}
+                          </span>
+                          <p className="font-mono text-xs font-black text-amber-600">{selectedChampion.power} / 100</p>
+                        </div>
+                        <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase">
+                            {t('codex.reactivity', 'Reactivity')}
+                          </span>
+                          <p className="font-mono text-xs font-black text-sky-700">{selectedChampion.reactivity}</p>
+                        </div>
                       </div>
-                      <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
-                        <span className="text-[9px] text-slate-400 font-bold uppercase">Mass</span>
-                        <p className="font-mono text-xs font-black text-slate-800">{selectedChampion.atomicMass} u</p>
-                      </div>
-                      <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
-                        <span className="text-[9px] text-slate-400 font-bold uppercase">Power</span>
-                        <p className="font-mono text-xs font-black text-amber-600">{selectedChampion.power} / 100</p>
-                      </div>
-                      <div className="rounded-xl border border-sky-100 bg-white p-2 shadow-xs">
-                        <span className="text-[9px] text-slate-400 font-bold uppercase">Reactivity</span>
-                        <p className="font-mono text-xs font-black text-sky-700">{selectedChampion.reactivity}</p>
-                      </div>
+
+                      {/* Lore description */}
+                      <p className="mt-4 text-xs text-slate-600 leading-relaxed text-left bg-white border border-sky-100 rounded-2xl p-3 shadow-xs">
+                        {selectedChampion.lore}
+                      </p>
                     </div>
 
-                    {/* Lore description */}
-                    <p className="mt-4 text-xs text-slate-600 leading-relaxed text-left bg-white border border-sky-100 rounded-2xl p-3 shadow-xs">
-                      {selectedChampion.lore}
-                    </p>
+                    <button
+                      onClick={() => {
+                        addChemicalToVessel(selectedChampion, 15);
+                        setShowPeriodicTable(false);
+                      }}
+                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-400 py-3 text-xs font-black text-slate-900 shadow-md hover:brightness-105 active:scale-98"
+                    >
+                      <Sparkles size={15} />
+                      <span>{t('codex.summonToVessel', 'Summon into Active Vessel')}</span>
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => {
-                      addChemicalToVessel(selectedChampion, 15);
-                      setShowPeriodicTable(false);
-                    }}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-400 py-3 text-xs font-black text-slate-900 shadow-md hover:brightness-105 active:scale-98"
-                  >
-                    <Sparkles size={15} />
-                    <span>Summon into Active Vessel</span>
-                  </button>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         </div>

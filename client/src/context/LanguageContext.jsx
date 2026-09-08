@@ -42,13 +42,8 @@ export function LanguageProvider({ children }) {
     const dict = {};
     Object.keys(BUNDLED_LOCALES).forEach((lang) => {
       try {
-        const cached = localStorage.getItem(`labxplore_i18n_cache_${lang}`);
-        if (cached) {
-          dict[lang] = JSON.parse(cached);
-        } else {
-          dict[lang] = BUNDLED_LOCALES[lang];
-          localStorage.setItem(`labxplore_i18n_cache_${lang}`, JSON.stringify(BUNDLED_LOCALES[lang]));
-        }
+        dict[lang] = BUNDLED_LOCALES[lang];
+        localStorage.setItem(`labxplore_i18n_cache_${lang}`, JSON.stringify(BUNDLED_LOCALES[lang]));
       } catch {
         dict[lang] = BUNDLED_LOCALES[lang];
       }
@@ -75,7 +70,7 @@ export function LanguageProvider({ children }) {
   const t = useCallback(
     (keyPath, fallback = '') => {
       if (!keyPath) return fallback;
-      const activeDict = translations[currentLang] || translations.en || BUNDLED_LOCALES.en;
+      const activeDict = BUNDLED_LOCALES[currentLang] || translations[currentLang] || BUNDLED_LOCALES.en;
       const keys = keyPath.split('.');
       let val = activeDict;
       for (const k of keys) {
@@ -93,7 +88,7 @@ export function LanguageProvider({ children }) {
 
       // Fallback to English if translation is missing in regional language
       if (currentLang !== 'en') {
-        let engVal = translations.en || BUNDLED_LOCALES.en;
+        let engVal = BUNDLED_LOCALES.en || translations.en;
         for (const k of keys) {
           if (engVal && typeof engVal === 'object' && k in engVal) {
             engVal = engVal[k];

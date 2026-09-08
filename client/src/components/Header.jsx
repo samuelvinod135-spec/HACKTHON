@@ -165,7 +165,7 @@ export default function Header({ onMenuClick }) {
               setIsOpen(true);
             }}
             onFocus={() => setIsOpen(true)}
-            placeholder="Search experiments, topics..."
+            placeholder={t('search.placeholder', 'Search experiments, topics...')}
             className="w-full bg-transparent text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none"
           />
 
@@ -196,11 +196,11 @@ export default function Header({ onMenuClick }) {
           {isOpen && (
             <div className="clay-card absolute left-0 right-0 top-full mt-2 max-h-80 overflow-y-auto rounded-2xl bg-white p-2 shadow-xl z-50">
               <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                {query.trim() ? 'Matching Results' : 'Suggested Explorations'}
+                {query.trim() ? t('search.matchingResults', 'Matching Results') : t('search.suggestedExplorations', 'Suggested Explorations')}
               </div>
               {results.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-400">
-                  No experiments found for "{query}"
+                  {t('search.noResults', 'No experiments found for')} "{query}"
                 </div>
               ) : (
                 results.map((item) => {

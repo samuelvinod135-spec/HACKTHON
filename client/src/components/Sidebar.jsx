@@ -26,10 +26,12 @@ import {
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
 
 export function LabXploreLogo({ className = '' }) {
+  const { t } = useLanguage();
   return (
     <Link to="/dashboard" className={`flex items-center gap-3 group ${className}`}>
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white border border-sky-100 p-1 shadow-md shadow-sky-500/10 group-hover:scale-105 group-hover:shadow-sky-500/20 transition-all">
@@ -45,7 +47,7 @@ export function LabXploreLogo({ className = '' }) {
           <span className="text-amber-500 ml-0.5">Xplore</span>
         </div>
         <span className="text-[9px] uppercase tracking-wider font-extrabold text-slate-400 block mt-1">
-          Virtual Science Lab
+          {t('nav.virtualScienceLab', 'Virtual Science Lab')}
         </span>
       </div>
     </Link>
@@ -53,11 +55,12 @@ export function LabXploreLogo({ className = '' }) {
 }
 
 const PRIMARY_MENU = [
-  { to: '/dashboard', label: 'Home', icon: Home },
-  { to: '/physics', label: 'Physics Lab', icon: Atom },
+  { to: '/dashboard', label: 'Home', tKey: 'nav.home', icon: Home },
+  { to: '/physics', label: 'Physics Lab', tKey: 'nav.physicsLab', icon: Atom },
   {
     to: '/chemistry',
     label: 'Chemistry Lab',
+    tKey: 'nav.chemistryLab',
     icon: FlaskConical,
     badge: '2 Modes',
     subItems: [
@@ -65,6 +68,7 @@ const PRIMARY_MENU = [
         to: '/chemistry?tab=drag-and-drop',
         matchTab: 'drag-and-drop',
         label: 'Drag & Drop Lab',
+        tKey: 'nav.dragAndDropLab',
         icon: GripVertical,
         badge: 'Canvas',
       },
@@ -72,34 +76,36 @@ const PRIMARY_MENU = [
         to: '/chemistry?tab=organic',
         matchTab: 'organic',
         label: 'Organic Chemistry',
+        tKey: 'nav.organicChemistry',
         icon: Sparkles,
         badge: '2,209 Rx',
       },
     ],
   },
-  { to: '/quizzes', label: 'Quizzes', icon: TestTubes },
-  { to: '/daily-challenge', label: 'Daily Challenge', icon: Zap },
-  { to: '/mock-tests', label: 'Mock Tests', icon: GraduationCap },
+  { to: '/quizzes', label: 'Quizzes', tKey: 'nav.quizzes', icon: TestTubes },
+  { to: '/daily-challenge', label: 'Daily Challenge', tKey: 'nav.dailyTasks', icon: Zap },
+  { to: '/mock-tests', label: 'Mock Tests', tKey: 'nav.mockTests', icon: GraduationCap },
 ];
 
 const HACKATHON_MENU = [
-  { to: '/snap-solve', label: 'Snap & Solve', icon: Camera, badge: 'OCR' },
-  { to: '/sandbox', label: 'Sandbox Labs', icon: Sliders, badge: 'Sim' },
-  { to: '/spaced-repetition', label: 'Spaced Repetition', icon: Brain, badge: 'AI' },
-  { to: '/experimental', label: 'Experimental / Beta', icon: Sparkles, badge: 'Beta' },
+  { to: '/snap-solve', label: 'Snap & Solve', tKey: 'nav.snapAndSolve', icon: Camera, badge: 'OCR' },
+  { to: '/sandbox', label: 'Sandbox Labs', tKey: 'nav.sandboxLabs', icon: Sliders, badge: 'Sim' },
+  { to: '/spaced-repetition', label: 'Spaced Repetition', tKey: 'nav.spacedRepetition', icon: Brain, badge: 'AI' },
+  { to: '/experimental', label: 'Experimental / Beta', tKey: 'nav.experimental', icon: Sparkles, badge: 'Beta' },
 ];
 
 const SECONDARY_MENU = [
-  { to: '/saved', label: 'Saved Experiments', icon: Bookmark },
-  { to: '/progress', label: 'My Progress', icon: TrendingUp },
-  { to: '/achievements', label: 'Achievements', icon: Award },
-  { to: '/profile', label: 'Profile', icon: User },
-  { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/help', label: 'Help & Support', icon: HelpCircle },
-  { to: '/landing', label: 'Public Landing Page', icon: Star },
+  { to: '/saved', label: 'Saved Experiments', tKey: 'nav.savedExperiments', icon: Bookmark },
+  { to: '/progress', label: 'My Progress', tKey: 'nav.progress', icon: TrendingUp },
+  { to: '/achievements', label: 'Achievements', tKey: 'nav.achievements', icon: Award },
+  { to: '/profile', label: 'Profile', tKey: 'nav.profile', icon: User },
+  { to: '/settings', label: 'Settings', tKey: 'nav.settings', icon: Settings },
+  { to: '/help', label: 'Help & Support', tKey: 'nav.helpSupport', icon: HelpCircle },
+  { to: '/landing', label: 'Public Landing Page', tKey: 'nav.landingPage', icon: Star },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
+  const { t } = useLanguage();
   const { student } = useProgress();
   const { profile } = useAuth();
   const location = useLocation();
@@ -149,7 +155,7 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
           {/* Main Navigation */}
           <nav className="flex flex-col gap-1.5">
-            {PRIMARY_MENU.map(({ to, label, icon: Icon, badge, subItems }) => {
+            {PRIMARY_MENU.map(({ to, label, tKey, icon: Icon, badge, subItems }) => {
               if (subItems) {
                 const isMainActive = isChemRoute;
                 return (
@@ -168,7 +174,7 @@ export default function Sidebar({ isOpen, onClose }) {
                       >
                         <div className="flex items-center gap-3">
                           <Icon size={17} className={isMainActive ? 'text-sky-600' : ''} />
-                          <span>{label}</span>
+                          <span>{t(tKey, label)}</span>
                         </div>
                         {badge && (
                           <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs mr-1">
@@ -216,7 +222,7 @@ export default function Sidebar({ isOpen, onClose }) {
                             >
                               <div className="flex items-center gap-2">
                                 <SubIcon size={13} />
-                                <span>{sub.label}</span>
+                                <span>{t(sub.tKey, sub.label)}</span>
                               </div>
                               {sub.badge && (
                                 <span
@@ -253,7 +259,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 >
                   <div className="flex items-center gap-3">
                     <Icon size={17} />
-                    <span>{label}</span>
+                    <span>{t(tKey, label)}</span>
                   </div>
                   {badge && (
                     <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
@@ -268,12 +274,12 @@ export default function Sidebar({ isOpen, onClose }) {
           {/* Hackathon Innovations Navigation */}
           <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
             <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 flex items-center justify-between">
-              <span>Smart Innovations</span>
+              <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
               <span className="bg-sky-100 text-sky-700 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
                 NEW
               </span>
             </div>
-            {HACKATHON_MENU.map(({ to, label, icon: Icon, badge }) => (
+            {HACKATHON_MENU.map(({ to, label, tKey, icon: Icon, badge }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -288,7 +294,7 @@ export default function Sidebar({ isOpen, onClose }) {
               >
                 <div className="flex items-center gap-3">
                   <Icon size={16} />
-                  <span>{label}</span>
+                  <span>{t(tKey, label)}</span>
                 </div>
                 {badge && (
                   <span className="rounded bg-sky-50 text-sky-600 border border-sky-200/80 px-1.5 py-0.5 text-[9px] font-mono font-bold">
@@ -301,7 +307,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
           {/* Secondary Navigation */}
           <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
-            {SECONDARY_MENU.map(({ to, label, icon: Icon }) => (
+            {SECONDARY_MENU.map(({ to, label, tKey, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -315,7 +321,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 }
               >
                 <Icon size={16} />
-                <span>{label}</span>
+                <span>{t(tKey, label)}</span>
               </NavLink>
             ))}
           </nav>
