@@ -24,6 +24,16 @@ AS $$
   SELECT institution_id FROM public.profiles WHERE id = auth.uid();
 $$;
 
+CREATE OR REPLACE FUNCTION public.get_auth_user_teacher()
+RETURNS UUID
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT assigned_teacher_id FROM public.profiles WHERE id = auth.uid();
+$$;
+
 -- 2. Tighten Student Telemetry Events RLS
 DROP POLICY IF EXISTS "Users can read own telemetry" ON public.student_telemetry_events;
 DROP POLICY IF EXISTS "Strict cohort isolation for telemetry" ON public.student_telemetry_events;
@@ -94,6 +104,6 @@ CREATE POLICY "Tenant bounded profiles visibility" ON public.profiles
         AND c.id = profiles.cohort_id
     )
     OR
-    -- Students can view their assigned teacher's profile
-    id = (SELECT assigned_teacher_id FROM public.profiles WHERE id = auth.uid())
+    -- Students can view their assigned teacher's profile (Zero recursion via helper function)
+    id = public.get_auth_user_teacher()
   );
