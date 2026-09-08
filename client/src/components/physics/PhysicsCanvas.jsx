@@ -469,6 +469,22 @@ function drawOpticalRays(ctx, rays, photonOffset) {
   if (!rays || rays.length === 0) return;
 
   rays.forEach((ray) => {
+    // 0. Render Virtual Focus Projection Line for Diverging Lenses
+    if (ray.virtualPoints && ray.virtualPoints.length >= 2) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(ray.virtualPoints[0].x, ray.virtualPoints[0].y);
+      for (let i = 1; i < ray.virtualPoints.length; i++) {
+        ctx.lineTo(ray.virtualPoints[i].x, ray.virtualPoints[i].y);
+      }
+      ctx.strokeStyle = ray.color || '#6366f1';
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 0.55;
+      ctx.stroke();
+      ctx.restore();
+    }
+
     const pts = ray.points;
     if (pts.length < 2) return;
 

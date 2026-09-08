@@ -169,6 +169,7 @@ export function traceRays(components, canvasBounds = { width: 1200, height: 750 
 function traceSingleRay(origin, dir, color, wavelengthNm, elements, bounds, telemetry, depth = 0) {
   const maxDepth = 6;
   const points = [origin];
+  const virtualRays = [];
   let currentOrigin = { ...origin };
   let currentDir = { ...dir };
 
@@ -208,6 +209,15 @@ function traceSingleRay(origin, dir, color, wavelengthNm, elements, bounds, tele
       break;
     }
 
+    // Add internal through-points (e.g. traversal through concave lens body)
+    if (interaction.throughPoints && interaction.throughPoints.length > 0) {
+      points.push(...interaction.throughPoints);
+    }
+
+    if (interaction.virtualPoints && interaction.virtualPoints.length > 0) {
+      virtualRays.push(interaction.virtualPoints);
+    }
+
     currentOrigin = interaction.newOrigin;
     currentDir = interaction.newDir;
   }
@@ -216,6 +226,8 @@ function traceSingleRay(origin, dir, color, wavelengthNm, elements, bounds, tele
     color,
     points,
     wavelengthNm,
+    virtualPoints: virtualRays.length > 0 ? virtualRays[0] : null,
+    allVirtualRays: virtualRays,
   };
 }
 
@@ -227,13 +239,11 @@ function checkElementIntersection(origin, dir, element) {
   const elX = element.x;
   const elY = element.y;
 
-  if (element.type === 'convex_lens' || element.type === 'concave_lens') {
-    // Treat lens aperture as a line segment oriented perpendicular to optical axis
+  if (element.type === 'convex_lens') {
+    // Treat convex lens aperture as a line segment oriented perpendicular to optical axis
     const height = element.params?.lensHeight || 140;
     const halfH = height / 2;
 
-    // Aperture line segment perpendicular to optical axis
-    // When rotRad = 0, optical axis is horizontal (x), so aperture is vertical (y)
     const perpX = -Math.sin(rotRad);
     const perpY = Math.cos(rotRad);
 
@@ -248,7 +258,6 @@ function checkElementIntersection(origin, dir, element) {
 
     const hit = raySegmentIntersection(origin, dir, p1, p2);
     if (hit) {
-      // Signed distance from lens optical center along aperture
       const toHitX = hit.point.x - elX;
       const toHitY = hit.point.y - elY;
       const signedOffset = toHitX * perpX + toHitY * perpY;
@@ -258,7 +267,99 @@ function checkElementIntersection(origin, dir, element) {
         element,
         signedOffset,
         lensCenter: { x: elX, y: elY },
-        normalAngle: rotRad, // Optical axis direction
+        normalAngle: rotRad,
+      };
+    }
+    return null;
+  }
+
+  if (element.type === 'concave_lens') {
+    // Comprehensive dual-boundary concave lens (front and back hourglass curves)
+    const height = element.params?.lensHeight || 140;
+    const halfH = height / 2;
+    const waistW = 8;
+    const capW = 24;
+    const Kc = (capW - waistW) / (2 * halfH * halfH);
+
+    const cos = Math.cos(rotRad);
+    const sin = Math.sin(rotRad);
+    const u0 = (origin.x - elX) * cos + (origin.y - elY) * sin;
+    const v0 = -(origin.x - elX) * sin + (origin.y - elY) * cos;
+    const du = dir.x * cos + dir.y * sin;
+    const dv = -dir.x * sin + dir.y * cos;
+
+    const solveQuad = (A, B, C) => {
+      if (Math.abs(A) < 1e-9) {
+        if (Math.abs(B) < 1e-9) return null;
+        const t = -C / B;
+        return t > 0.001 ? t : null;
+      }
+      const disc = B * B - 4 * A * C;
+      if (disc < 0) return null;
+      const sqrtD = Math.sqrt(disc);
+      const t1 = (-B - sqrtD) / (2 * A);
+      const t2 = (-B + sqrtD) / (2 * A);
+      const valid = [t1, t2].filter((t) => t > 0.001);
+      return valid.length ? Math.min(...valid) : null;
+    };
+
+    // 1. Front curved face: u = -waistW/2 - Kc * v^2
+    const tFront = solveQuad(Kc * dv * dv, 2 * Kc * v0 * dv + du, u0 + waistW / 2 + Kc * v0 * v0);
+    let hitFront = null;
+    if (tFront !== null) {
+      const vHit = v0 + tFront * dv;
+      if (Math.abs(vHit) <= halfH + 0.5) {
+        const uHit = -waistW / 2 - Kc * vHit * vHit;
+        hitFront = {
+          t: tFront,
+          face: 'front',
+          vOffset: vHit,
+          uOffset: uHit,
+          point: {
+            x: elX + uHit * cos - vHit * sin,
+            y: elY + uHit * sin + vHit * cos,
+          },
+        };
+      }
+    }
+
+    // 2. Back curved face: u = +waistW/2 + Kc * v^2
+    const tBack = solveQuad(Kc * dv * dv, 2 * Kc * v0 * dv - du, -u0 + waistW / 2 + Kc * v0 * v0);
+    let hitBack = null;
+    if (tBack !== null) {
+      const vHit = v0 + tBack * dv;
+      if (Math.abs(vHit) <= halfH + 0.5) {
+        const uHit = waistW / 2 + Kc * vHit * vHit;
+        hitBack = {
+          t: tBack,
+          face: 'back',
+          vOffset: vHit,
+          uOffset: uHit,
+          point: {
+            x: elX + uHit * cos - vHit * sin,
+            y: elY + uHit * sin + vHit * cos,
+          },
+        };
+      }
+    }
+
+    const candidates = [hitFront, hitBack].filter(Boolean).sort((a, b) => a.t - b.t);
+    if (candidates.length > 0) {
+      const best = candidates[0];
+      return {
+        point: best.point,
+        dist: best.t,
+        element,
+        face: best.face,
+        signedOffset: best.vOffset,
+        uOffset: best.uOffset,
+        lensCenter: { x: elX, y: elY },
+        normalAngle: rotRad,
+        halfH,
+        waistW,
+        capW,
+        Kc,
+        rotRad,
       };
     }
     return null;
@@ -356,7 +457,7 @@ function checkElementIntersection(origin, dir, element) {
 function handleOpticalInteraction(hit, incidentDir, element, wavelengthNm, telemetry) {
   const { type, params = {} } = element;
 
-  if (type === 'convex_lens' || type === 'concave_lens') {
+  if (type === 'convex_lens') {
     const baseFocalLength = params.focalLength ?? 160;
     const baseN = params.refractiveIndex ?? 1.52;
     const curvatureR = params.curvature ?? 50;
@@ -376,13 +477,8 @@ function handleOpticalInteraction(hit, incidentDir, element, wavelengthNm, telem
     // Signed offset from optical center along the lens aperture
     const yOffset = hit.signedOffset;
 
-    // Deflection angle relative to optical axis:
-    // Convex lens deflects toward axis: deltaTheta = -yOffset / focalLength
-    // Concave lens deflects away from axis: deltaTheta = +yOffset / |focalLength|
-    const isConvex = type === 'convex_lens';
-    const deflection = isConvex
-      ? -Math.atan(yOffset / focalLength)
-      : Math.atan(yOffset / Math.abs(focalLength));
+    // Deflection angle relative to optical axis (converges toward axis):
+    const deflection = -Math.atan(yOffset / focalLength);
 
     const currentRayAngle = Math.atan2(incidentDir.y, incidentDir.x);
     const newRayAngle = currentRayAngle + deflection;
@@ -401,6 +497,84 @@ function handleOpticalInteraction(hit, incidentDir, element, wavelengthNm, telem
         y: hit.point.y + newDir.y * 0.5,
       },
       newDir,
+    };
+  }
+
+  if (type === 'concave_lens') {
+    const baseFocalLength = Math.abs(params.focalLength ?? 140);
+    const baseN = params.refractiveIndex ?? 1.52;
+    const curvatureR = params.curvature ?? 50;
+
+    // Refractive index with dispersion
+    const effectiveN = getRefractiveIndexForWavelength(baseN, wavelengthNm);
+
+    // Lens Maker Equation for biconcave diverging lens:
+    // 1/f = (n - 1) * (-2 / R) => |f| = R / (2 * (n - 1))
+    const lensMakerF = (curvatureR / (2 * (effectiveN - 1))) * 3.2;
+    const focalLength = params.useExactFocal ? baseFocalLength : (params.focalLength ? Math.abs(params.focalLength) : lensMakerF);
+
+    // Record signed negative focal length for diverging concave lens
+    telemetry.focalDistancePx = -Math.round(focalLength);
+
+    const rotRad = ((element.rotation || 0) * Math.PI) / 180;
+    const cos = Math.cos(rotRad);
+    const sin = Math.sin(rotRad);
+    const elX = element.x;
+    const elY = element.y;
+
+    const waistW = hit.waistW ?? 8;
+    const capW = hit.capW ?? 24;
+    const halfH = hit.halfH ?? ((params.lensHeight || 140) / 2);
+    const Kc = hit.Kc ?? ((capW - waistW) / (2 * halfH * halfH));
+
+    const vOffset = hit.signedOffset;
+    const hitFace = hit.face || 'front';
+
+    // The ray traverses through the glass body to exit from the opposite concave face
+    const exitFace = hitFace === 'front' ? 'back' : 'front';
+    const uExit = exitFace === 'back'
+      ? (waistW / 2 + Kc * vOffset * vOffset)
+      : (-waistW / 2 - Kc * vOffset * vOffset);
+
+    const exitPoint = {
+      x: elX + uExit * cos - vOffset * sin,
+      y: elY + uExit * sin + vOffset * cos,
+    };
+
+    // Forward component along optical axis
+    const du = incidentDir.x * cos + incidentDir.y * sin;
+    const forwardSign = du >= 0 ? 1 : -1;
+
+    // Diverging refraction angle (deflects away from optical axis):
+    // deltaTheta = forwardSign * atan(vOffset / |f|)
+    const deflection = forwardSign * Math.atan(vOffset / focalLength);
+
+    const currentRayAngle = Math.atan2(incidentDir.y, incidentDir.x);
+    const newRayAngle = currentRayAngle + deflection;
+
+    const newDir = {
+      x: Math.cos(newRayAngle),
+      y: Math.sin(newRayAngle),
+    };
+
+    telemetry.incidentAngleDeg = Math.round((Math.abs(currentRayAngle - rotRad) * 180) / Math.PI);
+    telemetry.refractedAngleDeg = Math.round((Math.abs(newRayAngle - rotRad) * 180) / Math.PI);
+
+    // Virtual focal point behind the lens from which exiting rays appear to diverge
+    const virtualFocusDist = forwardSign * focalLength;
+    const virtualFocusPoint = {
+      x: elX - virtualFocusDist * cos,
+      y: elY - virtualFocusDist * sin,
+    };
+
+    return {
+      throughPoints: [exitPoint],
+      newOrigin: {
+        x: exitPoint.x + newDir.x * 0.8,
+        y: exitPoint.y + newDir.y * 0.8,
+      },
+      newDir,
+      virtualPoints: [virtualFocusPoint, exitPoint],
     };
   }
 

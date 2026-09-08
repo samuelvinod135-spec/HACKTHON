@@ -74,10 +74,12 @@ export default function LiveReadingsPanel({ telemetry, isOpticsMode, elapsedMs, 
               <span className="font-mono font-bold text-teal-600">{refractedAngleDeg}°</span>
             </div>
 
-            {focalDistancePx > 0 && (
+            {focalDistancePx !== 0 && (
               <div className="flex items-center justify-between rounded-xl bg-slate-50 px-2.5 py-1.5 text-[11px]">
                 <span className="text-slate-500">Focal Length (f)</span>
-                <span className="font-mono font-bold text-sky-600">{focalDistancePx} px</span>
+                <span className="font-mono font-bold text-sky-600">
+                  {focalDistancePx > 0 ? `+${focalDistancePx}` : `${focalDistancePx}`} px
+                </span>
               </div>
             )}
 
