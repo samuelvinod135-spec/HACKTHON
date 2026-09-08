@@ -11,6 +11,9 @@
     "build": "npm run build --workspace=client",
     "start": "npm run start --workspace=server"
   },
+  "allowScripts": {
+    "esbuild": true
+  },
   "workspaces": [
     "client",
     "server"

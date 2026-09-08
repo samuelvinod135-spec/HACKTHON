@@ -8,6 +8,9 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "allowScripts": {
+    "esbuild": true
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",
     "lucide-react": "^0.453.0",
