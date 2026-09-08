@@ -136,5 +136,23 @@
     "weakTopicsTitle": "Topics Requiring Immediate Attention",
     "projectedScore": "Projected Exam Percentile",
     "highRiskAlert": "Immediate intervention required to prevent conceptual decay."
+  },
+  "ilos": {
+    "teacherCockpit": "Teacher Cockpit",
+    "teacherCockpitSub": "Real-time diagnostic telemetry, cohort mastery, and proactive AI scaffolding",
+    "adminDashboard": "Admin Executive Portal",
+    "adminDashboardSub": "Campus-wide laboratory utilization, subject distribution, and institutional compliance",
+    "masteryHeatmap": "Classroom Mastery Heatmap",
+    "masteryHeatmapSub": "Pervasive telemetry matrix tracking individual student competencies across core NCERT topics",
+    "stealthActive": "Stealth Scaffolding Active",
+    "stealthNominal": "Autonomous Stealth AI: All topic competencies nominal. Zero remediation required.",
+    "simulateTrigger": "Simulate Struggle Trigger",
+    "applyCalibration": "Apply Calibration",
+    "generateAiReport": "Generate AI Cohort Report",
+    "exportCsv": "Export CSV Report",
+    "activeScholars": "Active Scholars",
+    "meanMastery": "Mean Cohort Mastery",
+    "studentsAtRisk": "Students at Risk",
+    "remediationActive": "Remediations Active"
   }
 }

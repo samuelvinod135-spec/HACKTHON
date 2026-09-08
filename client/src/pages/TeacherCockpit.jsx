@@ -16,11 +16,13 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
 import MasteryHeatmap, { COHORT_STUDENTS_SAMPLE } from '../components/Heatmap/MasteryHeatmap.jsx';
 import { useStealthScaffoldingStore } from '../store/useStealthScaffoldingStore.js';
 
 export default function TeacherCockpit() {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const { interventionHistory } = useStealthScaffoldingStore();
 
   const [selectedCohort, setSelectedCohort] = useState('DPS-10A');
@@ -121,7 +123,7 @@ export default function TeacherCockpit() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
-              Institutional Teacher Cockpit
+              {t('ilos.teacherCockpit', 'Institutional Teacher Cockpit')}
             </span>
             <span className="text-[10px] font-bold text-slate-500 font-mono">
               {schoolName}
@@ -132,7 +134,7 @@ export default function TeacherCockpit() {
             <span className="text-xl">👩‍🏫</span>
           </h1>
           <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
-            Assigned Cohort: <strong className="text-slate-800">{cohortName}</strong> · Academic Year 2026-2027
+            {t('ilos.teacherCockpitSub', 'Real-time diagnostic telemetry, cohort mastery, and proactive AI scaffolding')}
           </p>
         </div>
 
@@ -162,7 +164,7 @@ export default function TeacherCockpit() {
             ) : (
               <>
                 <Sparkles size={14} className="text-slate-950" />
-                <span>Generate AI Cohort Report</span>
+                <span>{t('ilos.generateAiReport', 'Generate AI Cohort Report')}</span>
               </>
             )}
           </button>
@@ -175,7 +177,7 @@ export default function TeacherCockpit() {
         <div className="clay-card p-5 bg-white rounded-3xl border border-sky-100 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-              Assigned Cohort Size
+              {t('ilos.activeScholars', 'Assigned Cohort Size')}
             </span>
             <p className="mt-1 text-3xl font-black text-slate-900">{totalStudents} Scholars</p>
             <p className="text-[11px] text-emerald-600 font-bold mt-0.5">100% Active in virtual studio</p>
@@ -189,7 +191,7 @@ export default function TeacherCockpit() {
         <div className="clay-card p-5 bg-white rounded-3xl border border-emerald-100 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-              Mean Topic Mastery
+              {t('ilos.meanMastery', 'Mean Topic Mastery')}
             </span>
             <p className="mt-1 text-3xl font-black text-emerald-600">{averageMastery}%</p>
             <p className="text-[11px] text-slate-500 font-medium mt-0.5">+14.2% diagnostic gain this month</p>
@@ -203,7 +205,7 @@ export default function TeacherCockpit() {
         <div className="clay-card p-5 bg-gradient-to-br from-amber-50/70 to-orange-50/40 rounded-3xl border border-amber-200 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-[11px] font-black uppercase tracking-wider text-amber-900">
-              Autonomous Scaffolds Active
+              {t('ilos.remediationActive', 'Autonomous Scaffolds Active')}
             </span>
             <p className="mt-1 text-3xl font-black text-amber-900">{strugglingCount} Scholars</p>
             <p className="text-[11px] text-amber-700 font-bold mt-0.5">Zero-friction remediation deployed</p>

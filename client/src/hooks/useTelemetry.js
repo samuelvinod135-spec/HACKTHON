@@ -73,6 +73,60 @@ function scheduleFlush() {
 }
 
 /**
+ * Drains stored offline events from localStorage back to Supabase when connectivity restores
+ */
+export async function drainOfflineQueue() {
+  try {
+    if (typeof window === 'undefined') return;
+    const raw = localStorage.getItem('labxplore_telemetry_offline_queue');
+    if (!raw) return;
+    const stored = JSON.parse(raw);
+    if (!Array.isArray(stored) || stored.length === 0) return;
+
+    const sanitizedBatch = stored.map((ev) => {
+      const isUserUuid = typeof ev.user_id === 'string' && UUID_REGEX.test(ev.user_id);
+      const isInstUuid = typeof ev.institution_id === 'string' && UUID_REGEX.test(ev.institution_id);
+      const isCohortUuid = typeof ev.cohort_id === 'string' && UUID_REGEX.test(ev.cohort_id);
+
+      return {
+        user_id: isUserUuid ? ev.user_id : null,
+        institution_id: isInstUuid ? ev.institution_id : null,
+        cohort_id: isCohortUuid ? ev.cohort_id : null,
+        event_type: ev.event_type,
+        topic: ev.topic,
+        subtopic: ev.subtopic || null,
+        dwell_time_ms: ev.dwell_time_ms || 0,
+        error_count: ev.error_count || 0,
+        success_flag: ev.success_flag !== false,
+        payload: {
+          ...(ev.payload || {}),
+          ...(!isUserUuid && ev.user_id ? { client_persona_id: ev.user_id } : {}),
+          replayed_from_offline: true,
+        },
+        recorded_at: ev.timestamp || new Date().toISOString(),
+      };
+    });
+
+    const { error } = await supabase.from('student_telemetry_events').insert(sanitizedBatch);
+    if (!error) {
+      localStorage.removeItem('labxplore_telemetry_offline_queue');
+      console.log(`[Telemetry] Auto-drained and synced ${sanitizedBatch.length} offline events to Supabase`);
+    }
+  } catch (err) {
+    console.warn('[Telemetry] Offline drain retry note:', err);
+  }
+}
+
+// Auto-attach online reconnect sync listener
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', drainOfflineQueue);
+  // Also attempt initial sync if there's internet
+  if (navigator.onLine) {
+    setTimeout(drainOfflineQueue, 2000);
+  }
+}
+
+/**
  * Lightweight, non-blocking pervasive telemetry hook
  */
 export function useTelemetry(activeTopic = null, activeSubtopic = null) {
