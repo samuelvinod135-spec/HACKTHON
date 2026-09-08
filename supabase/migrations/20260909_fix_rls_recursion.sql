@@ -83,11 +83,7 @@ CREATE POLICY "Strict cohort isolation for telemetry" ON public.student_telemetr
 
 DROP POLICY IF EXISTS "Users can insert own telemetry" ON public.student_telemetry_events;
 CREATE POLICY "Users can insert own telemetry" ON public.student_telemetry_events
-  FOR INSERT WITH CHECK (
-    auth.uid() = user_id 
-    OR user_id IS NULL 
-    OR auth.role() IN ('anon', 'authenticated')
-  );
+  FOR INSERT WITH CHECK (true);
 
 -- 5. Clean Scaffolding Policy (SELECT & INSERT)
 CREATE POLICY "Strict cohort isolation for scaffolding" ON public.scaffolding_interventions
@@ -109,8 +105,4 @@ CREATE POLICY "Strict cohort isolation for scaffolding" ON public.scaffolding_in
 
 DROP POLICY IF EXISTS "Users can insert scaffolding" ON public.scaffolding_interventions;
 CREATE POLICY "Users can insert scaffolding" ON public.scaffolding_interventions
-  FOR INSERT WITH CHECK (
-    auth.uid() = user_id 
-    OR user_id IS NULL 
-    OR auth.role() IN ('anon', 'authenticated')
-  );
+  FOR INSERT WITH CHECK (true);
