@@ -23,6 +23,7 @@ import {
 } from '../../utils/mechanicsEngine.js';
 import { sounds } from '../../utils/soundEffects.js';
 import { usePerformance } from '../../context/PerformanceContext.jsx';
+import { useStealthScaffoldingStore } from '../../store/useStealthScaffoldingStore.js';
 
 export default function PhysicsCanvas({
   components,
@@ -837,6 +838,43 @@ function drawProjectileTrajectory(ctx, traj, running, elapsedMs) {
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1;
     ctx.stroke();
+  }
+
+  // 4. Autonomous Stealth Scaffolding: Dynamic Velocity Vector & Apex Alignment Guides
+  const activeScaffolds = useStealthScaffoldingStore.getState().activeScaffolds;
+  if (activeScaffolds?.Kinematics?.visualGuideActive && pts && pts.length >= 2) {
+    const origin = pts[0];
+    const targetPt = pts[Math.min(pts.length - 1, 4)] || { x: origin.x + 50, y: origin.y - 35 };
+    const dx = targetPt.x - origin.x;
+    const dy = targetPt.y - origin.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const arrowLen = 65;
+    const arrowX = origin.x + (dx / len) * arrowLen;
+    const arrowY = origin.y + (dy / len) * arrowLen;
+
+    ctx.save();
+    ctx.strokeStyle = '#06b6d4';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(origin.x, origin.y);
+    ctx.lineTo(arrowX, arrowY);
+    ctx.stroke();
+
+    // Arrowhead
+    const angle = Math.atan2(dy, dx);
+    ctx.fillStyle = '#06b6d4';
+    ctx.beginPath();
+    ctx.moveTo(arrowX, arrowY);
+    ctx.lineTo(arrowX - 9 * Math.cos(angle - Math.PI / 6), arrowY - 9 * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(arrowX - 9 * Math.cos(angle + Math.PI / 6), arrowY - 9 * Math.sin(angle + Math.PI / 6));
+    ctx.fill();
+
+    // Ambient guidance pill
+    ctx.fillStyle = 'rgba(6, 182, 212, 0.9)';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText('⚡ AI Velocity Vector Guide (v₀)', origin.x - 15, origin.y - 18);
+    ctx.restore();
   }
 
   ctx.restore();

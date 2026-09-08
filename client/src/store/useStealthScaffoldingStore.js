@@ -249,4 +249,16 @@ export const useStealthScaffoldingStore = create((set, get) => ({
       };
     });
   },
+
+  /**
+   * Complete state reset on logout
+   */
+  resetStore: () => {
+    set({
+      strugglingTopics: [],
+      topicErrorCounters: {},
+      activeScaffolds: {},
+      interventionHistory: [],
+    });
+  },
 }));

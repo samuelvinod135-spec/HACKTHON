@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Atom, Sparkles, Compass } from 'lucide-react';
 import PhysicsWorkspace from '../components/PhysicsWorkspace.jsx';
+import StealthScaffoldingOverlay from '../components/StealthScaffolding/StealthScaffoldingOverlay.jsx';
+import { useTelemetry } from '../hooks/useTelemetry.js';
 
 export default function PhysicsLab() {
+  // Pervasive non-blocking student telemetry ingestion
+  useTelemetry('Kinematics', 'Optics & Newtonian Dynamics Lab');
+
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-3">
       {/* Header bar */}
@@ -42,6 +47,9 @@ export default function PhysicsLab() {
           </span>
         </div>
       </div>
+
+      {/* Autonomous Stealth Scaffolding HUD */}
+      <StealthScaffoldingOverlay currentTopic="Kinematics" />
 
       {/* Physics Workspace Centerpiece */}
       <PhysicsWorkspace />

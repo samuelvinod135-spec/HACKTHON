@@ -8,28 +8,40 @@ import { useStealthScaffoldingStore } from '../store/useStealthScaffoldingStore.
 let eventQueue = [];
 let flushTimeout = null;
 
+// Strict UUID v4 / PostgreSQL UUID regex validator
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 async function flushTelemetryQueue() {
   if (eventQueue.length === 0) return;
   const batch = [...eventQueue];
   eventQueue = [];
 
+  const sanitizedBatch = batch.map((ev) => {
+    const isUserUuid = typeof ev.user_id === 'string' && UUID_REGEX.test(ev.user_id);
+    const isInstUuid = typeof ev.institution_id === 'string' && UUID_REGEX.test(ev.institution_id);
+    const isCohortUuid = typeof ev.cohort_id === 'string' && UUID_REGEX.test(ev.cohort_id);
+
+    return {
+      user_id: isUserUuid ? ev.user_id : null,
+      institution_id: isInstUuid ? ev.institution_id : null,
+      cohort_id: isCohortUuid ? ev.cohort_id : null,
+      event_type: ev.event_type,
+      topic: ev.topic,
+      subtopic: ev.subtopic || null,
+      dwell_time_ms: ev.dwell_time_ms || 0,
+      error_count: ev.error_count || 0,
+      success_flag: ev.success_flag !== false,
+      payload: {
+        ...(ev.payload || {}),
+        ...(!isUserUuid && ev.user_id ? { client_persona_id: ev.user_id } : {}),
+      },
+      recorded_at: ev.timestamp || new Date().toISOString(),
+    };
+  });
+
   try {
-    // Write batch to Supabase student_telemetry_events
-    await supabase.from('student_telemetry_events').insert(
-      batch.map((ev) => ({
-        user_id: ev.user_id || null,
-        institution_id: ev.institution_id || null,
-        cohort_id: ev.cohort_id || null,
-        event_type: ev.event_type,
-        topic: ev.topic,
-        subtopic: ev.subtopic || null,
-        dwell_time_ms: ev.dwell_time_ms || 0,
-        error_count: ev.error_count || 0,
-        success_flag: ev.success_flag !== false,
-        payload: ev.payload || {},
-        recorded_at: ev.timestamp || new Date().toISOString(),
-      }))
-    );
+    // Write sanitized batch to Supabase student_telemetry_events
+    await supabase.from('student_telemetry_events').insert(sanitizedBatch);
   } catch (err) {
     // Offline resilience: silent fallback to local storage buffer
     try {

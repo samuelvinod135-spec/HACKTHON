@@ -27,6 +27,7 @@ import SpacedRepetitionPage from './pages/SpacedRepetitionPage.jsx';
 import ExperimentalBetaPage from './pages/ExperimentalBetaPage.jsx';
 import TeacherCockpit from './pages/TeacherCockpit.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
+import RoleGuard from './components/Auth/RoleGuard.jsx';
 
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import NetworkFallbackToast from './components/NetworkFallbackToast.jsx';
@@ -87,10 +88,14 @@ export default function App() {
                 <Route path="/spaced-repetition" element={<SpacedRepetitionPage />} />
                 <Route path="/help" element={<Settings />} />
 
-                {/* Institutional Learning Operating System (ILOS) Routes */}
-                <Route path="/teacher" element={<TeacherCockpit />} />
-                <Route path="/cockpit" element={<TeacherCockpit />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+                {/* Institutional Learning Operating System (ILOS) Protected Routes */}
+                <Route element={<RoleGuard allowedRoles={['teacher', 'admin']} />}>
+                  <Route path="/teacher" element={<TeacherCockpit />} />
+                  <Route path="/cockpit" element={<TeacherCockpit />} />
+                </Route>
+                <Route element={<RoleGuard allowedRoles={['admin']} />}>
+                  <Route path="/admin" element={<AdminDashboard />} />
+                </Route>
               </Route>
 
               {/* Fallback route */}

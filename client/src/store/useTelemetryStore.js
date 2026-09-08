@@ -166,4 +166,15 @@ export const useTelemetryStore = create((set, get) => ({
     const stats = get().topicStats;
     return Object.values(stats);
   },
+
+  /**
+   * Resets in-memory telemetry buffer and topic stats on user logout
+   */
+  resetStore: () => {
+    set({
+      events: [],
+      activeTimers: {},
+      topicStats: INITIAL_TOPIC_STATS,
+    });
+  },
 }));

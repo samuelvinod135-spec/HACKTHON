@@ -192,27 +192,47 @@ ALTER TABLE public.scaffolding_interventions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read for institutions" ON public.institutions FOR SELECT USING (true);
 CREATE POLICY "Public read for cohorts" ON public.cohorts FOR SELECT USING (true);
 
--- Telemetry RLS: Users can insert and read their own or their cohort's telemetry
+-- Telemetry RLS: Mathematical cohort isolation
 CREATE POLICY "Users can insert own telemetry" ON public.student_telemetry_events
   FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
-CREATE POLICY "Users can read own telemetry" ON public.student_telemetry_events
+CREATE POLICY "Strict cohort isolation for telemetry" ON public.student_telemetry_events
   FOR SELECT USING (
+    -- 1. Student reads their own data
     auth.uid() = user_id 
-    OR EXISTS (
+    OR
+    -- 2. Admin reads all telemetry across their own institution
+    EXISTS (
       SELECT 1 FROM public.profiles 
       WHERE profiles.id = auth.uid() 
-      AND (profiles.role IN ('teacher', 'admin'))
-      AND (profiles.institution_id = student_telemetry_events.institution_id)
+      AND profiles.role = 'admin'
+      AND profiles.institution_id = student_telemetry_events.institution_id
+    )
+    OR
+    -- 3. Teacher can ONLY read data for cohorts strictly assigned to them
+    (
+      cohort_id IS NOT NULL AND cohort_id IN (
+        SELECT id FROM public.cohorts WHERE teacher_id = auth.uid()
+      )
     )
   );
 
--- Scaffolding RLS
-CREATE POLICY "Users view own scaffolding" ON public.scaffolding_interventions
+-- Scaffolding RLS: Strict cohort isolation
+CREATE POLICY "Strict cohort isolation for scaffolding" ON public.scaffolding_interventions
   FOR SELECT USING (
     auth.uid() = user_id
-    OR EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE profiles.id = auth.uid() AND profiles.role IN ('teacher', 'admin')
+    OR
+    EXISTS (
+      SELECT 1 FROM public.profiles admin_p
+      JOIN public.profiles student_p ON student_p.id = scaffolding_interventions.user_id
+      WHERE admin_p.id = auth.uid() 
+      AND admin_p.role = 'admin'
+      AND admin_p.institution_id = student_p.institution_id
+    )
+    OR
+    (
+      cohort_id IS NOT NULL AND cohort_id IN (
+        SELECT id FROM public.cohorts WHERE teacher_id = auth.uid()
+      )
     )
   );

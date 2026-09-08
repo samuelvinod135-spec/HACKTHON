@@ -11,6 +11,8 @@ import {
 import { useLanguage } from '../context/LanguageContext.jsx';
 import ChemistryWorkspace from '../components/ChemistryWorkspace.jsx';
 import DragDropChemistryWorkspace from '../components/DragDropChemistryWorkspace.jsx';
+import StealthScaffoldingOverlay from '../components/StealthScaffolding/StealthScaffoldingOverlay.jsx';
+import { useTelemetry } from '../hooks/useTelemetry.js';
 
 export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
   const { t } = useLanguage();
@@ -18,6 +20,9 @@ export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
   const rawTab = searchParams.get('tab');
   // If tab is drag-and-drop or canvas, use drag-and-drop; otherwise if specified use it; else fallback to initialTab
   const activeTab = rawTab || initialTab || 'drag-and-drop';
+
+  // Pervasive non-blocking student telemetry ingestion for Chemistry Bench
+  useTelemetry('Stoichiometry', 'Reagents & Reaction Bench');
 
   const isDragDrop = activeTab === 'drag-and-drop' || activeTab === 'canvas';
   const isOrganicRealm = !isDragDrop;
@@ -138,6 +143,9 @@ export default function ChemistryLab({ initialTab = 'drag-and-drop' }) {
           </div>
         )}
       </div>
+
+      {/* Autonomous Stealth Scaffolding HUD for Stoichiometry & Reactions */}
+      <StealthScaffoldingOverlay currentTopic="Stoichiometry" />
 
       {/* Render the Active Sub-Workspace */}
       {isDragDrop ? (

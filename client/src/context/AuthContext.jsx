@@ -1,6 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase.js';
 import { api } from '../api.js';
+import { useTelemetryStore } from '../store/useTelemetryStore.js';
+import { useStealthScaffoldingStore } from '../store/useStealthScaffoldingStore.js';
+import { usePreferenceStore } from '../store/usePreferenceStore.js';
 
 const AuthContext = createContext(null);
 
@@ -331,11 +334,33 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Sign out
+  // Sign out with complete cache & Zustand store purge
   const signOut = async () => {
     setUser(null);
     setSession(null);
     setProfile(null);
+
+    // 1. Purge all in-memory Zustand stores to prevent cross-account state leakage
+    try {
+      useTelemetryStore.getState().resetStore?.();
+      useStealthScaffoldingStore.getState().resetStore?.();
+      usePreferenceStore.getState().resetWeights?.();
+    } catch (storeErr) {
+      console.warn('Store purge note:', storeErr);
+    }
+
+    // 2. Clear all sensitive local/session storage keys
+    try {
+      localStorage.removeItem('labxplore_learning_style_weights');
+      localStorage.removeItem('labxplore_telemetry_offline_queue');
+      localStorage.removeItem('labxplore_demo_user');
+      localStorage.removeItem('labxplore_cached_user');
+      sessionStorage.clear();
+    } catch (storageErr) {
+      console.warn('Storage purge note:', storageErr);
+    }
+
+    // 3. Supabase Auth sign out
     try {
       await supabase.auth.signOut();
     } catch (err) {
