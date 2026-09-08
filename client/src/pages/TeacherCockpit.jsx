@@ -43,7 +43,8 @@ export default function TeacherCockpit() {
   const handleGenerateAiReport = async () => {
     setIsGeneratingAiReport(true);
     try {
-      const res = await fetch('/api/ai/teacher-report', {
+      const apiBase = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '') + '/api';
+      const res = await fetch(`${apiBase}/ai/teacher-report`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
