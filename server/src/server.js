@@ -26,6 +26,8 @@ import {
   getQuestions,
   getQuestionBankChapters,
   getQuestionBankStats,
+  addQuestion,
+  deleteQuestion,
 } from './db.js';
 import {
   generateScienceResponse,
@@ -214,6 +216,34 @@ app.get('/api/questions/stats', async (_req, res) => {
     res.json(stats);
   } catch (err) {
     res.status(500).json({ total: 0, chaptersCount: 0, bySubject: [], byLevel: [] });
+  }
+});
+
+app.post('/api/questions', async (req, res) => {
+  try {
+    const questionData = req.body || {};
+    if (!questionData.question) {
+      return res.status(400).json({ error: 'Question text is required' });
+    }
+    const created = await addQuestion(questionData);
+    res.status(201).json({ success: true, question: created });
+  } catch (err) {
+    console.warn('Create question error:', err);
+    res.status(500).json({ error: 'Failed to create question', message: err.message });
+  }
+});
+
+app.delete('/api/questions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: 'Question ID is required' });
+    }
+    const result = await deleteQuestion(id);
+    res.json(result);
+  } catch (err) {
+    console.warn('Delete question error:', err);
+    res.status(500).json({ error: 'Failed to delete question', message: err.message });
   }
 });
 

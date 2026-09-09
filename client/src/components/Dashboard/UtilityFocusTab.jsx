@@ -42,13 +42,13 @@ export default function UtilityFocusTab({ className = '' }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Module 1: 1v1 Peer Battle Arena */}
-        <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/50 to-indigo-50/40 p-4 flex flex-col justify-between">
+        <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50/60 to-white p-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 <Swords size={16} />
               </span>
-              <span className="text-[10px] font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200">
+              <span className="text-[10px] font-bold text-sky-700 bg-white px-2 py-0.5 rounded border border-sky-200">
                 Multiplayer Sandbox
               </span>
             </div>
@@ -59,7 +59,7 @@ export default function UtilityFocusTab({ className = '' }) {
               Test your reaction kinetics and physics ray-tracing intuition against classmates in real-time synchronized showdowns.
             </p>
           </div>
-          <div className="mt-4 pt-3 border-t border-indigo-100 flex items-center justify-between">
+          <div className="mt-4 pt-3 border-t border-sky-100 flex items-center justify-between">
             <span className="text-[10px] font-semibold text-slate-400">Match queue: 14 scholars online</span>
             <Link
               to="/battles"

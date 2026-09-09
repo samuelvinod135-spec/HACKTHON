@@ -431,5 +431,90 @@ export async function getQuestionBankStats() {
   };
 }
 
+export async function addQuestion(q) {
+  const id = q.id || `q-custom-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const subject = q.subject || 'Physics';
+  const chapter = q.chapter || 'Kinematics';
+  const topic = q.topic || chapter;
+  const exam_level = q.exam_level || 'Main-Moderate';
+  const question_type = q.question_type || 'MCQ';
+  const question = q.question || '';
+  const option_a = q.option_a || '';
+  const option_b = q.option_b || '';
+  const option_c = q.option_c || '';
+  const option_d = q.option_d || '';
+  const correct_option = (q.correct_option || 'A').toUpperCase();
+  const answer = q.answer || q[`option_${correct_option.toLowerCase()}`] || '';
+  const explanation = q.explanation || 'Verified curriculum concept.';
+  const xp = Number(q.xp) || 10;
+
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO question_bank (
+        id, subject, chapter, topic, exam_level, question_type,
+        question, option_a, option_b, option_c, option_d,
+        correct_option, answer, explanation, xp
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(
+      id, subject, chapter, topic, exam_level, question_type,
+      question, option_a, option_b, option_c, option_d,
+      correct_option, answer, explanation, xp
+    );
+  } catch (err) {
+    console.warn('SQLite insert question warning:', err.message);
+  }
+
+  // Also attempt Supabase insert if credentials are provided
+  try {
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      await fetch(`${SUPABASE_URL}/rest/v1/question_bank`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          id, subject, chapter, topic, exam_level, question_type,
+          question, option_a, option_b, option_c, option_d,
+          correct_option, answer, explanation, xp,
+        }),
+      });
+    }
+  } catch {}
+
+  return {
+    id, subject, chapter, topic, exam_level, question_type,
+    question, option_a, option_b, option_c, option_d,
+    correct_option, answer, explanation, xp,
+  };
+}
+
+export async function deleteQuestion(id) {
+  let deletedFromSqlite = false;
+  try {
+    const res = db.prepare('DELETE FROM question_bank WHERE id = ?').run(id);
+    deletedFromSqlite = res.changes > 0;
+  } catch (err) {
+    console.warn('SQLite delete warning:', err.message);
+  }
+
+  try {
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      await fetch(`${SUPABASE_URL}/rest/v1/question_bank?id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+      });
+    }
+  } catch {}
+
+  return { success: true, id, deletedFromSqlite };
+}
+
 export default db;
 

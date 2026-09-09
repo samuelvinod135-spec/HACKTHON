@@ -69,16 +69,16 @@ export default function TeacherAutonomousIntelligenceGrid({ className = '' }) {
       : COHORT_STUDENTS_SAMPLE;
 
   return (
-    <div className={`clay-card rounded-3xl border-2 border-indigo-200/90 bg-white p-6 sm:p-8 shadow-xl space-y-6 ${className}`}>
+    <div className={`clay-card rounded-3xl border border-sky-200/90 bg-white p-6 sm:p-8 shadow-sm space-y-6 ${className}`}>
       {/* 1. Header with Autonomous AI Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-indigo-100 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sky-100 pb-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/25">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-500 text-white shadow-md shadow-sky-500/25">
             <Brain size={24} className="animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-indigo-800 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+              <span className="text-[10px] font-black uppercase tracking-wider text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
                 Autonomous Class Intelligence Grid
               </span>
               <span className="text-[10px] font-bold text-slate-500">
@@ -178,8 +178,8 @@ export default function TeacherAutonomousIntelligenceGrid({ className = '' }) {
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-indigo-700">Autonomous Action Ready</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-black text-indigo-800">
+                <span className="text-[10px] font-bold text-sky-700">Autonomous Action Ready</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-black text-sky-800">
                   <span>View Apparatus</span>
                   <ArrowRight size={11} />
                 </span>
@@ -193,7 +193,7 @@ export default function TeacherAutonomousIntelligenceGrid({ className = '' }) {
       <div>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Eye size={17} className="text-indigo-600" />
+            <Eye size={17} className="text-sky-600" />
             <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
               Live Individual Scholar Trajectory Radar ({filteredStudents.length} Visible)
             </h3>
@@ -201,7 +201,7 @@ export default function TeacherAutonomousIntelligenceGrid({ className = '' }) {
           {filterStatus !== 'all' && (
             <button
               onClick={() => setFilterStatus('all')}
-              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline cursor-pointer"
+              className="text-[11px] font-bold text-sky-600 hover:text-sky-800 underline cursor-pointer"
             >
               Reset Filter
             </button>
@@ -216,7 +216,7 @@ export default function TeacherAutonomousIntelligenceGrid({ className = '' }) {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-400 to-indigo-500 text-white font-black text-xs shadow-xs">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500 text-white font-black text-xs shadow-xs">
                     {st.avatar}
                   </div>
                   <div>

@@ -73,7 +73,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
   // Color gradient for the circular health gauge
   const getScoreColor = (score) => {
     if (score >= 80) return { stroke: '#10b981', bg: 'from-emerald-500 to-teal-600', text: 'text-emerald-700' };
-    if (score >= 65) return { stroke: '#0284c7', bg: 'from-sky-500 to-indigo-600', text: 'text-sky-700' };
+    if (score >= 65) return { stroke: '#0284c7', bg: 'from-sky-500 to-sky-600', text: 'text-sky-700' };
     return { stroke: '#f59e0b', bg: 'from-amber-500 to-rose-600', text: 'text-amber-700' };
   };
 
@@ -81,25 +81,25 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border-2 border-indigo-200/80 bg-gradient-to-br from-white via-sky-50/40 to-indigo-50/30 p-6 sm:p-8 shadow-xl transition-all ${className}`}
+      className={`relative overflow-hidden rounded-3xl border border-sky-200/90 bg-white p-6 sm:p-8 shadow-sm transition-all ${className}`}
       id="autonomous-intelligence-card"
     >
       {/* Decorative ambient backdrop */}
-      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/15 via-indigo-400/10 to-amber-300/15 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/15 via-yellow-400/10 to-amber-300/15 blur-3xl" />
 
       {/* 1. Header Bar: Autonomous AI Monitor Status */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-100/80 pb-5">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sky-100 pb-5">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-md shadow-indigo-500/25">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500 text-white shadow-md shadow-sky-500/25">
             <Brain size={26} className="animate-pulse" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-indigo-800 bg-indigo-100/90 px-2.5 py-0.5 rounded-full border border-indigo-200">
-                <Zap size={11} className="text-indigo-600" />
+              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
+                <Zap size={11} className="text-sky-600" />
                 100% Autonomous AI Progress Monitor
               </span>
-              <span className="text-[10px] font-bold text-slate-500 bg-white/80 px-2 py-0.5 rounded-full border border-slate-200">
+              <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
                 Zero Manual Input · Live Telemetry
               </span>
             </div>
@@ -110,13 +110,13 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
         </div>
 
         {/* Dynamic Mode Switcher (Insights | Dynamic Path | Achievements) */}
-        <div className="flex items-center gap-1 rounded-2xl border border-indigo-100 bg-white/90 p-1 shadow-xs">
+        <div className="flex items-center gap-1 rounded-2xl border border-sky-100 bg-white p-1 shadow-xs">
           <button
             type="button"
             onClick={() => setActiveTab('insights')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'insights'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-sky-500 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -127,7 +127,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             onClick={() => setActiveTab('path')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'path'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-sky-500 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -138,7 +138,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             onClick={() => setActiveTab('achievements')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'achievements'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-sky-500 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -150,7 +150,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
       {/* 2. Top Metric Showcase: Overall Learning Health Score + Explainability */}
       <div className="relative z-10 my-6 grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
         {/* Left: Dynamic Circular Health Gauge */}
-        <div className="md:col-span-4 flex items-center gap-4 p-4 rounded-2xl bg-white/80 border border-indigo-100 shadow-sm">
+        <div className="md:col-span-4 flex items-center gap-4 p-4 rounded-2xl bg-white border border-sky-100 shadow-sm">
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center">
             {/* SVG Circular Progress */}
             <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 36 36">
@@ -190,12 +190,12 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
         </div>
 
         {/* Right: Explainable AI Rationale ("Why did my score change?") */}
-        <div className="md:col-span-8 p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/70">
+        <div className="md:col-span-8 p-4 rounded-2xl bg-sky-50/70 border border-sky-200/70">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2.5">
-              <Sparkles size={18} className="text-indigo-600 mt-0.5 shrink-0" />
+              <Sparkles size={18} className="text-sky-600 mt-0.5 shrink-0" />
               <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-indigo-900">
+                <h4 className="text-xs font-black uppercase tracking-wider text-sky-900">
                   AI Autonomous Score Rationale
                 </h4>
                 <p className="mt-1 text-xs font-medium text-slate-700 leading-relaxed">
@@ -205,7 +205,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             </div>
             <button
               onClick={() => setShowExplanationModal(!showExplanationModal)}
-              className="shrink-0 text-indigo-700 hover:text-indigo-900 text-[11px] font-bold underline cursor-pointer"
+              className="shrink-0 text-sky-700 hover:text-sky-900 text-[11px] font-bold underline cursor-pointer"
             >
               {showExplanationModal ? 'Hide Breakdown' : 'View Formula'}
             </button>
@@ -213,7 +213,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
           {/* Collapsible Transparent Formula Details */}
           {showExplanationModal && (
-            <div className="mt-3 pt-3 border-t border-indigo-200/60 text-[11px] text-slate-600 space-y-1">
+            <div className="mt-3 pt-3 border-t border-sky-200/60 text-[11px] text-slate-600 space-y-1">
               <p>
                 • <strong>Bayesian Mastery Base:</strong> Average of all CBSE/NCERT curriculum domains ({Math.round(
                   Object.values(topicsMastery).reduce((acc, t) => acc + (t.score || 50), 0) /
@@ -237,7 +237,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
           {earlyWarnings.map((warn) => (
             <div
               key={warn.id}
-              className="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-amber-300 bg-amber-50/95 text-amber-900 shadow-sm"
+              className="flex items-center gap-3 p-3.5 rounded-2xl border-2 border-yellow-300 bg-yellow-50 text-amber-950 shadow-sm"
             >
               <ShieldAlert size={20} className="text-amber-600 shrink-0" />
               <div className="flex-1 text-xs">
@@ -253,7 +253,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
       {/* 4. Centerpiece: AI Next-Best-Action (NBA) Direct Execution Banner */}
       {nextBestAction && (
-        <div className="relative z-10 mb-6 rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-500 to-indigo-600 p-5 text-white shadow-lg">
+        <div className="relative z-10 mb-6 rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-500 to-sky-600 p-5 text-white shadow-md">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md text-white font-black shadow-xs">
@@ -343,7 +343,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                         </span>
                         <Link
                           to={w.remediationLink}
-                          className="inline-flex items-center gap-1 text-[11px] font-black text-indigo-700 hover:text-indigo-900 underline"
+                          className="inline-flex items-center gap-1 text-[11px] font-black text-sky-700 hover:text-sky-900 underline"
                         >
                           <span>{w.remediationBtn}</span>
                           <ChevronRight size={12} />
@@ -416,7 +416,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             <span className="text-xs font-bold text-slate-700">
               Individualized Cognitive Sequence (Calculated from live mastery gaps)
             </span>
-            <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">
               Auto-Adaptive
             </span>
           </div>
@@ -429,7 +429,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   step.status === 'completed'
                     ? 'bg-emerald-50/70 border-emerald-200 text-slate-800'
                     : step.status === 'current'
-                    ? 'bg-indigo-50/90 border-indigo-300 ring-2 ring-indigo-400/30'
+                    ? 'bg-sky-50/90 border-sky-300 ring-2 ring-sky-400/30'
                     : 'bg-white/80 border-slate-200 text-slate-600'
                 }`}
               >
@@ -439,7 +439,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                       step.status === 'completed'
                         ? 'bg-emerald-200 text-emerald-900'
                         : step.status === 'current'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-sky-500 text-white'
                         : 'bg-slate-200 text-slate-700'
                     }`}
                   >
@@ -458,7 +458,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   <span className="text-[10px] text-slate-500">Target: {step.targetScore}</span>
                   <Link
                     to={step.link}
-                    className="inline-flex items-center gap-1 text-[11px] font-black text-indigo-700 hover:text-indigo-900"
+                    className="inline-flex items-center gap-1 text-[11px] font-black text-sky-700 hover:text-sky-900"
                   >
                     <span>Launch</span>
                     <ArrowRight size={11} />
@@ -486,9 +486,9 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             {achievements.map((ach) => (
               <div
                 key={ach.slug}
-                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white border border-indigo-100 shadow-2xs"
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white border border-sky-100 shadow-2xs"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-400 to-amber-200 text-2xl shadow-xs">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-yellow-400 to-amber-200 text-2xl shadow-xs">
                   {ach.icon}
                 </div>
                 <div>
@@ -508,7 +508,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
       {/* 6. Real-time Telemetry Simulator for Instant Visual Proof (Dev / Demo Mode) */}
       {import.meta.env.DEV && (
-        <div className="relative z-10 mt-6 pt-4 border-t border-indigo-100/70 flex flex-wrap items-center justify-between gap-3 text-slate-500">
+        <div className="relative z-10 mt-6 pt-4 border-t border-sky-100/70 flex flex-wrap items-center justify-between gap-3 text-slate-500">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">

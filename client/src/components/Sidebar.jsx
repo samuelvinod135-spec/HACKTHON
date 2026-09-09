@@ -225,9 +225,9 @@ export default function Sidebar({ isOpen, onClose }) {
           ) : isTeacher ? (
             /* 2. TEACHER EXCLUSIVE NAVIGATION */
             <nav className="flex flex-col gap-1.5">
-              <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-amber-800 flex items-center justify-between">
+              <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-800 flex items-center justify-between">
                 <span>Teacher Cockpit</span>
-                <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-extrabold text-[8px] border border-amber-200">
+                <span className="bg-sky-100 text-sky-900 px-1.5 py-0.2 rounded font-extrabold text-[8px] border border-sky-200">
                   Faculty
                 </span>
               </div>
@@ -236,61 +236,66 @@ export default function Sidebar({ isOpen, onClose }) {
                 onClick={onClose}
                 className={({ isActive }) =>
                   `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold transition ${
-                    isActive
-                      ? 'bg-amber-100/80 text-amber-950 font-black border border-amber-300 shadow-xs'
-                      : 'text-slate-700 hover:bg-amber-50/60 hover:text-amber-900 active:bg-amber-100'
+                    isActive && !location.search
+                      ? 'bg-sky-500 text-white font-black shadow-xs'
+                      : 'text-slate-700 hover:bg-sky-50 hover:text-sky-900 active:bg-sky-100'
                   }`
                 }
               >
                 <div className="flex items-center gap-3">
-                  <GraduationCap size={16} className="text-amber-700" />
-                  <span>Teacher Cockpit</span>
+                  <GraduationCap size={16} className="text-sky-600" />
+                  <span>Cohort Analytics</span>
                 </div>
-                <span className="rounded bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 text-[9px] font-mono font-bold">
-                  Active
+                <span className="rounded bg-yellow-300 text-slate-950 px-1.5 py-0.5 text-[9px] font-mono font-black">
+                  Live
                 </span>
               </NavLink>
               <NavLink
-                to="/quizzes"
+                to="/teacher?tab=questions"
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
-                    isActive
-                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                    location.search.includes('tab=questions')
+                      ? 'bg-sky-500 text-white font-bold shadow-xs'
+                      : 'text-slate-600 hover:bg-sky-50 hover:text-slate-900 active:bg-sky-50'
                   }`
                 }
               >
-                <TestTubes size={16} />
-                <span>Assessment Bank</span>
+                <div className="flex items-center gap-3">
+                  <TestTubes size={16} />
+                  <span>Assessment Bank</span>
+                </div>
+                <span className="rounded bg-sky-100 text-sky-800 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                  Authority
+                </span>
               </NavLink>
               <NavLink
-                to="/mock-tests"
+                to="/teacher?tab=heatmap"
                 onClick={onClose}
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
-                    isActive
-                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                    location.search.includes('tab=heatmap')
+                      ? 'bg-sky-500 text-white font-bold shadow-xs'
+                      : 'text-slate-600 hover:bg-sky-50 hover:text-slate-900 active:bg-sky-50'
                   }`
                 }
               >
-                <Award size={16} />
-                <span>Mock Tests Oversight</span>
+                <TrendingUp size={16} />
+                <span>2D Mastery Matrix</span>
               </NavLink>
               <NavLink
-                to="/spaced-repetition"
+                to="/teacher?tab=ai-insights"
                 onClick={onClose}
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
-                    isActive
-                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                    location.search.includes('tab=ai-insights')
+                      ? 'bg-sky-500 text-white font-bold shadow-xs'
+                      : 'text-slate-600 hover:bg-sky-50 hover:text-slate-900 active:bg-sky-50'
                   }`
                 }
               >
                 <Brain size={16} />
-                <span>Cohort Remediation</span>
+                <span>AI Pedagogical Insights</span>
               </NavLink>
               <NavLink
                 to="/settings"
@@ -304,7 +309,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 }
               >
                 <Settings size={16} />
-                <span>Settings</span>
+                <span>Faculty Settings</span>
               </NavLink>
             </nav>
           ) : (
@@ -465,7 +470,12 @@ export default function Sidebar({ isOpen, onClose }) {
 
           {/* Secondary Navigation */}
           <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
-            {SECONDARY_MENU.map(({ to, label, tKey, icon: Icon }) => (
+            {SECONDARY_MENU.filter(({ to }) => {
+              if (isTeacher || isAdmin) {
+                return !['/progress', '/achievements', '/saved'].includes(to);
+              }
+              return true;
+            }).map(({ to, label, tKey, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -485,43 +495,82 @@ export default function Sidebar({ isOpen, onClose }) {
           </nav>
         </div>
 
-        {/* Footer / Student Profile Summary (matching reference image) */}
+        {/* Footer: Role-Isolated Faculty Card vs Student Profile Summary */}
         <div className="p-4">
-          <Link
-            to="/profile"
-            onClick={onClose}
-            className="clay-card block p-3.5 transition hover:shadow-md"
-          >
-            <div className="flex items-center gap-3">
-              <UserAvatar
-                name={name}
-                avatarUrl={profile?.avatar_url}
-                size="md"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <p className="truncate text-xs font-bold text-slate-900">
-                    {name}
+          {isTeacher || isAdmin ? (
+            <Link
+              to="/profile"
+              onClick={onClose}
+              className="clay-card block p-3.5 transition hover:shadow-md border border-sky-100 bg-white"
+            >
+              <div className="flex items-center gap-3">
+                <UserAvatar
+                  name={name}
+                  avatarUrl={profile?.avatar_url}
+                  size="md"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="truncate text-xs font-bold text-slate-900">
+                      {name}
+                    </p>
+                    <span
+                      className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${
+                        isAdmin
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-yellow-100 text-slate-950 border-yellow-300'
+                      }`}
+                    >
+                      {isAdmin ? 'Campus Admin' : 'Faculty'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-500 truncate mt-0.5">
+                    {profile?.institution_name || 'DPS R.K. Puram'}
                   </p>
-                  <span className="text-[9px] font-black text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
-                    Stage {stageInfo.stage}
-                  </span>
+                  <div className="mt-1 flex items-center justify-between text-[9px] text-slate-400 font-mono">
+                    <span>{profile?.cohort_name || 'Section 10-A'}</span>
+                    <span className="text-sky-600 font-bold">Active Lead</span>
+                  </div>
                 </div>
-                <p className="text-[10px] font-bold text-slate-500 truncate mt-0.5">
-                  {stageInfo.title}
-                </p>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 p-0.5 border border-sky-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 transition-all duration-500"
-                    style={{ width: `${xpPct}%` }}
-                  />
-                </div>
-                <p className="mt-1 text-right text-[9px] font-semibold text-slate-400">
-                  {xp.toLocaleString()} Credits · Level {level}
-                </p>
               </div>
-            </div>
-          </Link>
+            </Link>
+          ) : (
+            <Link
+              to="/profile"
+              onClick={onClose}
+              className="clay-card block p-3.5 transition hover:shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <UserAvatar
+                  name={name}
+                  avatarUrl={profile?.avatar_url}
+                  size="md"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="truncate text-xs font-bold text-slate-900">
+                      {name}
+                    </p>
+                    <span className="text-[9px] font-black text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                      Stage {stageInfo.stage}
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-500 truncate mt-0.5">
+                    {stageInfo.title}
+                  </p>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 p-0.5 border border-sky-100">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 transition-all duration-500"
+                      style={{ width: `${xpPct}%` }}
+                    />
+                  </div>
+                  <p className="mt-1 text-right text-[9px] font-semibold text-slate-400">
+                    {xp.toLocaleString()} Credits · Level {level}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          )}
         </div>
       </aside>
     </>

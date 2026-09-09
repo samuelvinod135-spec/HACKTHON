@@ -328,24 +328,26 @@ export default function Header({ onMenuClick }) {
           </span>
         </div>
 
-        {/* Credit Stage Capsule Button */}
-        <button
-          type="button"
-          onClick={() => setStageModalOpen(true)}
-          className="clay-card hidden sm:flex items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-sm border border-sky-200 hover:border-amber-400 transition cursor-pointer active:scale-95"
-          title="Click to view Credit Stages & Status"
-        >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-300 text-slate-950 text-[10px] font-black shadow-2xs">
-            ⚡
-          </span>
-          <div className="flex items-center gap-1.5 text-xs font-bold">
-            <span className="text-slate-900 font-mono">{xp.toLocaleString()} Credits</span>
-            <span className="text-sky-400 font-medium">·</span>
-            <span className="text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full text-[10px] font-black border border-sky-200">
-              Stage {stageInfo.stage}: {stageInfo.title}
+        {/* Credit Stage Capsule Button (Students Only) */}
+        {!isTeacher && !isAdmin && (
+          <button
+            type="button"
+            onClick={() => setStageModalOpen(true)}
+            className="clay-card hidden sm:flex items-center gap-2 rounded-full bg-white px-3 py-1.5 shadow-sm border border-sky-200 hover:border-amber-400 transition cursor-pointer active:scale-95"
+            title="Click to view Credit Stages & Status"
+          >
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-300 text-slate-950 text-[10px] font-black shadow-2xs">
+              ⚡
             </span>
-          </div>
-        </button>
+            <div className="flex items-center gap-1.5 text-xs font-bold">
+              <span className="text-slate-900 font-mono">{xp.toLocaleString()} Credits</span>
+              <span className="text-sky-400 font-medium">·</span>
+              <span className="text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full text-[10px] font-black border border-sky-200">
+                Stage {stageInfo.stage}: {stageInfo.title}
+              </span>
+            </div>
+          </button>
+        )}
 
         {/* Notification Button with Clay '3' Badge */}
         <Link

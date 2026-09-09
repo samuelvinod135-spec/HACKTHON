@@ -507,13 +507,13 @@ export function AuthProvider({ children }) {
     if (role === 'teacher') {
       setProfile({
         id: 'teacher-sunita-rao',
-        full_name: 'Dr. Sunita Rao',
+        full_name: 'Sunita Rao',
         username: 'sunita_rao',
         email: 'sunita.rao@dpsrkp.net',
         role: 'teacher',
-        level: 18,
-        xp: 14500,
-        xp_for_level: 20000,
+        level: 1,
+        xp: 0,
+        xp_for_level: 1000,
         grade_level: 'Faculty / Grade 10 Lead',
         school_code: 'DPS-RKP-2026',
         institution_name: 'Delhi Public School R.K. Puram',

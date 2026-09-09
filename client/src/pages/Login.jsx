@@ -389,7 +389,7 @@ export default function Login() {
                   className="p-2 rounded-xl bg-amber-50/70 hover:bg-amber-100 border border-amber-200 text-left transition cursor-pointer"
                 >
                   <div className="text-[10px] font-black text-amber-900 leading-tight">Teacher</div>
-                  <div className="text-[9px] text-amber-700 truncate">Dr. Sunita</div>
+                  <div className="text-[9px] text-amber-700 truncate">Sunita Rao</div>
                 </button>
                 <button
                   type="button"
