@@ -76,7 +76,7 @@ app.get('/', (_req, res) => {
   res.json({ status: 'ok', service: 'labxplore-api', version: '1.0.0' });
 });
 
-app.get('/health', (_req, res) => {
+app.get(['/health', '/api/health'], (_req, res) => {
   res.json({ status: 'ok', service: 'labxplore-api', timestamp: new Date().toISOString() });
 });
 

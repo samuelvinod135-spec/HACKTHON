@@ -6,13 +6,14 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
+    host: true,
     allowedHosts: true,
     proxy: {
       '/api': 'http://localhost:5174',
     },
   },
   build: {
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -28,7 +29,11 @@ export default defineConfig({
             }
             return 'vendor-core';
           }
-          if (id.includes('/data/massiveReactionsData') || id.includes('/data/elementsAnimeData')) {
+          if (
+            id.includes('/data/massiveReactionsData') ||
+            id.includes('/data/elementsAnimeData') ||
+            id.includes('/data/massivePhysicsData')
+          ) {
             return 'science-databases';
           }
           if (id.includes('/mockTestData')) {

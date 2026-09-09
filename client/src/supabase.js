@@ -108,9 +108,9 @@ export function selectDiverseQuestions(allQuestions, count = 10, excludeIds = ne
  * Guaranteed 100% unique questions with conceptual diversity and session tracking
  */
 export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, subject, excludeIds } = {}) {
+  const cleanChapter = (chapter || 'Kinematics').replace(/["\\]/g, '').trim();
   try {
     // 1. Try Supabase with broader pool and random offset sampling
-    const cleanChapter = (chapter || 'Kinematics').replace(/["\\]/g, '').trim();
     const randomOffset = seededInt(0, 80);
     let query = supabase
       .from('question_bank')
