@@ -150,7 +150,7 @@ export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, s
 
   // Fallback to local API with HTML response guard
   try {
-    const params = new URLSearchParams({ chapter, limit: '100', random: 'true' });
+    const params = new URLSearchParams({ chapter: cleanChapter, limit: '100', random: 'true' });
     if (subject) params.set('subject', subject);
     const res = await fetch(`${API_BASE}/questions?${params.toString()}`);
     if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
