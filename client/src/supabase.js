@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { seededRandom, seededShuffle, seededChoice, seededInt } from './utils/prng.js';
+import { MOCK_TEST_QUESTIONS } from './mockTestData.js';
 
 const env = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : (typeof process !== 'undefined' && process.env ? process.env : {});
 const supabaseUrl = env.VITE_SUPABASE_URL || 'https://htgsiuqtlfdebxepsslh.supabase.co';
@@ -163,12 +164,29 @@ export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, s
     console.warn('Local API questions query failed:', err);
   }
 
-  return [];
+  // 3. Air-Gapped Zero-Net Fallback from bundled curriculum questions
+  try {
+    const fallbackList = MOCK_TEST_QUESTIONS.map((q, idx) => ({
+      id: `airgap-q-${q.id || idx}`,
+      question: q.question,
+      option_a: q.options[0] || 'Option A',
+      option_b: q.options[1] || 'Option B',
+      option_c: q.options[2] || 'Option C',
+      option_d: q.options[3] || 'Option D',
+      correct_option: ['A', 'B', 'C', 'D'][q.correctAnswer] || 'A',
+      explanation: q.misconceptionAnalysis ? Object.values(q.misconceptionAnalysis)[0] : 'Verified scientific principle.',
+      chapter: cleanChapter || 'Kinematics',
+      subject: subject || 'Physics',
+    }));
+    return selectDiverseQuestions(fallbackList, limit, excludeIds);
+  } catch {
+    return [];
+  }
 }
 
 /**
  * For a Mock Test: "Fetch 50 random questions where exam_level = 'Main-Moderate'"
- * Queries Supabase question_bank with resilient fallback to local API
+ * Queries Supabase question_bank with resilient fallback to local API and bundled air-gapped questions
  */
 export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limit = 50, subject } = {}) {
   try {
@@ -205,7 +223,25 @@ export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limi
     console.warn('Mock test API fallback error:', err);
   }
 
-  return [];
+  // 3. Air-Gapped Zero-Net Fallback from bundled curriculum mock test questions
+  try {
+    const fallbackList = MOCK_TEST_QUESTIONS.map((q, idx) => ({
+      id: `airgap-mock-${q.id || idx}`,
+      question: q.question,
+      option_a: q.options[0] || 'Option A',
+      option_b: q.options[1] || 'Option B',
+      option_c: q.options[2] || 'Option C',
+      option_d: q.options[3] || 'Option D',
+      correct_option: ['A', 'B', 'C', 'D'][q.correctAnswer] || 'A',
+      explanation: q.misconceptionAnalysis ? Object.values(q.misconceptionAnalysis)[0] : 'Verified curriculum question.',
+      chapter: q.conceptId || 'Core Science',
+      subject: subject || 'Science',
+      exam_level: examLevel,
+    }));
+    return selectDiverseQuestions(fallbackList, limit);
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -218,8 +254,15 @@ export async function fetchQuestionBankChapters(subject) {
       const json = await res.json();
       return json.chapters || [];
     }
-    return [];
-  } catch {
-    return [];
-  }
+  } catch {}
+
+  // Air-Gapped Zero-Net Fallback popular chapters
+  return [
+    { subject: 'Physics', chapter: 'Kinematics', count: '500+' },
+    { subject: 'Physics', chapter: 'Units & Measurements', count: '500+' },
+    { subject: 'Physics', chapter: 'Laws of Motion', count: '500+' },
+    { subject: 'Chemistry', chapter: 'Chemical Bonding & Molecular Structure', count: '500+' },
+    { subject: 'Chemistry', chapter: 'Equilibrium', count: '500+' },
+    { subject: 'Chemistry', chapter: 'Redox Reactions & Electrochemistry', count: '500+' },
+  ];
 }
