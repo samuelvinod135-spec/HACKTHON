@@ -4,9 +4,9 @@ import { getOfflineFallbackResponse } from './data/offlineFallbackData.js';
 const BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '') + '/api';
 
 /**
- * Executes a network fetch with an AbortController timeout (default 3000ms).
+ * Executes a network fetch with an AbortController timeout (default 10000ms for cloud boot resilience).
  */
-export async function fetchWithTimeout(url, options = {}, timeoutMs = 3000) {
+export async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -40,6 +40,25 @@ export function notifyNetworkFallback(reason = 'latency') {
   }
 }
 
+// Dynamically extracts active user id for multi-tenant SQLite headers
+function getActiveUserId() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.user?.id) return parsed.user.id;
+          }
+        }
+      }
+    }
+  } catch {}
+  return '1';
+}
+
 // Safe localStorage helper
 function getLocal(key, fallback = null) {
   try {
@@ -56,13 +75,18 @@ function setLocal(key, val) {
   } catch {}
 }
 
-async function request(path, options = {}, timeoutMs = 3000) {
+async function request(path, options = {}, timeoutMs = 10000) {
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-user-id': getActiveUserId(),
+      ...(options.headers || {}),
+    };
     const res = await fetchWithTimeout(
       BASE + path,
       {
-        headers: { 'Content-Type': 'application/json' },
         ...options,
+        headers,
       },
       timeoutMs
     );

@@ -458,59 +458,61 @@ export default function Header({ onMenuClick }) {
                   <Settings size={15} className="text-slate-400" /> Settings
                 </Link>
 
-                {/* Instant Role Persona Switcher for Evaluation */}
-                <div className="pt-2 mt-1 border-t border-slate-100 px-2">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Demo Persona Switcher:
-                  </span>
-                  <div className="grid grid-cols-3 gap-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        switchPersona('student');
-                        navigate('/dashboard');
-                        setProfileOpen(false);
-                      }}
-                      className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
-                        !isTeacher && !isAdmin
-                          ? 'bg-sky-500 text-white font-black shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Student
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        switchPersona('teacher');
-                        navigate('/teacher');
-                        setProfileOpen(false);
-                      }}
-                      className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
-                        isTeacher
-                          ? 'bg-amber-400 text-slate-950 font-black shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Teacher
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        switchPersona('admin');
-                        navigate('/admin');
-                        setProfileOpen(false);
-                      }}
-                      className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
-                        isAdmin
-                          ? 'bg-emerald-500 text-white font-black shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
-                    >
-                      Admin
-                    </button>
+                {/* Instant Role Persona Switcher - Non-Production / Dev Only */}
+                {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SWITCHER === 'true') && (
+                  <div className="pt-2 mt-1 border-t border-slate-100 px-2">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
+                      Dev Persona Switcher:
+                    </span>
+                    <div className="grid grid-cols-3 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          switchPersona('student');
+                          navigate('/dashboard');
+                          setProfileOpen(false);
+                        }}
+                        className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
+                          !isTeacher && !isAdmin
+                            ? 'bg-sky-500 text-white font-black shadow-2xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        Student
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          switchPersona('teacher');
+                          navigate('/teacher');
+                          setProfileOpen(false);
+                        }}
+                        className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
+                          isTeacher
+                            ? 'bg-amber-400 text-slate-950 font-black shadow-2xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        Teacher
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          switchPersona('admin');
+                          navigate('/admin');
+                          setProfileOpen(false);
+                        }}
+                        className={`px-1.5 py-1 rounded-lg text-[9px] font-bold transition cursor-pointer ${
+                          isAdmin
+                            ? 'bg-emerald-500 text-white font-black shadow-2xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        Admin
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="pt-1 border-t border-slate-100 mt-1">
                   {isAuthenticated ? (

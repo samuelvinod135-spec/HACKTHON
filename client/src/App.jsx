@@ -32,15 +32,21 @@ import RoleGuard from './components/Auth/RoleGuard.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import NetworkFallbackToast from './components/NetworkFallbackToast.jsx';
 
-// Smart Home: Displays Landing for visitors, redirects or displays Dashboard
+// Smart Home: Displays Landing for visitors, redirects authenticated users to their role-based portal
 function RootRoute() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, profile } = useAuth();
   if (loading) {
     return (
       <div className="min-h-screen bg-[#edf2f8] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+  if (isAuthenticated) {
+    const role = profile?.role || 'student';
+    if (role === 'admin') return <Navigate to="/admin" replace />;
+    if (role === 'teacher') return <Navigate to="/teacher" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   return <Landing />;
 }

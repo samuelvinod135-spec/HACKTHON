@@ -60,7 +60,11 @@ CREATE POLICY "Strict cohort isolation for telemetry" ON public.student_telemetr
 
 DROP POLICY IF EXISTS "Users can insert own telemetry" ON public.student_telemetry_events;
 CREATE POLICY "Users can insert own telemetry" ON public.student_telemetry_events
-  FOR INSERT WITH CHECK (true);
+  FOR INSERT WITH CHECK (
+    (auth.role() = 'authenticated' AND auth.uid() = user_id)
+    OR
+    (user_id IS NULL AND institution_id IS NOT NULL)
+  );
 
 -- 3. Tighten Scaffolding Interventions RLS
 DROP POLICY IF EXISTS "Users view own scaffolding" ON public.scaffolding_interventions;

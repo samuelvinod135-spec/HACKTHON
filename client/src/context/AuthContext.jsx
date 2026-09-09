@@ -360,7 +360,14 @@ export function AuthProvider({ children }) {
       console.warn('Storage purge note:', storageErr);
     }
 
-    // 3. Supabase Auth sign out
+    // 3. Clear ProgressContext across browser sessions
+    try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('labxplore:auth-signout'));
+      }
+    } catch {}
+
+    // 4. Supabase Auth sign out
     try {
       await supabase.auth.signOut();
     } catch (err) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Eye,
   EyeOff,
@@ -7,13 +7,21 @@ import {
   AlertCircle,
   ChevronRight,
   Zap,
+  Atom,
+  GraduationCap,
+  Building2,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInWithIdentifier, signInWithGoogle, isAuthenticated, switchPersona, enrollWithSchoolCode } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialRole = searchParams.get('role') || 'student';
 
+  const { signInWithIdentifier, signInWithGoogle, isAuthenticated, profile, switchPersona, enrollWithSchoolCode } = useAuth();
+
+  const [selectedRole, setSelectedRole] = useState(initialRole);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [schoolCode, setSchoolCode] = useState('');
@@ -23,11 +31,18 @@ export default function Login() {
   const [error, setError] = useState(null);
   const [googleNotice, setGoogleNotice] = useState(null);
 
+  const getDestination = (roleToUse) => {
+    if (roleToUse === 'admin') return '/admin';
+    if (roleToUse === 'teacher') return '/teacher';
+    return '/dashboard';
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      const activeRole = profile?.role || selectedRole;
+      navigate(getDestination(activeRole));
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, profile?.role, selectedRole, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,7 +67,8 @@ export default function Login() {
           await enrollWithSchoolCode({ schoolCode: schoolCode.trim() });
         } catch {}
       }
-      navigate('/dashboard');
+      const targetRole = profile?.role || selectedRole;
+      navigate(getDestination(targetRole));
     }
   };
 
@@ -100,11 +116,71 @@ export default function Login() {
               </div>
             </Link>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-              Sign in to <span className="text-sky-500">Lab</span><span className="text-amber-500">Xplore</span>
+              {selectedRole === 'admin' && 'Institutional Admin Portal'}
+              {selectedRole === 'teacher' && 'Teacher Cockpit Portal'}
+              {selectedRole === 'student' && (
+                <>Sign in to <span className="text-sky-500">Lab</span><span className="text-amber-500">Xplore</span></>
+              )}
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Enter your credentials to access your research notebooks.
+              {selectedRole === 'admin' && 'Campus oversight, faculty tracking & ILOS governance'}
+              {selectedRole === 'teacher' && 'Cohort telemetry, 2D mastery heatmap & autonomous AI reports'}
+              {selectedRole === 'student' && 'Interactive 3D laboratories, quizzes & intelligent smart notes'}
             </p>
+          </div>
+
+          {/* Gmail-Style Role Selector Header */}
+          <div className="mb-5">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block text-center mb-1.5">
+              Select Institutional Portal
+            </span>
+            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-slate-100/90 border border-slate-200/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRole('student');
+                  setSearchParams({ role: 'student' });
+                }}
+                className={`py-2 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center gap-1 cursor-pointer ${
+                  selectedRole === 'student'
+                    ? 'bg-sky-500 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <Atom size={15} />
+                <span className="text-[10px]">Student</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRole('teacher');
+                  setSearchParams({ role: 'teacher' });
+                }}
+                className={`py-2 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center gap-1 cursor-pointer ${
+                  selectedRole === 'teacher'
+                    ? 'bg-amber-400 text-slate-950 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <GraduationCap size={15} />
+                <span className="text-[10px]">Teacher</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedRole('admin');
+                  setSearchParams({ role: 'admin' });
+                }}
+                className={`py-2 px-1.5 rounded-xl text-xs font-black transition-all flex flex-col items-center gap-1 cursor-pointer ${
+                  selectedRole === 'admin'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <Building2 size={15} />
+                <span className="text-[10px]">Admin</span>
+              </button>
+            </div>
           </div>
 
           {/* Segmented Switcher */}
@@ -178,7 +254,9 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Student Username or Email
+                {selectedRole === 'admin' && 'Executive Admin Email'}
+                {selectedRole === 'teacher' && 'Faculty Institutional Email'}
+                {selectedRole === 'student' && 'Student Username or Email'}
               </label>
               <input
                 type="text"
@@ -187,7 +265,13 @@ export default function Login() {
                 spellCheck="false"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="e.g. samuelvinod135 or student@school.edu"
+                placeholder={
+                  selectedRole === 'admin'
+                    ? 'e.g. principal@dpsrkp.net'
+                    : selectedRole === 'teacher'
+                    ? 'e.g. sunita.rao@dpsrkp.net'
+                    : 'e.g. samuelvinod135 or student@school.edu'
+                }
                 required
                 className="input-sky-clean w-full px-3.5 py-2.5 sm:py-3 text-base sm:text-xs placeholder-slate-400"
               />
@@ -262,59 +346,65 @@ export default function Login() {
                 <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Sign In to Studio</span>
+                  <span>
+                    {selectedRole === 'admin' && 'Enter Admin Dashboard'}
+                    {selectedRole === 'teacher' && 'Launch Teacher Cockpit'}
+                    {selectedRole === 'student' && 'Sign In to Studio'}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Institutional Persona Quick-Switch (Evaluator & Demo Sandbox) */}
-          <div className="mt-6 pt-4 border-t border-sky-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                Institutional Demo Personas
-              </span>
-              <span className="text-[9px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
-                ILOS Multi-Tenant
-              </span>
+          {/* Institutional Persona Quick-Switch - Non-Production Dev Only */}
+          {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_SWITCHER === 'true') && (
+            <div className="mt-6 pt-4 border-t border-sky-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Dev Demo Personas
+                </span>
+                <span className="text-[9px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                  ILOS Multi-Tenant
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchPersona('student');
+                    navigate('/dashboard');
+                  }}
+                  className="p-2 rounded-xl bg-sky-50/70 hover:bg-sky-100 border border-sky-200 text-left transition cursor-pointer"
+                >
+                  <div className="text-[10px] font-black text-sky-900 leading-tight">Student</div>
+                  <div className="text-[9px] text-sky-600 truncate">Aarav (10A)</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchPersona('teacher');
+                    navigate('/teacher');
+                  }}
+                  className="p-2 rounded-xl bg-amber-50/70 hover:bg-amber-100 border border-amber-200 text-left transition cursor-pointer"
+                >
+                  <div className="text-[10px] font-black text-amber-900 leading-tight">Teacher</div>
+                  <div className="text-[9px] text-amber-700 truncate">Dr. Sunita</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchPersona('admin');
+                    navigate('/admin');
+                  }}
+                  className="p-2 rounded-xl bg-emerald-50/70 hover:bg-emerald-100 border border-emerald-200 text-left transition cursor-pointer"
+                >
+                  <div className="text-[10px] font-black text-emerald-900 leading-tight">Admin</div>
+                  <div className="text-[9px] text-emerald-700 truncate">Principal</div>
+                </button>
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  switchPersona('student');
-                  navigate('/dashboard');
-                }}
-                className="p-2 rounded-xl bg-sky-50/70 hover:bg-sky-100 border border-sky-200 text-left transition cursor-pointer"
-              >
-                <div className="text-[10px] font-black text-sky-900 leading-tight">Student</div>
-                <div className="text-[9px] text-sky-600 truncate">Aarav (10A)</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchPersona('teacher');
-                  navigate('/teacher');
-                }}
-                className="p-2 rounded-xl bg-amber-50/70 hover:bg-amber-100 border border-amber-200 text-left transition cursor-pointer"
-              >
-                <div className="text-[10px] font-black text-amber-900 leading-tight">Teacher</div>
-                <div className="text-[9px] text-amber-700 truncate">Dr. Sunita</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  switchPersona('admin');
-                  navigate('/admin');
-                }}
-                className="p-2 rounded-xl bg-emerald-50/70 hover:bg-emerald-100 border border-emerald-200 text-left transition cursor-pointer"
-              >
-                <div className="text-[10px] font-black text-emerald-900 leading-tight">Admin</div>
-                <div className="text-[9px] text-emerald-700 truncate">Principal</div>
-              </button>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Footer Link */}

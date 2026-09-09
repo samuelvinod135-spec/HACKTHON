@@ -12,9 +12,31 @@ db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
 export function initDb() {
+  // Migrate legacy single-user table with CHECK constraint if present
+  try {
+    const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='student'").get();
+    if (tableInfo && tableInfo.sql && tableInfo.sql.includes('CHECK')) {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS student_v2 (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL DEFAULT 'Student Scholar',
+          level INTEGER NOT NULL DEFAULT 1,
+          xp INTEGER NOT NULL DEFAULT 0,
+          xp_for_level INTEGER NOT NULL DEFAULT 1000
+        );
+        INSERT OR IGNORE INTO student_v2 (id, name, level, xp, xp_for_level)
+          SELECT CAST(id AS TEXT), name, level, xp, xp_for_level FROM student;
+        DROP TABLE student;
+        ALTER TABLE student_v2 RENAME TO student;
+      `);
+    }
+  } catch (err) {
+    console.warn('SQLite student migration note:', err.message);
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS student (
-      id INTEGER PRIMARY KEY CHECK (id = 1),
+      id TEXT PRIMARY KEY,
       name TEXT NOT NULL DEFAULT 'Student Scholar',
       level INTEGER NOT NULL DEFAULT 1,
       xp INTEGER NOT NULL DEFAULT 0,
@@ -109,8 +131,16 @@ export function seedAchievements() {
   for (const a of ACHIEVEMENTS) insert.run(a);
 }
 
-export function getStudent() {
-  return db.prepare('SELECT * FROM student WHERE id = 1').get();
+export function getStudent(userId = '1') {
+  const uid = String(userId || '1');
+  let row = db.prepare('SELECT * FROM student WHERE id = ?').get(uid);
+  if (!row) {
+    db.prepare(
+      'INSERT OR IGNORE INTO student (id, name, level, xp, xp_for_level) VALUES (?, ?, 1, 0, 1000)'
+    ).run(uid, 'Student Scholar');
+    row = db.prepare('SELECT * FROM student WHERE id = ?').get(uid);
+  }
+  return row || { id: uid, name: 'Student Scholar', level: 1, xp: 0, xp_for_level: 1000 };
 }
 
 export function getAchievements() {
@@ -121,10 +151,20 @@ export function getCompletions() {
   return db.prepare('SELECT * FROM completion ORDER BY completed_at').all();
 }
 
-export function addXp(amount) {
-  const student = getStudent();
+export function addXp(userId = '1', amount = 0) {
+  let uid = '1';
+  let xpToAdd = 0;
+  if (typeof userId === 'number') {
+    xpToAdd = userId;
+    uid = '1';
+  } else {
+    uid = String(userId || '1');
+    xpToAdd = Number(amount) || 0;
+  }
+
+  const student = getStudent(uid);
   let { id, xp, level, xp_for_level } = student;
-  xp += amount;
+  xp += xpToAdd;
   let leveled = false;
   while (xp >= xp_for_level) {
     xp -= xp_for_level;
@@ -134,11 +174,11 @@ export function addXp(amount) {
   }
   db.prepare(
     'UPDATE student SET xp = ?, level = ?, xp_for_level = ? WHERE id = ?'
-  ).run(xp, level, xp_for_level, id);
-  return { leveled, ...getStudent() };
+  ).run(xp, level, xp_for_level, uid);
+  return { leveled, ...getStudent(uid) };
 }
 
-export function recordCompletion(kind, ref, xp = 0) {
+export function recordCompletion(kind, ref, xp = 0, userId = '1') {
   db.prepare(
     'INSERT OR IGNORE INTO completion (kind, ref) VALUES (?, ?)'
   ).run(kind, ref);
@@ -147,10 +187,10 @@ export function recordCompletion(kind, ref, xp = 0) {
     db.prepare(
       'INSERT INTO lab_run (experiment, kind, xp_earned) VALUES (?, ?, ?)'
     ).run(ref, kind, xp);
-    addXp(xp);
+    addXp(userId, xp);
   }
   return {
-    student: getStudent(),
+    student: getStudent(userId),
     completions: getCompletions(),
   };
 }
@@ -164,17 +204,34 @@ export function countLabRuns() {
   return db.prepare('SELECT COUNT(*) AS c FROM completion').get().c;
 }
 
-export function updateStudent({ name, level, xp, xp_for_level } = {}) {
-  const current = getStudent() || { name: 'Student Scholar', level: 1, xp: 0, xp_for_level: 1000 };
-  const updatedName = name !== undefined ? name : current.name;
-  const updatedLevel = level !== undefined ? Number(level) : current.level;
-  const updatedXp = xp !== undefined ? Number(xp) : current.xp;
-  const updatedXpForLevel = xp_for_level !== undefined ? Number(xp_for_level) : current.xp_for_level;
+export function updateStudent(userId = '1', { name, level, xp, xp_for_level } = {}) {
+  let uid = '1';
+  let payload = {};
+  if (typeof userId === 'object' && userId !== null) {
+    payload = userId;
+    uid = String(payload.id || payload.userId || '1');
+  } else {
+    uid = String(userId || '1');
+    payload = { name, level, xp, xp_for_level };
+  }
+
+  const current = getStudent(uid);
+  const updatedName = payload.name !== undefined ? payload.name : current.name;
+  const updatedLevel = payload.level !== undefined ? Number(payload.level) : current.level;
+  const updatedXp = payload.xp !== undefined ? Number(payload.xp) : current.xp;
+  const updatedXpForLevel = payload.xp_for_level !== undefined ? Number(payload.xp_for_level) : current.xp_for_level;
 
   db.prepare(
-    'UPDATE student SET name = ?, level = ?, xp = ?, xp_for_level = ? WHERE id = 1'
-  ).run(updatedName, updatedLevel, updatedXp, updatedXpForLevel);
-  return getStudent();
+    `INSERT INTO student (id, name, level, xp, xp_for_level)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       name = excluded.name,
+       level = excluded.level,
+       xp = excluded.xp,
+       xp_for_level = excluded.xp_for_level`
+  ).run(uid, updatedName, updatedLevel, updatedXp, updatedXpForLevel);
+
+  return getStudent(uid);
 }
 
 export function getSavedExperiments() {

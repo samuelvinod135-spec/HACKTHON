@@ -85,42 +85,17 @@ const SCAFFOLD_CATALOG = {
 };
 
 export const useStealthScaffoldingStore = create((set, get) => ({
-  // Active struggling topics flagged for this student
-  strugglingTopics: ['Kinematics', 'Stoichiometry'],
+  // Active struggling topics flagged for this student (dynamically evaluated)
+  strugglingTopics: [],
   
   // Topic error counters for real-time tracking
-  topicErrorCounters: {
-    Kinematics: 3,
-    Stoichiometry: 2,
-    'Ray Optics': 0,
-    Thermodynamics: 1,
-  },
+  topicErrorCounters: {},
 
   // Active environmental scaffolding configurations
-  activeScaffolds: {
-    Kinematics: SCAFFOLD_CATALOG.Kinematics,
-    Stoichiometry: SCAFFOLD_CATALOG.Stoichiometry,
-  },
+  activeScaffolds: {},
 
   // Log of recent autonomous AI actions (for Teacher Cockpit ingestion)
-  interventionHistory: [
-    {
-      id: 'int-1',
-      topic: 'Kinematics',
-      timestamp: new Date(Date.now() - 1000 * 60 * 14).toISOString(),
-      action: 'Enabled Trajectory Velocity Vectors & Injected 45° Range Calibration Exercise',
-      severity: 'moderate_struggle',
-      resolved: false,
-    },
-    {
-      id: 'int-2',
-      topic: 'Stoichiometry',
-      timestamp: new Date(Date.now() - 1000 * 60 * 28).toISOString(),
-      action: 'Subtly Highlighted 2:1 Magnesium Molar Ratio Indicator',
-      severity: 'moderate_struggle',
-      resolved: false,
-    },
-  ],
+  interventionHistory: [],
 
   /**
    * Evaluates incoming telemetry events in real-time on the client.

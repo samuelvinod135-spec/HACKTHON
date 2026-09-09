@@ -41,15 +41,21 @@ async function flushTelemetryQueue() {
 
   try {
     // Write sanitized batch to Supabase student_telemetry_events
-    await supabase.from('student_telemetry_events').insert(sanitizedBatch);
+    const { error } = await supabase.from('student_telemetry_events').insert(sanitizedBatch);
+    if (error) {
+      throw error;
+    }
   } catch (err) {
-    // Offline resilience: silent fallback to local storage buffer
+    // Offline resilience: save batch to local storage buffer
     try {
-      const stored = JSON.parse(localStorage.getItem('labxplore_telemetry_offline_queue') || '[]');
-      localStorage.setItem(
-        'labxplore_telemetry_offline_queue',
-        JSON.stringify([...stored.slice(-200), ...batch])
-      );
+      if (typeof localStorage !== 'undefined') {
+        const stored = JSON.parse(localStorage.getItem('labxplore_telemetry_offline_queue') || '[]');
+        localStorage.setItem(
+          'labxplore_telemetry_offline_queue',
+          JSON.stringify([...stored.slice(-200), ...batch])
+        );
+        console.warn('[Telemetry] Saved batch to offline queue due to API error:', err?.message || err);
+      }
     } catch {}
   }
 }
@@ -117,9 +123,21 @@ export async function drainOfflineQueue() {
   }
 }
 
-// Auto-attach online reconnect sync listener
+// Auto-attach online reconnect sync listener & beforeunload queue preservation
 if (typeof window !== 'undefined') {
   window.addEventListener('online', drainOfflineQueue);
+  window.addEventListener('beforeunload', () => {
+    if (eventQueue.length > 0) {
+      try {
+        const stored = JSON.parse(localStorage.getItem('labxplore_telemetry_offline_queue') || '[]');
+        localStorage.setItem(
+          'labxplore_telemetry_offline_queue',
+          JSON.stringify([...stored.slice(-200), ...eventQueue])
+        );
+        eventQueue = [];
+      } catch {}
+    }
+  });
   // Also attempt initial sync if there's internet
   if (navigator.onLine) {
     setTimeout(drainOfflineQueue, 2000);

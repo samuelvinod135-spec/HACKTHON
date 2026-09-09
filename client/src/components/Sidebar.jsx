@@ -113,7 +113,7 @@ const SECONDARY_MENU = [
 export default function Sidebar({ isOpen, onClose }) {
   const { t } = useLanguage();
   const { student } = useProgress();
-  const { profile } = useAuth();
+  const { profile, isTeacher, isAdmin, isStudent } = useAuth();
   const location = useLocation();
   const [chemExpanded, setChemExpanded] = useState(true);
 
@@ -159,136 +159,37 @@ export default function Sidebar({ isOpen, onClose }) {
 
         {/* Navigation Sections */}
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
-          {/* Main Navigation */}
-          <nav className="flex flex-col gap-1.5">
-            {PRIMARY_MENU.map(({ to, label, tKey, icon: Icon, badge, subItems }) => {
-              if (subItems) {
-                const isMainActive = isChemRoute;
-                return (
-                  <div key={to} className="flex flex-col gap-1">
-                    <div
-                      className={`flex items-center justify-between rounded-2xl px-4 py-2 text-xs font-semibold transition ${
-                        isMainActive
-                          ? 'bg-sky-50/90 text-sky-900 font-bold border border-sky-200/80 shadow-xs'
-                          : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-                      }`}
-                    >
-                      <Link
-                        to={to}
-                        onClick={onClose}
-                        className="flex flex-1 items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon size={17} className={isMainActive ? 'text-sky-600' : ''} />
-                          <span>{t(tKey, label)}</span>
-                        </div>
-                        {badge && (
-                          <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs mr-1">
-                            {badge}
-                          </span>
-                        )}
-                      </Link>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setChemExpanded((prev) => !prev);
-                        }}
-                        className="p-1 rounded-lg hover:bg-slate-200/60 text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                        title="Toggle sub-pages"
-                      >
-                        <ChevronDown
-                          size={14}
-                          className={`transition-transform duration-200 ${
-                            chemExpanded ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {chemExpanded && (
-                      <div className="ml-4 pl-3 border-l-2 border-sky-100 flex flex-col gap-1 my-0.5">
-                        {subItems.map((sub) => {
-                          const isSubActive =
-                            isChemRoute &&
-                            (currentTab === sub.matchTab ||
-                              (sub.matchTab === 'organic' &&
-                                (currentTab === 'inorganic' || currentTab === 'periodic')));
-                          const SubIcon = sub.icon;
-
-                          return (
-                            <Link
-                              key={sub.to}
-                              to={sub.to}
-                              onClick={onClose}
-                              className={`flex items-center justify-between rounded-xl px-3 py-1.5 text-[11px] font-bold transition ${
-                                isSubActive
-                                  ? 'bg-gradient-to-r from-yellow-300 to-amber-300 text-slate-950 font-black shadow-xs border border-yellow-400/60'
-                                  : 'text-slate-500 hover:bg-sky-50 hover:text-sky-900'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <SubIcon size={13} />
-                                <span>{t(sub.tKey, sub.label)}</span>
-                              </div>
-                              {sub.badge && (
-                                <span
-                                  className={`rounded px-1.5 py-0.5 text-[8px] font-black uppercase ${
-                                    isSubActive
-                                      ? 'bg-slate-900 text-yellow-300'
-                                      : 'bg-sky-100 text-sky-800'
-                                  }`}
-                                >
-                                  {sub.badge}
-                                </span>
-                              )}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              return (
-                <NavLink
-                  key={to}
-                  to={to}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
-                      isActive
-                        ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
-                    }`
-                  }
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon size={17} />
-                    <span>{t(tKey, label)}</span>
-                  </div>
-                  {badge && (
-                    <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
-                      {badge}
-                    </span>
-                  )}
-                </NavLink>
-              );
-            })}
-          </nav>
-
-          {/* Institutional Learning Operating System (ILOS) Portal */}
-          <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
-            <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-amber-800 flex items-center justify-between">
-              <span>Institutional ILOS Portal</span>
-              <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-extrabold text-[8px] border border-amber-200">
-                B2B Multi-Tenant
-              </span>
-            </div>
-            {INSTITUTIONAL_MENU.map(({ to, label, icon: Icon, badge }) => (
+          {/* Role-Specific Navigation Isolation */}
+          {isAdmin ? (
+            /* 1. ADMIN EXCLUSIVE NAVIGATION */
+            <nav className="flex flex-col gap-1.5">
+              <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center justify-between">
+                <span>Institutional Admin</span>
+                <span className="bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded font-extrabold text-[8px] border border-emerald-200">
+                  Campus
+                </span>
+              </div>
               <NavLink
-                key={to}
-                to={to}
+                to="/admin"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold transition ${
+                    isActive
+                      ? 'bg-emerald-100/80 text-emerald-950 font-black border border-emerald-300 shadow-xs'
+                      : 'text-slate-700 hover:bg-emerald-50/60 hover:text-emerald-900 active:bg-emerald-100'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <Building2 size={16} className="text-emerald-700" />
+                  <span>Admin Dashboard</span>
+                </div>
+                <span className="rounded bg-emerald-100 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                  Executive
+                </span>
+              </NavLink>
+              <NavLink
+                to="/teacher"
                 onClick={onClose}
                 className={({ isActive }) =>
                   `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold transition ${
@@ -299,51 +200,268 @@ export default function Sidebar({ isOpen, onClose }) {
                 }
               >
                 <div className="flex items-center gap-3">
-                  <Icon size={16} className="text-amber-700" />
-                  <span>{label}</span>
+                  <GraduationCap size={16} className="text-amber-700" />
+                  <span>Faculty Oversight</span>
                 </div>
-                {badge && (
-                  <span className="rounded bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 text-[9px] font-mono font-bold">
-                    {badge}
-                  </span>
-                )}
+                <span className="rounded bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                  Audit
+                </span>
               </NavLink>
-            ))}
-          </nav>
-
-          {/* Hackathon Innovations Navigation */}
-          <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
-            <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 flex items-center justify-between">
-              <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
-              <span className="bg-sky-100 text-sky-700 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
-                NEW
-              </span>
-            </div>
-            {HACKATHON_MENU.map(({ to, label, tKey, icon: Icon, badge }) => (
               <NavLink
-                key={to}
-                to={to}
+                to="/settings"
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-500 hover:bg-slate-100/70 hover:text-slate-800 active:bg-sky-50'
+                  }`
+                }
+              >
+                <Settings size={16} />
+                <span>Institutional Settings</span>
+              </NavLink>
+            </nav>
+          ) : isTeacher ? (
+            /* 2. TEACHER EXCLUSIVE NAVIGATION */
+            <nav className="flex flex-col gap-1.5">
+              <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-amber-800 flex items-center justify-between">
+                <span>Teacher Cockpit</span>
+                <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-extrabold text-[8px] border border-amber-200">
+                  Faculty
+                </span>
+              </div>
+              <NavLink
+                to="/teacher"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-bold transition ${
+                    isActive
+                      ? 'bg-amber-100/80 text-amber-950 font-black border border-amber-300 shadow-xs'
+                      : 'text-slate-700 hover:bg-amber-50/60 hover:text-amber-900 active:bg-amber-100'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <GraduationCap size={16} className="text-amber-700" />
+                  <span>Teacher Cockpit</span>
+                </div>
+                <span className="rounded bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                  Active
+                </span>
+              </NavLink>
+              <NavLink
+                to="/quizzes"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                     isActive
                       ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
                   }`
                 }
               >
-                <div className="flex items-center gap-3">
-                  <Icon size={16} />
-                  <span>{t(tKey, label)}</span>
-                </div>
-                {badge && (
-                  <span className="rounded bg-sky-50 text-sky-600 border border-sky-200/80 px-1.5 py-0.5 text-[9px] font-mono font-bold">
-                    {badge}
-                  </span>
-                )}
+                <TestTubes size={16} />
+                <span>Assessment Bank</span>
               </NavLink>
-            ))}
-          </nav>
+              <NavLink
+                to="/mock-tests"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                  }`
+                }
+              >
+                <Award size={16} />
+                <span>Mock Tests Oversight</span>
+              </NavLink>
+              <NavLink
+                to="/spaced-repetition"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                  }`
+                }
+              >
+                <Brain size={16} />
+                <span>Cohort Remediation</span>
+              </NavLink>
+              <NavLink
+                to="/settings"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                      : 'text-slate-500 hover:bg-slate-100/70 hover:text-slate-800 active:bg-sky-50'
+                  }`
+                }
+              >
+                <Settings size={16} />
+                <span>Settings</span>
+              </NavLink>
+            </nav>
+          ) : (
+            /* 3. STUDENT EXCLUSIVE NAVIGATION (Institutional Menu Strictly Hidden) */
+            <>
+              <nav className="flex flex-col gap-1.5">
+                {PRIMARY_MENU.map(({ to, label, tKey, icon: Icon, badge, subItems }) => {
+                  if (subItems) {
+                    const isMainActive = isChemRoute;
+                    return (
+                      <div key={to} className="flex flex-col gap-1">
+                        <div
+                          className={`flex items-center justify-between rounded-2xl px-4 py-2 text-xs font-semibold transition ${
+                            isMainActive
+                              ? 'bg-sky-50/90 text-sky-900 font-bold border border-sky-200/80 shadow-xs'
+                              : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                          }`}
+                        >
+                          <Link
+                            to={to}
+                            onClick={onClose}
+                            className="flex flex-1 items-center justify-between"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon size={17} className={isMainActive ? 'text-sky-600' : ''} />
+                              <span>{t(tKey, label)}</span>
+                            </div>
+                            {badge && (
+                              <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs mr-1">
+                                {badge}
+                              </span>
+                            )}
+                          </Link>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setChemExpanded((prev) => !prev);
+                            }}
+                            className="p-1 rounded-lg hover:bg-slate-200/60 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                            title="Toggle sub-pages"
+                          >
+                            <ChevronDown
+                              size={14}
+                              className={`transition-transform duration-200 ${
+                                chemExpanded ? 'rotate-180' : ''
+                              }`}
+                            />
+                          </button>
+                        </div>
+
+                        {chemExpanded && (
+                          <div className="ml-4 pl-3 border-l-2 border-sky-100 flex flex-col gap-1 my-0.5">
+                            {subItems.map((sub) => {
+                              const isSubActive =
+                                isChemRoute &&
+                                (currentTab === sub.matchTab ||
+                                  (sub.matchTab === 'organic' &&
+                                    (currentTab === 'inorganic' || currentTab === 'periodic')));
+                              const SubIcon = sub.icon;
+
+                              return (
+                                <Link
+                                  key={sub.to}
+                                  to={sub.to}
+                                  onClick={onClose}
+                                  className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition ${
+                                    isSubActive
+                                      ? 'bg-sky-100/90 text-sky-900 font-bold shadow-2xs'
+                                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <SubIcon size={15} />
+                                    <span>{t(sub.tKey, sub.label)}</span>
+                                  </div>
+                                  {sub.badge && (
+                                    <span
+                                      className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
+                                        isSubActive
+                                          ? 'bg-sky-200 text-sky-800'
+                                          : 'bg-slate-100 text-slate-600'
+                                      }`}
+                                    >
+                                      {sub.badge}
+                                    </span>
+                                  )}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      onClick={onClose}
+                      className={({ isActive }) =>
+                        `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                          isActive
+                            ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                        }`
+                      }
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon size={17} />
+                        <span>{t(tKey, label)}</span>
+                      </div>
+                      {badge && (
+                        <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
+                          {badge}
+                        </span>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </nav>
+
+              {/* Hackathon Innovations Navigation */}
+              <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
+                <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 flex items-center justify-between">
+                  <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
+                  <span className="bg-sky-100 text-sky-700 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
+                    NEW
+                  </span>
+                </div>
+                {HACKATHON_MENU.map(({ to, label, tKey, icon: Icon, badge }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                        isActive
+                          ? 'bg-sky-100/80 text-sky-800 font-bold border border-sky-200 shadow-xs'
+                          : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 active:bg-sky-50'
+                      }`
+                    }
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon size={16} />
+                      <span>{t(tKey, label)}</span>
+                    </div>
+                    {badge && (
+                      <span className="rounded bg-sky-50 text-sky-600 border border-sky-200/80 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                        {badge}
+                      </span>
+                    )}
+                  </NavLink>
+                ))}
+              </nav>
+            </>
+          )}
 
           {/* Secondary Navigation */}
           <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">

@@ -23,6 +23,10 @@ import {
   XCircle,
   FlaskConical,
   Compass,
+  GraduationCap,
+  Building2,
+  ShieldCheck,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePerformance } from '../context/PerformanceContext.jsx';
@@ -192,7 +196,7 @@ export default function Landing() {
                 to="/dashboard"
                 className="clay-btn-yellow py-2 px-4 sm:px-5 text-xs sm:text-sm shadow-sm"
               >
-                <span>Go to Lab</span>
+                <span>My Portal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (
@@ -201,13 +205,13 @@ export default function Landing() {
                   to="/login"
                   className="text-slate-700 hover:text-sky-600 font-extrabold px-3 py-2 text-xs sm:text-sm transition-colors"
                 >
-                  Sign In
+                  Portal Sign In
                 </Link>
                 <Link
                   to="/signup"
                   className="clay-btn-yellow py-2 sm:py-2.5 px-4 sm:px-6 text-xs sm:text-sm shadow-sm"
                 >
-                  <span>Start Free</span>
+                  <span>Student Signup</span>
                   <ArrowRight className="w-3.5 h-3.5 hidden sm:inline" />
                 </Link>
               </>
@@ -268,6 +272,130 @@ export default function Landing() {
               <Camera size={13} className="text-sky-500" /> Snap & Solve OCR
             </span>
             <span className="text-emerald-700 font-black">100% Free For Students</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5 INSTITUTIONAL PORTALS (GMAIL-STYLE ENTRY POINTS) */}
+      <section id="portals" className="py-8 sm:py-14 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <span className="text-[10px] sm:text-xs uppercase tracking-widest font-black text-sky-600 bg-sky-100/70 border border-sky-200 px-3 py-1 rounded-full">
+              Enterprise Multi-Tenant ILOS
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 mt-2">
+              Select Your Learning Operating System Portal
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+              Secure role-based access for Scholars, Faculty Educators, and Institutional Leadership.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Portal 1: Student */}
+            <div className="clay-card rounded-3xl p-6 border-2 border-sky-200/80 bg-white/90 shadow-lg flex flex-col justify-between group hover:border-sky-400 transition-all">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-sky-500 text-white flex items-center justify-center shadow-md shadow-sky-500/20 mb-4 group-hover:scale-105 transition-transform">
+                  <Atom size={24} />
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-black text-slate-900">Student Studio</h3>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">
+                    Active Lab
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                  Interactive physics simulations, 2,209 chemistry reactions, non-repeating quizzes, and AI smart notes with autonomous stealth assistance.
+                </p>
+                <ul className="space-y-1.5 text-xs text-slate-500 mb-6">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={13} className="text-sky-500 shrink-0" />
+                    <span>Ray Optics & Projectile Motion 60 FPS</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={13} className="text-sky-500 shrink-0" />
+                    <span>Personalized Spaced Repetition</span>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                to="/login?role=student"
+                className="w-full py-3 px-4 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-black text-xs text-center shadow-md shadow-sky-500/20 transition-all flex items-center justify-center gap-2"
+              >
+                <span>Enter Student Portal</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Portal 2: Teacher */}
+            <div className="clay-card rounded-3xl p-6 border-2 border-amber-300/90 bg-gradient-to-br from-amber-50/40 via-white to-white shadow-lg flex flex-col justify-between group hover:border-amber-400 transition-all">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/20 mb-4 group-hover:scale-105 transition-transform">
+                  <GraduationCap size={24} />
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-black text-slate-900">Teacher Cockpit</h3>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-amber-200 text-amber-950 px-2 py-0.5 rounded-full">
+                    Faculty
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                  Live cohort mastery telemetry, 2D class friction heatmaps, automated stealth scaffolding supervision, and one-click AI pedagogical reports.
+                </p>
+                <ul className="space-y-1.5 text-xs text-slate-500 mb-6">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={13} className="text-amber-600 shrink-0" />
+                    <span>Live 2D Topic Mastery Heatmap</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={13} className="text-amber-600 shrink-0" />
+                    <span>One-Click AI Remediation Memos</span>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                to="/login?role=teacher"
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-xs text-center shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-2"
+              >
+                <span>Access Faculty Portal</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Portal 3: Admin */}
+            <div className="clay-card rounded-3xl p-6 border-2 border-emerald-300/80 bg-gradient-to-br from-emerald-50/30 via-white to-white shadow-lg flex flex-col justify-between group hover:border-emerald-400 transition-all">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 mb-4 group-hover:scale-105 transition-transform">
+                  <Building2 size={24} />
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-black text-slate-900">Institutional Admin</h3>
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                    Executive
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                  Campus-wide telemetry analytics, multi-cohort performance tracking, teacher supervision, role-based governance, and ILOS security controls.
+                </p>
+                <ul className="space-y-1.5 text-xs text-slate-500 mb-6">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                    <span>Institutional Volume & Subject Trends</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                    <span>Strict Tenant RBAC Governance</span>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                to="/login?role=admin"
+                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs text-center shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+              >
+                <span>Enter Admin Portal</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

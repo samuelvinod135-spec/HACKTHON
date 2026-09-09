@@ -78,12 +78,14 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'labxplore-api', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/student', (_req, res) => {
-  res.json({ student: getStudent(), achievements: getAchievements() });
+app.get('/api/student', (req, res) => {
+  const userId = req.headers['x-user-id'] || req.query.userId || '1';
+  res.json({ student: getStudent(userId), achievements: getAchievements() });
 });
 
 app.put('/api/student', (req, res) => {
-  const updated = updateStudent(req.body || {});
+  const userId = req.headers['x-user-id'] || req.body?.userId || req.body?.id || '1';
+  const updated = updateStudent(userId, req.body || {});
   res.json({ student: updated });
 });
 
@@ -110,16 +112,17 @@ app.get('/api/completions', (_req, res) => {
 });
 
 app.post('/api/completions', (req, res) => {
+  const userId = req.headers['x-user-id'] || req.body?.userId || '1';
   const { kind, ref, xp = 0, achievements = [] } = req.body || {};
   if (!kind || !ref) {
     return res.status(400).json({ error: 'kind and ref are required' });
   }
-  recordCompletion(kind, ref, Number(xp) || 0);
+  recordCompletion(kind, ref, Number(xp) || 0, userId);
   if (Array.isArray(achievements)) {
     for (const slug of achievements) unlockAchievement(slug);
   }
   res.json({
-    student: getStudent(),
+    student: getStudent(userId),
     achievements: getAchievements(),
     completions: getCompletions(),
   });
@@ -130,8 +133,9 @@ app.post('/api/achievements/:slug/unlock', (req, res) => {
 });
 
 app.post('/api/xp', (req, res) => {
+  const userId = req.headers['x-user-id'] || req.body?.userId || '1';
   const { amount } = req.body || {};
-  res.json(addXp(Number(amount) || 0));
+  res.json(addXp(userId, Number(amount) || 0));
 });
 
 // ---- Question Bank API (Local & Fallback) ----

@@ -66,7 +66,23 @@ export function ProgressProvider({ children }) {
     []
   );
 
-  const value = { student, achievements, completions, loading, refresh, record };
+  const resetProgress = useCallback(() => {
+    setStudent(null);
+    setAchievements([]);
+    setCompletions([]);
+  }, []);
+
+  useEffect(() => {
+    const handleSignOut = () => {
+      resetProgress();
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('labxplore:auth-signout', handleSignOut);
+      return () => window.removeEventListener('labxplore:auth-signout', handleSignOut);
+    }
+  }, [resetProgress]);
+
+  const value = { student, achievements, completions, loading, refresh, record, resetProgress };
   return (
     <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>
   );
