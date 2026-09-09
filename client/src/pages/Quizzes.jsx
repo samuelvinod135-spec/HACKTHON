@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { fetchQuizQuestions, fetchQuestionBankChapters } from '../supabase.js';
+import { useAutonomousProfileStore } from '../store/useAutonomousProfileStore.js';
 
 const POPULAR_CHAPTERS = [
   { id: 'Kinematics', name: 'Kinematics', subject: 'Physics', count: '500+', desc: '1D & 2D Motion, Projectiles, Circular Motion' },
@@ -139,6 +140,29 @@ export default function Quizzes() {
     const isCorrect = optionKey.toUpperCase() === (currentQ.correct_option || '').toUpperCase();
     if (isCorrect) {
       setScore((s) => s + 1);
+    }
+
+    // Fully Autonomous Progress Monitoring Engine Ingestion
+    try {
+      const options = getOptions(currentQ);
+      const pickedText = options.find((o) => o.key === optionKey)?.text || optionKey;
+      let mappedTopic = selectedChapter;
+      if (selectedChapter.includes('Motion') || selectedChapter.includes('Kinematics')) mappedTopic = 'Kinematics';
+      else if (selectedChapter.includes('Optics') || selectedChapter.includes('Ray')) mappedTopic = 'Ray Optics';
+      else if (selectedChapter.includes('Bonding') || selectedChapter.includes('Redox')) mappedTopic = 'Stoichiometry';
+      else if (selectedChapter.includes('Equilibrium') || selectedChapter.includes('Acid')) mappedTopic = 'Acids and Bases';
+
+      useAutonomousProfileStore.getState().recordQuizResponse({
+        topic: mappedTopic,
+        isCorrect,
+        difficulty: 1.5,
+        questionText: currentQ.question || '',
+        pickedOption: pickedText,
+        subtopic: currentQ.chapter || '',
+        notes: currentQ.explanation || '',
+      });
+    } catch (e) {
+      console.warn('[AutonomousProgress] Ingestion warning:', e);
     }
   };
 

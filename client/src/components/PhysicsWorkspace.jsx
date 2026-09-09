@@ -30,6 +30,7 @@ import FormulaPanel from './physics/FormulaPanel.jsx';
 import PresetsModal from './physics/PresetsModal.jsx';
 import { PRESET_EXPERIMENTS, PHYSICS_COMPONENTS } from '../physicsData.js';
 import { sounds } from '../utils/soundEffects.js';
+import { useAutonomousProfileStore } from '../store/useAutonomousProfileStore.js';
 
 function fmtTime(ms) {
   const total = Math.max(0, ms || 0);
@@ -222,6 +223,22 @@ export default function PhysicsWorkspace() {
     } else {
       sounds.playSimStart();
       setRunning(true);
+
+      // Autonomous Progress Telemetry Capture: Lab Run
+      try {
+        const topic = isOpticsMode ? 'Ray Optics' : 'Harmonic Motion';
+        const hasSensorsOrLenses = components.length >= 2;
+        useAutonomousProfileStore.getState().recordLabInteraction({
+          topic,
+          experimentName: title,
+          procedureScore: hasSensorsOrLenses ? 92 : 78,
+          conceptScore: 90,
+          accuracyScore: 88,
+          link: '/physics',
+        });
+      } catch (e) {
+        console.warn('[AutonomousProgress] Physics run ingestion warning:', e);
+      }
     }
   };
 

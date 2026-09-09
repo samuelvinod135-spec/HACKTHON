@@ -38,6 +38,7 @@ import { MATERIAL_CHEMICALS, CATEGORIES, ORGANIC_SUBGROUPS } from '../chemistryD
 import { matchReactionLocally, getReactionCount } from '../data/massiveReactionsData.js';
 import { explainInvalidReaction } from '../utils/invalidReactionExplainer.js';
 import ElementCartoon from './ElementCartoon.jsx';
+import { useAutonomousProfileStore } from '../store/useAutonomousProfileStore.js';
 
 const DURATION_MS = 5000;
 const MATERIALS = MATERIAL_CHEMICALS.filter((m) => !m.arrow);
@@ -564,6 +565,21 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
     if (!match) {
       const explanation = explainInvalidReaction(inputs, arrow.conditions);
       setInvalidReaction(explanation);
+
+      // Autonomous Telemetry Capture: Misconception in Stoichiometry / Reagents
+      try {
+        useAutonomousProfileStore.getState().recordQuizResponse({
+          topic: 'Stoichiometry',
+          isCorrect: false,
+          difficulty: 1.8,
+          questionText: `Reaction mixture attempted: ${inputs.map((i) => i.formula).join(' + ')} under ${arrow.conditions.join(', ') || 'STP'}`,
+          pickedOption: explanation.title || 'Incompatible Reaction Conditions',
+          subtopic: explanation.theoryTag || 'Chemical Reactivity',
+          notes: explanation.summary || '',
+        });
+      } catch (e) {
+        console.warn('[AutonomousEngine] Chemistry error ingestion:', e);
+      }
       return;
     }
     setOutput(match);
@@ -587,6 +603,20 @@ export default function DragDropChemistryWorkspace({ onSwitchToOrganic }) {
           setSimulating(false);
           setSaved(true);
           record({ kind: 'experiment', ref: match.equation, xp: 120, achievements: ['first-burn'] });
+
+          // Autonomous Telemetry Capture: Successful Lab Run in Stoichiometry
+          try {
+            useAutonomousProfileStore.getState().recordLabInteraction({
+              topic: 'Stoichiometry',
+              experimentName: match.equation,
+              procedureScore: 94,
+              conceptScore: 92,
+              accuracyScore: 95,
+              link: '/chemistry?tab=drag-and-drop',
+            });
+          } catch (e) {
+            console.warn('[AutonomousEngine] Chemistry success ingestion:', e);
+          }
         }
       }
     };

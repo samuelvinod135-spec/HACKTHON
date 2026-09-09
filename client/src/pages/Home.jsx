@@ -19,6 +19,7 @@ import MasteryDeltaView from '../components/MasteryDelta/MasteryDeltaView.jsx';
 import SmartVernacularCard from '../components/Vernacular/SmartVernacularCard.jsx';
 import UtilityFocusTab from '../components/Dashboard/UtilityFocusTab.jsx';
 import StealthScaffoldingOverlay from '../components/StealthScaffolding/StealthScaffoldingOverlay.jsx';
+import AutonomousIntelligenceCard from '../components/Dashboard/AutonomousIntelligenceCard.jsx';
 
 export default function Home() {
   const { user, profile } = useAuth();
@@ -98,6 +99,9 @@ export default function Home() {
         <div className="space-y-8 animate-in fade-in duration-200">
           {/* Autonomous Stealth Scaffolding Ambient Layer */}
           <StealthScaffoldingOverlay currentTopic="Kinematics" />
+
+          {/* Fully Autonomous AI Progress & Mastery Intelligence Monitor */}
+          <AutonomousIntelligenceCard />
 
           {/* Centerpiece Component: Adaptive Scientific Intelligence Command Center */}
           <CommandCenter />

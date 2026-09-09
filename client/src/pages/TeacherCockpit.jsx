@@ -19,6 +19,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import MasteryHeatmap, { COHORT_STUDENTS_SAMPLE } from '../components/Heatmap/MasteryHeatmap.jsx';
 import { useStealthScaffoldingStore } from '../store/useStealthScaffoldingStore.js';
+import TeacherAutonomousIntelligenceGrid from '../components/Dashboard/TeacherAutonomousIntelligenceGrid.jsx';
 
 export default function TeacherCockpit() {
   const { profile } = useAuth();
@@ -277,7 +278,10 @@ export default function TeacherCockpit() {
         </div>
       )}
 
-      {/* 4. The 2D Mastery Heatmap Component */}
+      {/* 4. Autonomous Class Intelligence Grid */}
+      <TeacherAutonomousIntelligenceGrid />
+
+      {/* 5. The 2D Mastery Heatmap Component */}
       <MasteryHeatmap />
 
       {/* 5. Autonomous Stealth Scaffolding Stream */}
