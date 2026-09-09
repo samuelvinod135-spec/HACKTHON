@@ -29,6 +29,7 @@ import LiveReadingsPanel from './physics/LiveReadingsPanel.jsx';
 import FormulaPanel from './physics/FormulaPanel.jsx';
 import PresetsModal from './physics/PresetsModal.jsx';
 import { PRESET_EXPERIMENTS, PHYSICS_COMPONENTS } from '../physicsData.js';
+import { findPhysicsExperiment } from '../data/massivePhysicsData.js';
 import { sounds } from '../utils/soundEffects.js';
 import { useAutonomousProfileStore } from '../store/useAutonomousProfileStore.js';
 
@@ -196,16 +197,21 @@ export default function PhysicsWorkspace() {
   }, []);
 
   const handleSelectPreset = useCallback((preset) => {
-    setComponents(
-      preset.components.map((c, i) => ({
-        ...c,
-        id: `${c.type}-${Date.now()}-${i}`,
-      }))
-    );
+    if (!preset || !preset.components) return;
+
+    if (preset.env) {
+      setEnv((prev) => ({ ...prev, ...preset.env }));
+    }
+
+    const newComps = preset.components.map((c, i) => ({
+      ...c,
+      id: `${c.type}-${Date.now()}-${i}`,
+    }));
+    setComponents(newComps);
     setTitle(preset.title);
     setElapsedMs(0);
     setRunning(false); // Load in Setup Mode so student can arrange & inspect first
-    setSelectedId(null);
+    setSelectedId(newComps[0]?.id || null);
     setLensPopoverOpen(false);
 
     record({
@@ -453,8 +459,10 @@ export default function PhysicsWorkspace() {
             }}
             onDropNewComponent={handleDropNewComponent}
             onQuickLoadPreset={(presetId) => {
-              const preset = PRESET_EXPERIMENTS.find((p) => p.id === presetId) || PRESET_EXPERIMENTS[0];
-              handleSelectPreset(preset);
+              const preset = findPhysicsExperiment(presetId);
+              if (preset) {
+                handleSelectPreset(preset);
+              }
             }}
             env={env}
             running={running}

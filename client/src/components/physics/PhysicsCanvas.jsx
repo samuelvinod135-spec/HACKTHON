@@ -275,7 +275,21 @@ export default function PhysicsCanvas({
     }
   };
 
-  // Main Render Loop
+  const componentsRef = useRef(components);
+  componentsRef.current = components;
+  const envRef = useRef(env);
+  envRef.current = env;
+  const runningRef = useRef(running);
+  runningRef.current = running;
+  const elapsedMsRef = useRef(elapsedMs);
+  elapsedMsRef.current = elapsedMs;
+  const selectedIdRef = useRef(selectedId);
+  selectedIdRef.current = selectedId;
+  const onTelemetryUpdateRef = useRef(onTelemetryUpdate);
+  onTelemetryUpdateRef.current = onTelemetryUpdate;
+  const lastTelemetryTimeRef = useRef(0);
+
+  // Main Render Loop - 60 FPS buttery smooth with zero-overhead idle guard
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -311,7 +325,7 @@ export default function PhysicsCanvas({
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Camera View Transform (Zoom & Pan - Task 2)
+      // 2. Camera View Transform (Zoom & Pan)
       ctx.save();
       ctx.translate(pan.x, pan.y);
       ctx.scale(zoom, zoom);
@@ -319,27 +333,40 @@ export default function PhysicsCanvas({
       // 3. Draw 20px engineering grid with principal axis in world space
       drawGrid(ctx, width, height, env.snapToGrid, pan, zoom);
 
+      // 0. Zero-component Fast-path: When canvas is cleared, skip all physics computations immediately
+      const currentComps = componentsRef.current;
+      if (!currentComps || currentComps.length === 0) {
+        ctx.restore(); // restore Camera transform
+        ctx.restore(); // restore DPR transform
+        return;
+      }
+
+      const isSimRunning = runningRef.current;
+      const currentElapsed = elapsedMsRef.current;
+      const currentEnv = envRef.current;
+      const curSelectedId = selectedIdRef.current;
+
       // 4. Update photon particle offset only when running
-      if (running) {
+      if (isSimRunning) {
         photonOffsetRef.current = (photonOffsetRef.current + 2) % 40;
       }
 
-      // 5. Trace optics rays across expanded world boundaries (supports 10-20 lenses)
-      const maxCompX = components.reduce((max, c) => Math.max(max, c.x + 500), 1600);
+      // 5. Trace optics rays across expanded world boundaries
+      const maxCompX = currentComps.reduce((max, c) => Math.max(max, c.x + 500), 1600);
       const visibleWorldWidth = (width - pan.x) / zoom + 400;
       const effectiveWorldWidth = Math.max(visibleWorldWidth, maxCompX);
       const effectiveWorldHeight = Math.max((height - pan.y) / zoom + 400, 1200);
 
-      const { rays, telemetry: opticsTelemetry } = traceRays(components, {
+      const { rays, telemetry: opticsTelemetry } = traceRays(currentComps, {
         width: effectiveWorldWidth,
         height: effectiveWorldHeight,
       });
 
       // Update mechanics if simulation is running
       let mechanicsTelemetry = {};
-      const pendulumComp = components.find((c) => c.type === 'pendulum');
+      const pendulumComp = currentComps.find((c) => c.type === 'pendulum');
       if (pendulumComp) {
-        if (running) {
+        if (isSimRunning) {
           const res = updatePendulum(
             {
               ...pendulumStateRef.current,
@@ -347,7 +374,7 @@ export default function PhysicsCanvas({
               mass: pendulumComp.params?.mass ?? 1.2,
             },
             dtSec,
-            env
+            currentEnv
           );
           pendulumStateRef.current = res;
           mechanicsTelemetry = res;
@@ -362,40 +389,51 @@ export default function PhysicsCanvas({
       }
 
       // Check if projectile launcher is present
-      const projComp = components.find((c) => c.type === 'projectile');
+      const projComp = currentComps.find((c) => c.type === 'projectile');
       if (projComp) {
-        const traj = calculateProjectileTrajectory(projComp, env);
-        drawProjectileTrajectory(ctx, traj, running, elapsedMs);
+        const traj = calculateProjectileTrajectory(projComp, currentEnv);
+        drawProjectileTrajectory(ctx, traj, isSimRunning, currentElapsed);
+        mechanicsTelemetry = {
+          ...mechanicsTelemetry,
+          range: traj.maxRange,
+          maxHeight: traj.maxHeight,
+          flightTime: traj.tFlight,
+          Ek: traj.EkMax,
+        };
       }
 
       // Check if ramp is present
-      const rampComp = components.find((c) => c.type === 'ramp');
+      const rampComp = currentComps.find((c) => c.type === 'ramp');
       if (rampComp) {
-        const rampData = calculateRampPhysics(rampComp, env);
+        const rampData = calculateRampPhysics(rampComp, currentEnv);
         mechanicsTelemetry = {
           ...mechanicsTelemetry,
           accel: rampData.accel,
         };
       }
 
-      // Send telemetry updates
-      if (onTelemetryUpdate) {
-        onTelemetryUpdate({
-          ...opticsTelemetry,
-          ...mechanicsTelemetry,
-        });
+      // Send telemetry updates throttled at 10Hz (every 100ms) or on state transitions
+      const now = performance.now();
+      if (now - lastTelemetryTimeRef.current > 100 || !isSimRunning) {
+        lastTelemetryTimeRef.current = now;
+        if (onTelemetryUpdateRef.current) {
+          onTelemetryUpdateRef.current({
+            ...opticsTelemetry,
+            ...mechanicsTelemetry,
+          });
+        }
       }
 
       // 6. Render Optical Light Rays (with neon glow & photon particles)
       drawOpticalRays(ctx, rays, photonOffsetRef.current);
 
       // 7. Render all physical components on the canvas
-      components.forEach((comp) => {
-        drawComponent(ctx, comp, comp.id === selectedId, pendulumStateRef.current, running, elapsedMs);
+      currentComps.forEach((comp) => {
+        drawComponent(ctx, comp, comp.id === curSelectedId, pendulumStateRef.current, isSimRunning, currentElapsed);
       });
 
       // 8. Render selection ring & rotate handle for active item
-      const selectedComp = components.find((c) => c.id === selectedId);
+      const selectedComp = currentComps.find((c) => c.id === curSelectedId);
       if (selectedComp) {
         drawSelectionOverlay(ctx, selectedComp);
       }
@@ -406,7 +444,7 @@ export default function PhysicsCanvas({
 
     animationFrameId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [components, selectedId, env, running, elapsedMs, onTelemetryUpdate, isLiteMode, zoom, pan]);
+  }, [components, selectedId, env, running, isLiteMode, zoom, pan]);
 
   const selectedComp = components.find((c) => c.id === selectedId);
 
@@ -542,26 +580,50 @@ export default function PhysicsCanvas({
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 pointer-events-auto">
             <button
+              type="button"
+              data-testid="quick-preset-multi-lens"
               onClick={() => onQuickLoadPreset?.('multi-lens-bench')}
-              className="clay-card flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-bold text-teal-800 shadow-xs hover:border-teal-400 hover:scale-102 transition cursor-pointer"
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                onQuickLoadPreset?.('multi-lens-bench');
+              }}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-xs font-bold text-teal-800 shadow-xs hover:border-teal-400 hover:scale-102 active:scale-95 transition cursor-pointer"
             >
               <span>🔬 12-Lens Optical Bench</span>
             </button>
             <button
-              onClick={() => onQuickLoadPreset?.('convex-lens')}
-              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
+              type="button"
+              data-testid="quick-preset-convex-lens"
+              onClick={() => onQuickLoadPreset?.('convex-focal')}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                onQuickLoadPreset?.('convex-focal');
+              }}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 active:scale-95 transition cursor-pointer"
             >
               <span>🔬 Convex Lens Optics</span>
             </button>
             <button
-              onClick={() => onQuickLoadPreset?.('pendulum')}
-              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
+              type="button"
+              data-testid="quick-preset-pendulum"
+              onClick={() => onQuickLoadPreset?.('pendulum-harmonic')}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                onQuickLoadPreset?.('pendulum-harmonic');
+              }}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 active:scale-95 transition cursor-pointer"
             >
               <span>⏱️ Simple Pendulum</span>
             </button>
             <button
-              onClick={() => onQuickLoadPreset?.('projectile')}
-              className="clay-card flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-xs hover:border-teal-400 hover:text-teal-700 hover:scale-102 transition cursor-pointer"
+              type="button"
+              data-testid="quick-preset-projectile"
+              onClick={() => onQuickLoadPreset?.('projectile-range')}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                onQuickLoadPreset?.('projectile-range');
+              }}
+              className="clay-card flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50/90 px-3 py-2 text-xs font-bold text-amber-900 shadow-xs hover:border-amber-400 hover:scale-102 active:scale-95 transition cursor-pointer"
             >
               <span>🚀 Projectile Motion</span>
             </button>
