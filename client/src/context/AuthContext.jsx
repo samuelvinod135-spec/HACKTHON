@@ -355,6 +355,12 @@ export function AuthProvider({ children }) {
       localStorage.removeItem('labxplore_telemetry_offline_queue');
       localStorage.removeItem('labxplore_demo_user');
       localStorage.removeItem('labxplore_cached_user');
+      localStorage.removeItem('labxplore_local_student');
+      localStorage.removeItem('labxplore_local_achievements');
+      localStorage.removeItem('labxplore_local_completions');
+      localStorage.removeItem('labxplore_saved_experiments');
+      localStorage.removeItem('labxplore_autonomous_profile_v2');
+      localStorage.removeItem('labxplore_completed_tasks');
       sessionStorage.clear();
     } catch (storageErr) {
       console.warn('Storage purge note:', storageErr);

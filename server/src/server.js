@@ -89,82 +89,132 @@ app.put('/api/student', (req, res) => {
   res.json({ student: updated });
 });
 
-app.get('/api/saved', (_req, res) => {
-  res.json(getSavedExperiments());
+app.get('/api/saved', (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'] || req.query.userId || '1';
+    res.json(getSavedExperiments(userId));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve saved experiments' });
+  }
 });
 
 app.post('/api/saved', (req, res) => {
-  const saved = saveExperiment(req.body || {});
-  res.json(saved);
+  try {
+    const userId = req.headers['x-user-id'] || req.body?.userId || '1';
+    const saved = saveExperiment(req.body || {}, userId);
+    res.json(saved);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save experiment' });
+  }
 });
 
 app.delete('/api/saved/:id', (req, res) => {
-  const saved = unsaveExperiment(req.params.id);
-  res.json(saved);
+  try {
+    const userId = req.headers['x-user-id'] || req.query.userId || '1';
+    const saved = unsaveExperiment(req.params.id, userId);
+    res.json(saved);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to remove experiment' });
+  }
 });
 
 app.get('/api/achievements', (_req, res) => {
-  res.json(getAchievements());
+  try {
+    res.json(getAchievements());
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve achievements' });
+  }
 });
 
-app.get('/api/completions', (_req, res) => {
-  res.json(getCompletions());
+app.get('/api/completions', (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'] || req.query.userId || '1';
+    res.json(getCompletions(userId));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to retrieve completions' });
+  }
 });
 
 app.post('/api/completions', (req, res) => {
-  const userId = req.headers['x-user-id'] || req.body?.userId || '1';
-  const { kind, ref, xp = 0, achievements = [] } = req.body || {};
-  if (!kind || !ref) {
-    return res.status(400).json({ error: 'kind and ref are required' });
+  try {
+    const userId = req.headers['x-user-id'] || req.body?.userId || '1';
+    const { kind, ref, xp = 0, achievements = [] } = req.body || {};
+    if (!kind || !ref) {
+      return res.status(400).json({ error: 'kind and ref are required' });
+    }
+    recordCompletion(kind, ref, Number(xp) || 0, userId);
+    if (Array.isArray(achievements)) {
+      for (const slug of achievements) unlockAchievement(slug);
+    }
+    res.json({
+      student: getStudent(userId),
+      achievements: getAchievements(),
+      completions: getCompletions(userId),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to record completion' });
   }
-  recordCompletion(kind, ref, Number(xp) || 0, userId);
-  if (Array.isArray(achievements)) {
-    for (const slug of achievements) unlockAchievement(slug);
-  }
-  res.json({
-    student: getStudent(userId),
-    achievements: getAchievements(),
-    completions: getCompletions(),
-  });
 });
 
 app.post('/api/achievements/:slug/unlock', (req, res) => {
-  res.json(unlockAchievement(req.params.slug));
+  try {
+    res.json(unlockAchievement(req.params.slug));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to unlock achievement' });
+  }
 });
 
 app.post('/api/xp', (req, res) => {
-  const userId = req.headers['x-user-id'] || req.body?.userId || '1';
-  const { amount } = req.body || {};
-  res.json(addXp(userId, Number(amount) || 0));
+  try {
+    const userId = req.headers['x-user-id'] || req.body?.userId || '1';
+    const { amount } = req.body || {};
+    res.json(addXp(userId, Number(amount) || 0));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add XP' });
+  }
 });
 
 // ---- Question Bank API (Local & Fallback) ----
 app.get('/api/questions', async (req, res) => {
-  const { subject, chapter, topic, exam_level, limit, random } = req.query || {};
-  const isRandom = random === 'true' || random === '1' || random === true;
-  const questions = await getQuestions({
-    subject,
-    chapter,
-    topic,
-    exam_level,
-    limit: limit ? Number(limit) : 50,
-    random: isRandom,
-  });
-  res.json({
-    count: questions.length,
-    questions,
-  });
+  try {
+    const { subject, chapter, topic, exam_level, limit, random } = req.query || {};
+    const isRandom = random === 'true' || random === '1' || random === true;
+    const questions = await getQuestions({
+      subject,
+      chapter,
+      topic,
+      exam_level,
+      limit: limit ? Number(limit) : 50,
+      random: isRandom,
+    });
+    res.json({
+      count: questions.length,
+      questions,
+    });
+  } catch (err) {
+    console.warn('Questions API error:', err);
+    res.status(500).json({ count: 0, questions: [], error: 'Failed to query questions' });
+  }
 });
 
 app.get('/api/questions/chapters', async (req, res) => {
-  const { subject } = req.query || {};
-  const chapters = await getQuestionBankChapters(subject);
-  res.json({ count: chapters.length, chapters });
+  try {
+    const { subject } = req.query || {};
+    const chapters = await getQuestionBankChapters(subject);
+    res.json({ count: chapters.length, chapters });
+  } catch (err) {
+    console.warn('Chapters API error:', err);
+    res.status(500).json({ count: 0, chapters: [], error: 'Failed to query chapters' });
+  }
 });
 
 app.get('/api/questions/stats', async (_req, res) => {
-  const stats = await getQuestionBankStats();
-  res.json(stats);
+  try {
+    const stats = await getQuestionBankStats();
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ total: 0, chaptersCount: 0, bySubject: [], byLevel: [] });
+  }
 });
 
 // ---- Reaction Engine API ----

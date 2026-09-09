@@ -109,11 +109,12 @@ export function selectDiverseQuestions(allQuestions, count = 10, excludeIds = ne
 export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, subject, excludeIds } = {}) {
   try {
     // 1. Try Supabase with broader pool and random offset sampling
+    const cleanChapter = (chapter || 'Kinematics').replace(/["\\]/g, '').trim();
     const randomOffset = seededInt(0, 80);
     let query = supabase
       .from('question_bank')
       .select('*')
-      .or(`chapter.eq."${chapter}",chapter.ilike."%${chapter}%"`);
+      .or(`chapter.eq."${cleanChapter}",chapter.ilike."%${cleanChapter}%"`);
 
     if (subject) {
       query = query.eq('subject', subject);
@@ -134,7 +135,7 @@ export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, s
     const { data: fallbackData, error: fbErr } = await supabase
       .from('question_bank')
       .select('*')
-      .or(`chapter.eq."${chapter}",chapter.ilike."%${chapter}%"`)
+      .or(`chapter.eq."${cleanChapter}",chapter.ilike."%${cleanChapter}%"`)
       .limit(150);
 
     if (!fbErr && fallbackData && fallbackData.length > 0) {
@@ -147,14 +148,16 @@ export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, s
     console.warn('Supabase quiz query fallback:', err);
   }
 
-  // Fallback to local API
+  // Fallback to local API with HTML response guard
   try {
     const params = new URLSearchParams({ chapter, limit: '100', random: 'true' });
     if (subject) params.set('subject', subject);
     const res = await fetch(`${API_BASE}/questions?${params.toString()}`);
-    const json = await res.json();
-    if (json.questions && json.questions.length > 0) {
-      return selectDiverseQuestions(json.questions, limit, excludeIds);
+    if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+      const json = await res.json();
+      if (json.questions && json.questions.length > 0) {
+        return selectDiverseQuestions(json.questions, limit, excludeIds);
+      }
     }
   } catch (err) {
     console.warn('Local API questions query failed:', err);
@@ -192,9 +195,11 @@ export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limi
     const params = new URLSearchParams({ exam_level: examLevel, limit: String(limit * 2), random: 'true' });
     if (subject) params.set('subject', subject);
     const res = await fetch(`${API_BASE}/questions?${params.toString()}`);
-    const json = await res.json();
-    if (json.questions && json.questions.length > 0) {
-      return selectDiverseQuestions(json.questions, limit);
+    if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+      const json = await res.json();
+      if (json.questions && json.questions.length > 0) {
+        return selectDiverseQuestions(json.questions, limit);
+      }
     }
   } catch (err) {
     console.warn('Mock test API fallback error:', err);
@@ -209,8 +214,11 @@ export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limi
 export async function fetchQuestionBankChapters(subject) {
   try {
     const res = await fetch(`${API_BASE}/questions/chapters${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`);
-    const json = await res.json();
-    return json.chapters || [];
+    if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+      const json = await res.json();
+      return json.chapters || [];
+    }
+    return [];
   } catch {
     return [];
   }

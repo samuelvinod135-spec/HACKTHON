@@ -10,6 +10,7 @@ let flushTimeout = null;
 
 // Strict UUID v4 / PostgreSQL UUID regex validator
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DEMO_INSTITUTION_ID = '00000000-0000-0000-0000-000000000001';
 
 async function flushTelemetryQueue() {
   if (eventQueue.length === 0) return;
@@ -23,7 +24,7 @@ async function flushTelemetryQueue() {
 
     return {
       user_id: isUserUuid ? ev.user_id : null,
-      institution_id: isInstUuid ? ev.institution_id : null,
+      institution_id: isInstUuid ? ev.institution_id : (!isUserUuid ? DEMO_INSTITUTION_ID : null),
       cohort_id: isCohortUuid ? ev.cohort_id : null,
       event_type: ev.event_type,
       topic: ev.topic,
@@ -96,7 +97,7 @@ export async function drainOfflineQueue() {
 
       return {
         user_id: isUserUuid ? ev.user_id : null,
-        institution_id: isInstUuid ? ev.institution_id : null,
+        institution_id: isInstUuid ? ev.institution_id : (!isUserUuid ? DEMO_INSTITUTION_ID : null),
         cohort_id: isCohortUuid ? ev.cohort_id : null,
         event_type: ev.event_type,
         topic: ev.topic,

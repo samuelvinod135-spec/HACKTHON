@@ -17,9 +17,14 @@ export function ProgressProvider({ children }) {
         api.getAchievements(),
         api.getCompletions(),
       ]);
-      setStudent(s.student);
-      setAchievements(s.achievements || a);
-      setCompletions(c);
+      setStudent(s?.student || { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
+      setAchievements(s?.achievements || a || []);
+      setCompletions(c || []);
+    } catch (err) {
+      console.warn('ProgressContext refresh fallback:', err);
+      setStudent((prev) => prev || { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
+      setAchievements((prev) => (prev?.length > 0 ? prev : []));
+      setCompletions((prev) => (prev?.length > 0 ? prev : []));
     } finally {
       setLoading(false);
     }

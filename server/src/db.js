@@ -62,14 +62,15 @@ export function initDb() {
 
     CREATE TABLE IF NOT EXISTS completion (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL DEFAULT '1',
       kind TEXT NOT NULL,
       ref TEXT NOT NULL,
-      completed_at TEXT NOT NULL DEFAULT (datetime('now')),
-      UNIQUE(kind, ref)
+      completed_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
     CREATE TABLE IF NOT EXISTS saved_experiment (
       id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL DEFAULT '1',
       experiment_id TEXT NOT NULL,
       title TEXT NOT NULL,
       discipline TEXT NOT NULL,
@@ -99,12 +100,31 @@ export function initDb() {
     CREATE INDEX IF NOT EXISTS idx_qb_subject ON question_bank(subject);
   `);
 
+  // Migrate completion and saved_experiment tables to support multi-tenant user_id
+  try {
+    const completionCols = db.prepare("PRAGMA table_info('completion')").all();
+    if (completionCols && !completionCols.some((c) => c.name === 'user_id')) {
+      db.exec("ALTER TABLE completion ADD COLUMN user_id TEXT NOT NULL DEFAULT '1'");
+    }
+  } catch (e) {
+    console.warn('completion user_id migration note:', e.message);
+  }
+
+  try {
+    const savedCols = db.prepare("PRAGMA table_info('saved_experiment')").all();
+    if (savedCols && !savedCols.some((c) => c.name === 'user_id')) {
+      db.exec("ALTER TABLE saved_experiment ADD COLUMN user_id TEXT NOT NULL DEFAULT '1'");
+    }
+  } catch (e) {
+    console.warn('saved_experiment user_id migration note:', e.message);
+  }
+
   const studentCount = db.prepare('SELECT COUNT(*) AS c FROM student').get().c;
   if (studentCount === 0) {
     db.prepare(
       `INSERT INTO student (id, name, level, xp, xp_for_level)
-       VALUES (1, 'Student Scholar', 1, 0, 1000)`
-    ).run();
+       VALUES (?, 'Student Scholar', 1, 0, 1000)`
+    ).run('1');
   } else {
     db.prepare("UPDATE student SET name = 'Student Scholar' WHERE name LIKE '%Alex%'").run();
   }
@@ -147,8 +167,9 @@ export function getAchievements() {
   return db.prepare('SELECT * FROM achievement ORDER BY id').all();
 }
 
-export function getCompletions() {
-  return db.prepare('SELECT * FROM completion ORDER BY completed_at').all();
+export function getCompletions(userId = '1') {
+  const uid = String(userId || '1');
+  return db.prepare('SELECT * FROM completion WHERE user_id = ? OR user_id = "1" ORDER BY completed_at').all(uid);
 }
 
 export function addXp(userId = '1', amount = 0) {
@@ -179,19 +200,20 @@ export function addXp(userId = '1', amount = 0) {
 }
 
 export function recordCompletion(kind, ref, xp = 0, userId = '1') {
+  const uid = String(userId || '1');
   db.prepare(
-    'INSERT OR IGNORE INTO completion (kind, ref) VALUES (?, ?)'
-  ).run(kind, ref);
+    'INSERT OR IGNORE INTO completion (user_id, kind, ref) VALUES (?, ?, ?)'
+  ).run(uid, kind, ref);
 
   if (xp > 0) {
     db.prepare(
       'INSERT INTO lab_run (experiment, kind, xp_earned) VALUES (?, ?, ?)'
     ).run(ref, kind, xp);
-    addXp(userId, xp);
+    addXp(uid, xp);
   }
   return {
-    student: getStudent(userId),
-    completions: getCompletions(),
+    student: getStudent(uid),
+    completions: getCompletions(uid),
   };
 }
 
@@ -234,28 +256,32 @@ export function updateStudent(userId = '1', { name, level, xp, xp_for_level } = 
   return getStudent(uid);
 }
 
-export function getSavedExperiments() {
-  return db.prepare('SELECT * FROM saved_experiment ORDER BY created_at DESC').all();
+export function getSavedExperiments(userId = '1') {
+  const uid = String(userId || '1');
+  return db.prepare('SELECT * FROM saved_experiment WHERE user_id = ? OR user_id = "1" ORDER BY created_at DESC').all(uid);
 }
 
-export function saveExperiment({ id, experiment_id, title, discipline, link } = {}) {
+export function saveExperiment({ id, experiment_id, title, discipline, link } = {}, userId = '1') {
+  const uid = String(userId || '1');
   const saveId = id || experiment_id || `exp-${Date.now()}`;
   db.prepare(`
-    INSERT OR REPLACE INTO saved_experiment (id, experiment_id, title, discipline, link, created_at)
-    VALUES (?, ?, ?, ?, ?, datetime('now'))
+    INSERT OR REPLACE INTO saved_experiment (id, user_id, experiment_id, title, discipline, link, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
   `).run(
     saveId,
+    uid,
     experiment_id || saveId,
     title || 'Virtual Experiment',
     discipline || 'Science',
     link || '/chemistry'
   );
-  return getSavedExperiments();
+  return getSavedExperiments(uid);
 }
 
-export function unsaveExperiment(id) {
-  db.prepare('DELETE FROM saved_experiment WHERE id = ? OR experiment_id = ?').run(id, id);
-  return getSavedExperiments();
+export function unsaveExperiment(id, userId = '1') {
+  const uid = String(userId || '1');
+  db.prepare('DELETE FROM saved_experiment WHERE (id = ? OR experiment_id = ?) AND (user_id = ? OR user_id = "1")').run(id, id, uid);
+  return getSavedExperiments(uid);
 }
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://htgsiuqtlfdebxepsslh.supabase.co';
