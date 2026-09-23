@@ -163,7 +163,7 @@ export default function Header({ onMenuClick }) {
 
       {/* Center: Robust Responsive Search Bar */}
       <div ref={containerRef} className="relative flex flex-1 items-center justify-center px-2 max-w-lg mx-2 sm:mx-4 min-w-[140px] sm:min-w-[240px]">
-        <div className="relative flex w-full items-center rounded-full bg-white dark:bg-[#1A1A1A] px-3.5 py-1.5 sm:py-2 shadow-xs border border-slate-200 dark:border-[#3D3D3D] focus-within:border-sky-400 dark:focus-within:border-[#B673FF] transition-all">
+        <div className="relative flex w-full items-center rounded-full bg-white dark:bg-[#1A1A1A] px-3.5 py-1.5 sm:py-2 shadow-xs border border-slate-200 dark:border-[#3D3D3D] focus-within:border-sky-400 dark:focus-within:border-white transition-all">
           <Search size={15} className="text-slate-400 dark:text-[#A0A0A0] shrink-0 mr-2" />
           <input
             ref={inputRef}
@@ -192,10 +192,10 @@ export default function Header({ onMenuClick }) {
             </kbd>
           )}
 
-          {/* Search Button (Amber in Light, Vibrant Lavender #B673FF in Dark) */}
+          {/* Search Button (Amber in Light, Pure White #FFFFFF in Dark) */}
           <button
             onClick={() => query && handleSelect(results[0]?.to || '/')}
-            className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-amber-400 hover:bg-amber-300 dark:bg-[#B673FF] dark:hover:bg-[#C894FF] text-slate-950 dark:text-white shadow-xs transition cursor-pointer"
+            className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-amber-400 hover:bg-amber-300 dark:bg-white dark:hover:bg-slate-200 text-slate-950 dark:text-[#1A1A1A] shadow-xs transition cursor-pointer"
             aria-label="Search"
           >
             <Search size={13} strokeWidth={2.5} />
@@ -220,7 +220,7 @@ export default function Header({ onMenuClick }) {
                       onClick={() => handleSelect(item.to)}
                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-xs transition hover:bg-slate-100 dark:hover:bg-[#3D3D3D] cursor-pointer"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-[#222222] text-sky-600 dark:text-[#B673FF]">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-[#222222] text-sky-600 dark:text-white">
                         <ItemIcon size={16} />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -248,7 +248,7 @@ export default function Header({ onMenuClick }) {
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs bg-white dark:bg-[#2D2D2D] text-slate-700 dark:text-white border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D] cursor-pointer"
               title="Switch Language"
             >
-              <Languages size={13} className="text-sky-500 dark:text-[#B673FF]" />
+              <Languages size={13} className="text-sky-500 dark:text-white" />
               <span className="font-bold">
                 {supportedLanguages.find((l) => l.code === currentLang)?.badge || 'EN'}
               </span>
@@ -274,12 +274,12 @@ export default function Header({ onMenuClick }) {
                         }}
                         className={`flex w-full items-center justify-between px-3 py-2 rounded-xl text-xs transition text-left cursor-pointer ${
                           isSelected
-                            ? 'bg-sky-50 dark:bg-[#3D3D3D] text-sky-900 dark:text-[#B673FF] font-bold border border-sky-200 dark:border-[#B673FF]'
+                            ? 'bg-sky-50 dark:bg-[#3D3D3D] text-sky-900 dark:text-white font-bold border border-sky-200 dark:border-white'
                             : 'text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-[#3D3D3D]'
                         }`}
                       >
                         <span>{lang.native}</span>
-                        {isSelected && <Check size={13} className="text-sky-600 dark:text-[#B673FF]" />}
+                        {isSelected && <Check size={13} className="text-sky-600 dark:text-white" />}
                       </button>
                     );
                   })}
@@ -295,12 +295,12 @@ export default function Header({ onMenuClick }) {
           onClick={toggleLiteMode}
           className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs active:scale-95 cursor-pointer ${
             isLiteMode
-              ? 'bg-amber-400 dark:bg-[#B673FF] text-slate-950 dark:text-white border-amber-500 dark:border-[#B673FF] font-black'
+              ? 'bg-amber-400 dark:bg-white text-slate-950 dark:text-[#1A1A1A] border-amber-500 dark:border-white font-black'
               : 'bg-white dark:bg-[#2D2D2D] text-slate-600 dark:text-[#A0A0A0] border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D] dark:hover:text-white'
           }`}
           title={isLiteMode ? "Lite Mode Active (Essential Functions Only) - Click to restore full AI mode" : "Click to activate Lite Mode (clean, simple, less clutter)"}
         >
-          <Zap size={13} className={isLiteMode ? "text-slate-950 dark:text-white fill-current" : "text-amber-500 dark:text-[#B673FF]"} />
+          <Zap size={13} className={isLiteMode ? "text-slate-950 dark:text-[#1A1A1A] fill-current" : "text-amber-500 dark:text-white"} />
           <span className="hidden sm:inline">{isLiteMode ? 'Lite Mode (ON)' : 'Lite Mode'}</span>
         </button>
 
@@ -308,12 +308,12 @@ export default function Header({ onMenuClick }) {
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border shadow-2xs transition-all active:scale-95 cursor-pointer bg-white dark:bg-[#2D2D2D] text-slate-700 dark:text-[#B673FF] border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
+          className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border shadow-2xs transition-all active:scale-95 cursor-pointer bg-white dark:bg-[#2D2D2D] text-slate-700 dark:text-white border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
           title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           aria-label="Toggle theme mode"
         >
           {isDark ? (
-            <Sun size={15} className="text-[#B673FF]" />
+            <Sun size={15} className="text-white" />
           ) : (
             <Moon size={15} className="text-slate-600" />
           )}
@@ -324,10 +324,10 @@ export default function Header({ onMenuClick }) {
           <button
             type="button"
             onClick={() => setStageModalOpen(true)}
-            className="hidden lg:flex items-center gap-1.5 rounded-full bg-white dark:bg-[#2D2D2D] px-3 py-1.5 shadow-2xs border border-slate-200 dark:border-[#3D3D3D] hover:border-amber-400 dark:hover:border-[#B673FF] transition cursor-pointer text-xs font-bold text-slate-800 dark:text-white"
+            className="hidden lg:flex items-center gap-1.5 rounded-full bg-white dark:bg-[#2D2D2D] px-3 py-1.5 shadow-2xs border border-slate-200 dark:border-[#3D3D3D] hover:border-amber-400 dark:hover:border-white transition cursor-pointer text-xs font-bold text-slate-800 dark:text-white"
             title="Click to view Credit Stages & Status"
           >
-            <span className="text-amber-500 dark:text-[#B673FF] font-mono">⚡ {xp.toLocaleString()} Credits</span>
+            <span className="text-amber-500 dark:text-white font-mono">⚡ {xp.toLocaleString()} Credits</span>
             <span className="hidden 2xl:inline text-sky-800 dark:text-white bg-sky-50 dark:bg-[#1A1A1A] px-2 py-0.2 rounded-full text-[10px] border border-transparent dark:border-[#3D3D3D]">
               Stage {stageInfo.stage}
             </span>
@@ -342,7 +342,7 @@ export default function Header({ onMenuClick }) {
             title="3 new lab notifications"
           >
             <Bell size={16} />
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-[#B673FF] text-[9px] font-bold text-slate-950 dark:text-white">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-white text-[9px] font-bold text-slate-950 dark:text-[#1A1A1A]">
               3
             </span>
           </Link>
@@ -357,7 +357,7 @@ export default function Header({ onMenuClick }) {
           >
             <ShoppingBag size={16} />
             {savedCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-[#B673FF] text-[9px] font-bold text-slate-950 dark:text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-white text-[9px] font-bold text-slate-950 dark:text-[#1A1A1A]">
                 {savedCount}
               </span>
             )}

@@ -144,9 +144,20 @@ export function calculateUpdatedMastery(currentMastery = 50, isCorrect = true, d
  */
 export function calculateOverallProgressScore(topicsMastery = {}, labEvaluations = [], quizStats = {}) {
   const topics = Object.values(topicsMastery);
-  if (topics.length === 0) return { score: 65, explanation: 'Baseline initial diagnostic profile established.' };
+  const totalAttempts = topics.reduce((acc, t) => acc + (t.attempts || 0), 0);
+  const totalScore = topics.reduce((acc, t) => acc + (t.score || 0), 0);
 
-  const averageTopicMastery = topics.reduce((acc, t) => acc + (t.score || 50), 0) / topics.length;
+  // When a new user logs in without assessment or experiment records, trajectory initializes at 0%
+  if (topics.length === 0 || (totalAttempts === 0 && totalScore === 0 && labEvaluations.length === 0 && (quizStats.totalQuestionsAnswered || 0) === 0)) {
+    return {
+      score: 0,
+      explanation: 'No experimental telemetry or assessment responses recorded yet. Complete an investigation or quiz to build your trajectory.',
+    };
+  }
+
+  const averageTopicMastery = totalAttempts > 0
+    ? topics.reduce((acc, t) => acc + (t.score || 0), 0) / topics.length
+    : 0;
 
   // Lab factor (procedure understanding & accuracy)
   let labBonus = 0;
@@ -162,7 +173,7 @@ export function calculateOverallProgressScore(topicsMastery = {}, labEvaluations
     consistencyBonus = (accuracy - 0.6) * 15;
   }
 
-  const finalScore = Math.max(10, Math.min(98, Math.round(averageTopicMastery + labBonus + consistencyBonus)));
+  const finalScore = Math.max(0, Math.min(98, Math.round(averageTopicMastery + labBonus + consistencyBonus)));
 
   // Generate transparent natural language explanation based on actual signals
   const masteredTopics = Object.entries(topicsMastery).filter(([_, t]) => t.score >= 80).map(([k]) => k);

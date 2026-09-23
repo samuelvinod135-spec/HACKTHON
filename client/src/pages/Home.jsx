@@ -24,6 +24,7 @@ import SmartVernacularCard from '../components/Vernacular/SmartVernacularCard.js
 import UtilityFocusTab from '../components/Dashboard/UtilityFocusTab.jsx';
 import StealthScaffoldingOverlay from '../components/StealthScaffolding/StealthScaffoldingOverlay.jsx';
 import AutonomousIntelligenceCard from '../components/Dashboard/AutonomousIntelligenceCard.jsx';
+import { extractUsername } from '../utils/userUtils.js';
 
 export default function Home() {
   const { user, profile } = useAuth();
@@ -34,7 +35,13 @@ export default function Home() {
   // 'engine' (Adaptive Scientific Intelligence Engine) | 'utility' (Utility & Focus Hub)
   const [activeTab, setActiveTab] = useState('engine');
 
-  const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
+  // Dynamic Welcome Greeting derived from authenticated user's email address
+  const userEmail = user?.email || profile?.email;
+  const greetingName = userEmail
+    ? extractUsername(userEmail, 'Scholar')
+    : (profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar'));
+
+  const name = greetingName;
   const xp = profile?.xp ?? (student ? student.xp : 0);
   const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
   const level = profile?.level ?? (student ? student.level : 1);
@@ -47,11 +54,11 @@ export default function Home() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              {t('dashboard.welcomeBack', 'Welcome back')}, {name} <span className="text-2xl">👋</span>
+              Welcome {greetingName} <span className="text-2xl">👋</span>
             </h1>
             {isLiteMode && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-[#1A1A1A] border border-amber-300 dark:border-[#3D3D3D] px-2.5 py-0.5 text-[11px] font-black text-amber-900 dark:text-[#B673FF]">
-                <Zap size={11} className="fill-amber-500 text-amber-500 dark:fill-[#B673FF] dark:text-[#B673FF]" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-[#1A1A1A] border border-amber-300 dark:border-[#3D3D3D] px-2.5 py-0.5 text-[11px] font-black text-amber-900 dark:text-white">
+                <Zap size={11} className="fill-amber-500 text-amber-500 dark:fill-white dark:text-white" />
                 <span>Lite Mode Active</span>
               </span>
             )}
@@ -72,7 +79,7 @@ export default function Home() {
                 onClick={() => setActiveTab('engine')}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   activeTab === 'engine'
-                    ? 'bg-gradient-to-r from-sky-500 to-indigo-600 dark:from-[#9A4EFF] dark:to-[#B673FF] text-white shadow-md shadow-sky-500/20'
+                    ? 'bg-gradient-to-r from-sky-500 to-indigo-600 dark:from-white dark:to-white dark:bg-white text-white dark:text-[#1A1A1A] shadow-md shadow-sky-500/20'
                     : 'text-slate-600 dark:text-[#A0A0A0] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1A1A1A]'
                 }`}
               >
@@ -84,7 +91,7 @@ export default function Home() {
                 onClick={() => setActiveTab('utility')}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   activeTab === 'utility'
-                    ? 'bg-yellow-300 dark:bg-[#B673FF] text-slate-950 dark:text-white shadow-md border border-yellow-400 dark:border-[#B673FF]'
+                    ? 'bg-yellow-300 dark:bg-white text-slate-950 dark:text-[#1A1A1A] shadow-md border border-yellow-400 dark:border-white'
                     : 'text-slate-600 dark:text-[#A0A0A0] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1A1A1A]'
                 }`}
               >

@@ -13,76 +13,18 @@ import {
 
 const STORAGE_KEY = 'labxplore_autonomous_profile_v2';
 
-const INITIAL_TOPIC_MASTERY = {
-  Kinematics: { score: 62, successCount: 6, errorCount: 4, attempts: 10, lastUpdated: new Date().toISOString() },
-  'Ray Optics': { score: 88, successCount: 16, errorCount: 2, attempts: 18, lastUpdated: new Date().toISOString() },
-  Stoichiometry: { score: 54, successCount: 5, errorCount: 5, attempts: 10, lastUpdated: new Date().toISOString() },
-  Thermodynamics: { score: 76, successCount: 11, errorCount: 3, attempts: 14, lastUpdated: new Date().toISOString() },
-  'Acids and Bases': { score: 92, successCount: 20, errorCount: 1, attempts: 21, lastUpdated: new Date().toISOString() },
-  'Harmonic Motion': { score: 70, successCount: 8, errorCount: 3, attempts: 11, lastUpdated: new Date().toISOString() },
+const ZERO_TOPIC_MASTERY = CURRICULUM_TOPICS.reduce((acc, topic) => {
+  acc[topic] = { score: 0, successCount: 0, errorCount: 0, attempts: 0, lastUpdated: new Date().toISOString() };
+  return acc;
+}, {});
+
+const ZERO_QUIZ_STATS = {
+  totalQuestionsAnswered: 0,
+  correctCount: 0,
+  accuracy: 0,
 };
 
-const INITIAL_ERRORS = [
-  {
-    id: 'seed_err_1',
-    topic: 'Kinematics',
-    questionText: 'A ball thrown upwards has downward acceleration -g at apex',
-    pickedOption: 'Positive direction acceleration',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: 'seed_err_2',
-    topic: 'Kinematics',
-    questionText: 'Vector direction sign of velocity during freefall downward',
-    pickedOption: 'Positive sign',
-    timestamp: new Date(Date.now() - 1800000).toISOString(),
-  },
-  {
-    id: 'seed_err_3',
-    topic: 'Stoichiometry',
-    questionText: 'Balancing equation Al + O2 -> Al2O3 by changing subscript',
-    pickedOption: 'Change O2 subscript to 3',
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: 'seed_err_4',
-    topic: 'Stoichiometry',
-    questionText: 'Balancing coefficient placement for 2Mg + O2',
-    pickedOption: 'Mg2 + O2',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-  },
-];
-
-const INITIAL_LAB_EVALUATIONS = [
-  {
-    id: 'lab_optics_init',
-    topic: 'Ray Optics',
-    experimentName: 'Snell Law Refraction & Critical Angle Bench',
-    procedureScore: 94,
-    conceptScore: 90,
-    accuracyScore: 92,
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    link: '/physics',
-  },
-  {
-    id: 'lab_chem_init',
-    topic: 'Stoichiometry',
-    experimentName: 'Exothermic Neutralization & Gas Evolution',
-    procedureScore: 72,
-    conceptScore: 68,
-    accuracyScore: 70,
-    timestamp: new Date(Date.now() - 43200000).toISOString(),
-    link: '/chemistry?tab=drag-and-drop',
-  },
-];
-
-const INITIAL_QUIZ_STATS = {
-  totalQuestionsAnswered: 24,
-  correctCount: 18,
-  accuracy: 75,
-};
-
-function recomputeAll(topicsMastery, recentErrors, labEvaluations, quizStats, history = [], labRuns = 2) {
+function recomputeAll(topicsMastery, recentErrors, labEvaluations, quizStats, history = [], labRuns = 0) {
   const overall = calculateOverallProgressScore(topicsMastery, labEvaluations, quizStats);
   const weaknesses = detectWeaknessPatterns(recentErrors);
   const strengths = detectStrengthPatterns(topicsMastery, quizStats);
@@ -115,31 +57,29 @@ function getInitialState() {
       }
     }
   } catch (err) {
-    console.warn('[AutonomousProfileStore] Failed to load cached profile, fallback to seed:', err);
+    console.warn('[AutonomousProfileStore] Failed to load cached profile, initializing at zero:', err);
   }
 
   const baseHistory = [
-    { score: 68, timestamp: new Date(Date.now() - 86400000 * 3).toISOString() },
-    { score: 71, timestamp: new Date(Date.now() - 86400000 * 2).toISOString() },
-    { score: 74, timestamp: new Date(Date.now() - 86400000).toISOString() },
+    { score: 0, timestamp: new Date().toISOString() },
   ];
 
   const computed = recomputeAll(
-    INITIAL_TOPIC_MASTERY,
-    INITIAL_ERRORS,
-    INITIAL_LAB_EVALUATIONS,
-    INITIAL_QUIZ_STATS,
+    ZERO_TOPIC_MASTERY,
+    [],
+    [],
+    ZERO_QUIZ_STATS,
     baseHistory,
-    2
+    0
   );
 
   return {
-    topicsMastery: INITIAL_TOPIC_MASTERY,
-    recentErrors: INITIAL_ERRORS,
-    labEvaluations: INITIAL_LAB_EVALUATIONS,
-    quizStats: INITIAL_QUIZ_STATS,
+    topicsMastery: ZERO_TOPIC_MASTERY,
+    recentErrors: [],
+    labEvaluations: [],
+    quizStats: ZERO_QUIZ_STATS,
     history: baseHistory,
-    labRuns: 2,
+    labRuns: 0,
     ...computed,
     lastComputedAt: new Date().toISOString(),
   };
@@ -323,21 +263,91 @@ export const useAutonomousProfileStore = create((set, get) => ({
   },
 
   /**
+   * Synchronize autonomous intelligence state from verified database completions
+   */
+  syncFromCompletions: (completions = []) => {
+    set((state) => {
+      if (!Array.isArray(completions) || completions.length === 0) {
+        const fresh = getInitialState();
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+        return fresh;
+      }
+
+      const experiments = completions.filter((c) => c.kind === 'experiment' || c.kind === 'observation');
+      const quizzes = completions.filter((c) => c.kind === 'quiz' || c.kind === 'challenge');
+      const labRuns = experiments.length;
+
+      const labEvaluations = experiments.map((exp, idx) => ({
+        id: `lab_eval_${exp.id || idx}`,
+        topic: exp.ref?.includes('Optic') || exp.ref?.includes('Lens') || exp.ref?.includes('Projectile') ? 'Ray Optics' : 'Stoichiometry',
+        experimentName: exp.ref || 'Lab Experiment',
+        procedureScore: 85,
+        conceptScore: 85,
+        accuracyScore: 85,
+        timestamp: exp.completed_at || new Date().toISOString(),
+        link: exp.ref?.includes('Optic') || exp.ref?.includes('Projectile') ? '/physics' : '/chemistry?tab=drag-and-drop',
+      }));
+
+      const quizStats = {
+        totalQuestionsAnswered: quizzes.length * 5,
+        correctCount: Math.round(quizzes.length * 4),
+        accuracy: quizzes.length > 0 ? 80 : 0,
+      };
+
+      const computed = recomputeAll(
+        state.topicsMastery,
+        state.recentErrors,
+        labEvaluations,
+        quizStats,
+        state.history,
+        labRuns
+      );
+
+      const newState = {
+        ...state,
+        labEvaluations,
+        quizStats,
+        labRuns,
+        ...computed,
+        lastComputedAt: new Date().toISOString(),
+      };
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      } catch {}
+
+      return newState;
+    });
+  },
+
+  /**
    * Reset on user logout or session switch
    */
   resetProfile: () => {
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
     set(getInitialState());
   },
 }));
 
-// Listen for global auth signout event to guarantee no state leakage
+// Listen for global auth signout and user change events to guarantee no state leakage
 if (typeof window !== 'undefined') {
   window.addEventListener('labxplore:auth-signout', () => {
     try {
       useAutonomousProfileStore.getState().resetProfile();
     } catch (e) {
       console.warn('[AutonomousProfileStore] Reset error on signout:', e);
+    }
+  });
+
+  window.addEventListener('labxplore:user-changed', () => {
+    try {
+      useAutonomousProfileStore.getState().resetProfile();
+    } catch (e) {
+      console.warn('[AutonomousProfileStore] Reset error on user-changed:', e);
     }
   });
 }

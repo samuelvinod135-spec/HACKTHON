@@ -417,17 +417,17 @@ export default function Sidebar({ isOpen, onClose }) {
                       className={({ isActive }) =>
                         `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                           isActive
-                            ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-[#B673FF] shadow-xs'
+                            ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-white shadow-xs'
                             : 'text-slate-600 dark:text-[#A0A0A0] hover:bg-slate-100/70 dark:hover:bg-[#2D2D2D] hover:text-slate-900 dark:hover:text-white active:bg-sky-50 dark:active:bg-[#2D2D2D]'
                         }`
                       }
                     >
                       <div className="flex items-center gap-3">
-                        <Icon size={17} className={location.pathname === to ? 'text-sky-600 dark:text-[#B673FF]' : ''} />
+                        <Icon size={17} className={location.pathname === to ? 'text-sky-600 dark:text-white' : ''} />
                         <span>{t(tKey, label)}</span>
                       </div>
                       {badge && (
-                        <span className="rounded-full bg-yellow-300 dark:bg-[#1A1A1A] text-slate-900 dark:text-[#B673FF] dark:border dark:border-[#3D3D3D] px-2 py-0.5 text-[9px] font-black shadow-xs">
+                        <span className="rounded-full bg-yellow-300 dark:bg-[#1A1A1A] text-slate-900 dark:text-white dark:border dark:border-[#3D3D3D] px-2 py-0.5 text-[9px] font-black shadow-xs">
                           {badge}
                         </span>
                       )}
@@ -439,9 +439,9 @@ export default function Sidebar({ isOpen, onClose }) {
               {/* Hackathon Innovations Navigation (Omitted in Lite Mode for maximum performance) */}
               {!isLiteMode && (
                 <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-[#333333] pt-4">
-                  <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-[#B673FF] flex items-center justify-between">
+                  <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-white flex items-center justify-between">
                     <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
-                    <span className="bg-sky-100 dark:bg-[#1A1A1A] text-sky-700 dark:text-[#B673FF] dark:border dark:border-[#3D3D3D] px-1.5 py-0.2 rounded font-extrabold text-[8px]">
+                    <span className="bg-sky-100 dark:bg-[#1A1A1A] text-sky-700 dark:text-white dark:border dark:border-[#3D3D3D] px-1.5 py-0.2 rounded font-extrabold text-[8px]">
                       NEW
                     </span>
                   </div>
@@ -454,7 +454,7 @@ export default function Sidebar({ isOpen, onClose }) {
                       className={({ isActive }) =>
                         `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                           isActive
-                            ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-[#B673FF] shadow-xs'
+                            ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-white shadow-xs'
                             : 'text-slate-600 dark:text-[#A0A0A0] hover:bg-slate-100/70 dark:hover:bg-[#2D2D2D] hover:text-slate-900 dark:hover:text-white active:bg-sky-50 dark:active:bg-[#2D2D2D]'
                         }`
                       }
@@ -464,7 +464,7 @@ export default function Sidebar({ isOpen, onClose }) {
                         <span>{t(tKey, label)}</span>
                       </div>
                       {badge && (
-                        <span className="rounded bg-sky-50 dark:bg-[#1A1A1A] text-sky-600 dark:text-[#B673FF] border border-sky-200/80 dark:border-[#3D3D3D] px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                        <span className="rounded bg-sky-50 dark:bg-[#1A1A1A] text-sky-600 dark:text-white border border-sky-200/80 dark:border-[#3D3D3D] px-1.5 py-0.5 text-[9px] font-mono font-bold">
                           {badge}
                         </span>
                       )}
@@ -493,7 +493,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-[#B673FF] shadow-xs'
+                      ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-white shadow-xs'
                       : 'text-slate-500 dark:text-[#A0A0A0] hover:bg-slate-100/70 dark:hover:bg-[#2D2D2D] hover:text-slate-800 dark:hover:text-white active:bg-sky-50 dark:active:bg-[#2D2D2D]'
                   }`
                 }
@@ -561,7 +561,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
                       {name}
                     </p>
-                    <span className="text-[9px] font-black text-sky-800 dark:text-[#B673FF] bg-sky-50 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-sky-200 dark:border-[#3D3D3D]">
+                    <span className="text-[9px] font-black text-sky-800 dark:text-white bg-sky-50 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-sky-200 dark:border-[#3D3D3D]">
                       Stage {stageInfo.stage}
                     </span>
                   </div>
@@ -570,7 +570,7 @@ export default function Sidebar({ isOpen, onClose }) {
                   </p>
                   <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-[#1A1A1A] p-0.5 border border-sky-100 dark:border-[#3D3D3D]">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 dark:from-[#9A4EFF] dark:via-[#B673FF] dark:to-[#D4A5FF] transition-all duration-500"
+                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 dark:from-[#A0A0A0] dark:to-[#FFFFFF] transition-all duration-500"
                       style={{ width: `${xpPct}%` }}
                     />
                   </div>

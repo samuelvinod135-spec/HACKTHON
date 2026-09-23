@@ -322,9 +322,9 @@ export default function PhysicsCanvas({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // 1. Clear background - 100% theme aware (Deep OLED Dark in dark mode, crisp white in light mode)
+      // 1. Clear background - 100% theme aware (Deep Charcoal #1A1A1A in dark mode, crisp white in light mode)
       const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
-      ctx.fillStyle = isDarkTheme ? '#080d1a' : '#ffffff';
+      ctx.fillStyle = isDarkTheme ? '#1A1A1A' : '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
       // 2. Camera View Transform (Zoom & Pan)
@@ -710,7 +710,7 @@ function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1
   const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   ctx.save();
   ctx.strokeStyle = isDark
-    ? (snapToGrid ? 'rgba(71, 85, 105, 0.45)' : 'rgba(30, 41, 59, 0.35)')
+    ? (snapToGrid ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.06)')
     : (snapToGrid ? 'rgba(203, 213, 225, 0.4)' : 'rgba(226, 232, 240, 0.25)');
   ctx.lineWidth = 0.6 / zoom;
 
@@ -735,7 +735,7 @@ function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1
   }
 
   // Optical bench principal optical axis line (y = 350)
-  ctx.strokeStyle = isDark ? 'rgba(45, 212, 191, 0.65)' : 'rgba(20, 184, 166, 0.35)';
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(20, 184, 166, 0.35)';
   ctx.lineWidth = 1 / zoom;
   ctx.setLineDash([8 / zoom, 6 / zoom]);
   ctx.beginPath();
@@ -745,7 +745,7 @@ function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1
   ctx.setLineDash([]);
 
   // Coordinate axis origin accents
-  ctx.strokeStyle = isDark ? 'rgba(100, 116, 139, 0.65)' : 'rgba(148, 163, 184, 0.5)';
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(148, 163, 184, 0.5)';
   ctx.lineWidth = 1 / zoom;
   ctx.beginPath();
   ctx.moveTo(0, startY);

@@ -52,21 +52,23 @@ export default function MasteryDeltaView({ className = '' }) {
             .eq('user_id', user.id)
             .order('recorded_at', { ascending: false });
 
-          if (!error && Array.isArray(dbDeltas) && dbDeltas.length > 0) {
-            const formatted = dbDeltas.map((d) => ({
-              chapter: d.chapter_id,
-              pre_score: Number(d.pre_test_score),
-              post_score: Number(d.post_test_score),
-              delta: Number(d.delta_improvement || d.post_test_score - d.pre_test_score),
-              category: 'Curriculum',
-            }));
-            setData(formatted);
+            if (dbDeltas && dbDeltas.length > 0) {
+              const formatted = dbDeltas.map((d) => ({
+                chapter: d.chapter_id,
+                pre_score: Number(d.pre_test_score),
+                post_score: Number(d.post_test_score),
+                delta: Number(d.delta_improvement || d.post_test_score - d.pre_test_score),
+                category: 'Curriculum',
+              }));
+              setData(formatted);
+            } else {
+              setData([]);
+            }
           }
+        } catch (err) {
+          // Safe fallback
         }
-      } catch (err) {
-        // Safe fallback to default demonstration telemetry
       }
-    }
     loadDeltas();
   }, []);
 
@@ -77,7 +79,7 @@ export default function MasteryDeltaView({ className = '' }) {
   const avgPost = data.length > 0 ? (data.reduce((a, c) => a + c.post_score, 0) / data.length).toFixed(1) : 0;
 
   // Best performing topic
-  const highestGainTopic = [...data].sort((a, b) => b.delta - a.delta)[0] || data[0];
+  const highestGainTopic = [...data].sort((a, b) => b.delta - a.delta)[0] || { chapter: 'No modules completed yet', pre_score: 0, post_score: 0, delta: 0 };
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -85,7 +87,7 @@ export default function MasteryDeltaView({ className = '' }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-[#2D2D2D] dark:text-[#B673FF] shadow-xs">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-[#2D2D2D] dark:text-white shadow-xs">
               <TrendingUp size={18} />
             </span>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -131,28 +133,28 @@ export default function MasteryDeltaView({ className = '' }) {
         {/* Card 1: Average Mastery Growth */}
         <div className="clay-card relative flex flex-col justify-between p-5 bg-gradient-to-br from-emerald-50/50 via-white to-sky-50/40 dark:from-[#2D2D2D] dark:via-[#2D2D2D] dark:to-[#2D2D2D] rounded-3xl border border-emerald-100 dark:border-[#3D3D3D] shadow-sm overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 dark:text-[#B673FF]">
+            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 dark:text-white">
               Average Mastery Growth
             </span>
-            <span className="flex items-center gap-1 rounded-full bg-emerald-100/90 text-emerald-800 dark:bg-[#1A1A1A] dark:text-[#B673FF] px-2 py-0.5 text-[10px] font-black">
+            <span className="flex items-center gap-1 rounded-full bg-emerald-100/90 text-emerald-800 dark:bg-[#1A1A1A] dark:text-white px-2 py-0.5 text-[10px] font-black">
               <Zap size={11} /> Verified
             </span>
           </div>
           <div className="my-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black tracking-tight text-emerald-600 dark:text-[#B673FF]">
+              <span className="text-3xl sm:text-4xl font-black tracking-tight text-emerald-600 dark:text-white">
                 +{avgGrowth}%
               </span>
               <span className="text-xs font-bold text-slate-400 dark:text-[#A0A0A0]">gain per module</span>
             </div>
             <p className="mt-1 text-[11px] font-medium text-slate-500 dark:text-[#A0A0A0]">
               Pre-test baseline avg <span className="font-bold text-slate-700 dark:text-white">{avgPre}%</span> rose to{' '}
-              <span className="font-bold text-emerald-600 dark:text-[#B673FF]">{avgPost}%</span>.
+              <span className="font-bold text-emerald-600 dark:text-white">{avgPost}%</span>.
             </p>
           </div>
           <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-[#1A1A1A] overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 dark:from-[#9A4EFF] dark:to-[#B673FF] transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 dark:from-[#A0A0A0] dark:to-[#FFFFFF] transition-all duration-500"
               style={{ width: `${Math.min(100, Math.max(10, Number(avgGrowth) * 2.5))}%` }}
             />
           </div>
@@ -161,10 +163,10 @@ export default function MasteryDeltaView({ className = '' }) {
         {/* Card 2: Peak Improvement Topic */}
         <div className="clay-card relative flex flex-col justify-between p-5 bg-white dark:bg-[#2D2D2D] rounded-3xl border border-sky-100 dark:border-[#3D3D3D] shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-sky-800 dark:text-[#B673FF]">
+            <span className="text-[11px] font-black uppercase tracking-wider text-sky-800 dark:text-white">
               Highest Conceptual Leap
             </span>
-            <span className="flex items-center gap-1 rounded-full bg-sky-100 text-sky-800 dark:bg-[#1A1A1A] dark:text-[#B673FF] px-2 py-0.5 text-[10px] font-black">
+            <span className="flex items-center gap-1 rounded-full bg-sky-100 text-sky-800 dark:bg-[#1A1A1A] dark:text-white px-2 py-0.5 text-[10px] font-black">
               <Sparkles size={11} /> Peak Delta
             </span>
           </div>
@@ -176,7 +178,7 @@ export default function MasteryDeltaView({ className = '' }) {
               <span className="text-xs font-mono font-black text-slate-400 dark:text-[#A0A0A0]">
                 {highestGainTopic.pre_score}% → {highestGainTopic.post_score}%
               </span>
-              <span className="rounded-md bg-emerald-50 text-emerald-700 dark:bg-[#1A1A1A] dark:text-[#B673FF] px-1.5 py-0.5 text-[10px] font-black border border-emerald-200 dark:border-[#3D3D3D]">
+              <span className="rounded-md bg-emerald-50 text-emerald-700 dark:bg-[#1A1A1A] dark:text-white px-1.5 py-0.5 text-[10px] font-black border border-emerald-200 dark:border-[#3D3D3D]">
                 +{highestGainTopic.delta}%
               </span>
             </div>
@@ -225,8 +227,8 @@ export default function MasteryDeltaView({ className = '' }) {
             <span className="flex items-center gap-1.5 text-slate-500 dark:text-[#A0A0A0]">
               <span className="h-3 w-3 rounded bg-slate-300 dark:bg-[#3D3D3D] inline-block" /> Pre-Test Score
             </span>
-            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-[#B673FF]">
-              <span className="h-3 w-3 rounded bg-emerald-500 dark:bg-[#B673FF] inline-block" /> Post-Test Score
+            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-white">
+              <span className="h-3 w-3 rounded bg-emerald-500 dark:bg-white inline-block" /> Post-Test Score
             </span>
           </div>
         </div>
@@ -251,7 +253,7 @@ export default function MasteryDeltaView({ className = '' }) {
                 />
                 <Tooltip content={<CustomDeltaTooltip />} />
                 <Bar dataKey="pre_score" name="Pre-Test" fill={isDark ? '#3D3D3D' : '#cbd5e1'} radius={[6, 6, 0, 0]} maxBarSize={32} />
-                <Bar dataKey="post_score" name="Post-Test" fill={isDark ? '#B673FF' : '#10b981'} radius={[6, 6, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="post_score" name="Post-Test" fill={isDark ? '#FFFFFF' : '#10b981'} radius={[6, 6, 0, 0]} maxBarSize={32} />
               </BarChart>
             ) : (
               <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -283,9 +285,9 @@ export default function MasteryDeltaView({ className = '' }) {
                   type="monotone"
                   dataKey="post_score"
                   name="Post-Test"
-                  stroke={isDark ? '#B673FF' : '#10b981'}
+                  stroke={isDark ? '#FFFFFF' : '#10b981'}
                   strokeWidth={3}
-                  dot={{ fill: isDark ? '#B673FF' : '#10b981', r: 5 }}
+                  dot={{ fill: isDark ? '#FFFFFF' : '#10b981', r: 5 }}
                 />
               </LineChart>
             )}
@@ -310,13 +312,13 @@ function CustomDeltaTooltip({ active, payload, label }) {
             <span>Pre-Test Diagnostic:</span>
             <span className="font-mono font-bold text-slate-700 dark:text-white">{dataObj.pre_score}%</span>
           </div>
-          <div className="flex items-center justify-between gap-4 text-emerald-700 dark:text-[#B673FF] font-bold">
+          <div className="flex items-center justify-between gap-4 text-emerald-700 dark:text-white font-bold">
             <span>Post-Test Achievement:</span>
             <span className="font-mono">{dataObj.post_score}%</span>
           </div>
-          <div className="flex items-center justify-between gap-4 pt-1 border-t border-slate-100 dark:border-[#3D3D3D] text-[11px] font-black text-sky-700 dark:text-[#B673FF]">
+          <div className="flex items-center justify-between gap-4 pt-1 border-t border-slate-100 dark:border-[#3D3D3D] text-[11px] font-black text-sky-700 dark:text-white">
             <span>Mastery Delta:</span>
-            <span className="rounded bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-[#1A1A1A] dark:text-[#B673FF] dark:border-[#3D3D3D] px-1.5 py-0.2">
+            <span className="rounded bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-[#1A1A1A] dark:text-white dark:border-[#3D3D3D] px-1.5 py-0.2">
               +{dataObj.delta}%
             </span>
           </div>

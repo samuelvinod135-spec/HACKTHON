@@ -134,7 +134,7 @@ export function initDb() {
     ).run('1');
   } else {
     // Ensure default row 1 starts with a fresh 0 XP / Level 1 profile
-    db.prepare("UPDATE student SET name = 'Student Scholar', level = 1, xp = 0, xp_for_level = 1000 WHERE id = '1' AND xp > 0").run();
+    db.prepare("UPDATE student SET name = 'Student Scholar', level = 1, xp = 0, xp_for_level = 1000 WHERE id = '1'").run();
   }
 
   seedAchievements();

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { api } from '../api.js';
 import { supabase } from '../supabase.js';
 import { useAuth } from './AuthContext.jsx';
+import { useAutonomousProfileStore } from '../store/useAutonomousProfileStore.js';
 
 const ProgressContext = createContext(null);
 
@@ -29,6 +30,9 @@ export function ProgressProvider({ children }) {
       );
       setAchievements(s?.achievements || a || []);
       setCompletions(c || []);
+      try {
+        useAutonomousProfileStore.getState().syncFromCompletions(c || []);
+      } catch {}
     } catch (err) {
       console.warn('ProgressContext refresh fallback:', err);
       setStudent((prev) => prev || {
@@ -66,6 +70,9 @@ export function ProgressProvider({ children }) {
       setStudent({ name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
       setAchievements([]);
       setCompletions([]);
+      try {
+        useAutonomousProfileStore.getState().resetProfile();
+      } catch {}
     };
 
     if (typeof window !== 'undefined') {
