@@ -98,6 +98,13 @@ export function initDb() {
     CREATE INDEX IF NOT EXISTS idx_qb_chapter ON question_bank(chapter);
     CREATE INDEX IF NOT EXISTS idx_qb_exam_level ON question_bank(exam_level);
     CREATE INDEX IF NOT EXISTS idx_qb_subject ON question_bank(subject);
+
+    CREATE TABLE IF NOT EXISTS user_achievement (
+      user_id TEXT NOT NULL,
+      slug TEXT NOT NULL,
+      unlocked_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, slug)
+    );
   `);
 
   // Migrate completion and saved_experiment tables to support multi-tenant user_id
@@ -126,7 +133,8 @@ export function initDb() {
        VALUES (?, 'Student Scholar', 1, 0, 1000)`
     ).run('1');
   } else {
-    db.prepare("UPDATE student SET name = 'Student Scholar' WHERE name LIKE '%Alex%'").run();
+    // Ensure default row 1 starts with a fresh 0 XP / Level 1 profile
+    db.prepare("UPDATE student SET name = 'Student Scholar', level = 1, xp = 0, xp_for_level = 1000 WHERE id = '1' AND xp > 0").run();
   }
 
   seedAchievements();
@@ -163,13 +171,26 @@ export function getStudent(userId = '1') {
   return row || { id: uid, name: 'Student Scholar', level: 1, xp: 0, xp_for_level: 1000 };
 }
 
-export function getAchievements() {
-  return db.prepare('SELECT * FROM achievement ORDER BY id').all();
+export function getAchievements(userId = '1') {
+  const uid = String(userId || '1');
+  let unlockedSlugs = new Set();
+  try {
+    const rows = db.prepare('SELECT slug FROM user_achievement WHERE user_id = ?').all(uid);
+    unlockedSlugs = new Set(rows.map((r) => r.slug));
+  } catch (err) {
+    console.warn('user_achievement query note:', err.message);
+  }
+
+  return ACHIEVEMENTS.map((a, idx) => ({
+    id: idx + 1,
+    ...a,
+    unlocked: unlockedSlugs.has(a.slug) ? 1 : 0,
+  }));
 }
 
 export function getCompletions(userId = '1') {
   const uid = String(userId || '1');
-  return db.prepare("SELECT * FROM completion WHERE user_id = ? OR user_id = '1' ORDER BY completed_at").all(uid);
+  return db.prepare("SELECT * FROM completion WHERE user_id = ? ORDER BY completed_at").all(uid);
 }
 
 export function addXp(userId = '1', amount = 0) {
@@ -217,9 +238,14 @@ export function recordCompletion(kind, ref, xp = 0, userId = '1') {
   };
 }
 
-export function unlockAchievement(slug) {
-  db.prepare('UPDATE achievement SET unlocked = 1 WHERE slug = ?').run(slug);
-  return getAchievements();
+export function unlockAchievement(slug, userId = '1') {
+  const uid = String(userId || '1');
+  try {
+    db.prepare('INSERT OR IGNORE INTO user_achievement (user_id, slug) VALUES (?, ?)').run(uid, slug);
+  } catch (err) {
+    console.warn('unlockAchievement error:', err.message);
+  }
+  return getAchievements(uid);
 }
 
 export function countLabRuns() {
@@ -258,7 +284,7 @@ export function updateStudent(userId = '1', { name, level, xp, xp_for_level } = 
 
 export function getSavedExperiments(userId = '1') {
   const uid = String(userId || '1');
-  return db.prepare("SELECT * FROM saved_experiment WHERE user_id = ? OR user_id = '1' ORDER BY created_at DESC").all(uid);
+  return db.prepare("SELECT * FROM saved_experiment WHERE user_id = ? ORDER BY created_at DESC").all(uid);
 }
 
 export function saveExperiment({ id, experiment_id, title, discipline, link } = {}, userId = '1') {
@@ -280,8 +306,33 @@ export function saveExperiment({ id, experiment_id, title, discipline, link } = 
 
 export function unsaveExperiment(id, userId = '1') {
   const uid = String(userId || '1');
-  db.prepare("DELETE FROM saved_experiment WHERE (id = ? OR experiment_id = ?) AND (user_id = ? OR user_id = '1')").run(id, id, uid);
+  db.prepare("DELETE FROM saved_experiment WHERE (id = ? OR experiment_id = ?) AND user_id = ?").run(id, id, uid);
   return getSavedExperiments(uid);
+}
+
+export function resetUserData(userId = '1') {
+  const uid = String(userId || '1');
+  try {
+    db.prepare('DELETE FROM completion WHERE user_id = ?').run(uid);
+    db.prepare('DELETE FROM saved_experiment WHERE user_id = ?').run(uid);
+    db.prepare('DELETE FROM user_achievement WHERE user_id = ?').run(uid);
+    db.prepare(
+      `INSERT INTO student (id, name, level, xp, xp_for_level)
+       VALUES (?, 'Student Scholar', 1, 0, 1000)
+       ON CONFLICT(id) DO UPDATE SET
+         level = 1,
+         xp = 0,
+         xp_for_level = 1000`
+    ).run(uid);
+  } catch (err) {
+    console.warn('resetUserData error:', err.message);
+  }
+  return {
+    student: getStudent(uid),
+    achievements: getAchievements(uid),
+    completions: [],
+    saved: [],
+  };
 }
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://htgsiuqtlfdebxepsslh.supabase.co';

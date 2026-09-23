@@ -41,7 +41,7 @@ export function notifyNetworkFallback(reason = 'latency') {
 }
 
 // Dynamically extracts active user id for multi-tenant SQLite headers
-function getActiveUserId() {
+export function getActiveUserId() {
   try {
     if (typeof localStorage !== 'undefined') {
       for (let i = 0; i < localStorage.length; i++) {
@@ -57,6 +57,37 @@ function getActiveUserId() {
     }
   } catch {}
   return '1';
+}
+
+/**
+ * Completely purges cached user state and student data from browser localStorage.
+ */
+export function purgeUserData(userId) {
+  try {
+    const uid = userId || getActiveUserId();
+    const keysToRemove = [
+      `labxplore_local_student_${uid}`,
+      `labxplore_local_achievements_${uid}`,
+      `labxplore_local_completions_${uid}`,
+      `labxplore_saved_experiments_${uid}`,
+      'labxplore_local_student',
+      'labxplore_local_achievements',
+      'labxplore_local_completions',
+      'labxplore_saved_experiments',
+      'labxplore_completed_tasks',
+      'labxplore_mock_test_results',
+      'labxplore_pomodoro_completed',
+      'labxplore_pomodoro_focus_min',
+      'labxplore_autonomous_profile_v2',
+      'labxplore_learning_style_weights',
+      'labxplore_cached_user',
+    ];
+    keysToRemove.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+      } catch {}
+    });
+  } catch {}
 }
 
 // Safe localStorage helper
@@ -77,9 +108,10 @@ function setLocal(key, val) {
 
 async function request(path, options = {}, timeoutMs = 10000) {
   try {
+    const uid = getActiveUserId();
     const headers = {
       'Content-Type': 'application/json',
-      'x-user-id': getActiveUserId(),
+      'x-user-id': uid,
       ...(options.headers || {}),
     };
     const res = await fetchWithTimeout(
@@ -102,9 +134,10 @@ async function request(path, options = {}, timeoutMs = 10000) {
     }
     return await res.json();
   } catch (err) {
+    const uid = getActiveUserId();
     // Graceful offline & static-deployment fallbacks
     if (path === '/student') {
-      const savedStudent = getLocal('labxplore_local_student', {
+      const savedStudent = getLocal(`labxplore_local_student_${uid}`, {
         name: 'Scholar',
         level: 1,
         xp: 0,
@@ -114,15 +147,15 @@ async function request(path, options = {}, timeoutMs = 10000) {
     }
 
     if (path === '/achievements') {
-      return getLocal('labxplore_local_achievements', []);
+      return getLocal(`labxplore_local_achievements_${uid}`, []);
     }
 
     if (path === '/completions') {
-      return getLocal('labxplore_local_completions', []);
+      return getLocal(`labxplore_local_completions_${uid}`, []);
     }
 
     if (path === '/saved') {
-      return getLocal('labxplore_saved_experiments', []);
+      return getLocal(`labxplore_saved_experiments_${uid}`, []);
     }
 
     throw err;
@@ -133,9 +166,10 @@ export const api = {
   getStudent: () => request('/student'),
   
   updateStudent: (payload) => {
+    const uid = getActiveUserId();
     try {
-      const curr = getLocal('labxplore_local_student', { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
-      setLocal('labxplore_local_student', { ...curr, ...payload });
+      const curr = getLocal(`labxplore_local_student_${uid}`, { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
+      setLocal(`labxplore_local_student_${uid}`, { ...curr, ...payload });
     } catch {}
     return request('/student', {
       method: 'PUT',
@@ -143,27 +177,37 @@ export const api = {
     }).catch(() => ({ student: payload }));
   },
 
+  resetStudentData: () => {
+    purgeUserData();
+    return request('/student/reset', { method: 'POST' }).catch(() => ({
+      student: { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 },
+      achievements: [],
+      completions: [],
+    }));
+  },
+
   getAchievements: () => request('/achievements'),
   
   getCompletions: () => request('/completions'),
   
   recordCompletion: (payload) => {
+    const uid = getActiveUserId();
     try {
-      const completions = getLocal('labxplore_local_completions', []);
+      const completions = getLocal(`labxplore_local_completions_${uid}`, []);
       completions.push({ id: `comp-${Date.now()}`, ...payload, timestamp: new Date().toISOString() });
-      setLocal('labxplore_local_completions', completions);
+      setLocal(`labxplore_local_completions_${uid}`, completions);
 
-      const student = getLocal('labxplore_local_student', { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
+      const student = getLocal(`labxplore_local_student_${uid}`, { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
       student.xp = (student.xp || 0) + (payload.xp || 0);
-      setLocal('labxplore_local_student', student);
+      setLocal(`labxplore_local_student_${uid}`, student);
     } catch {}
     return request('/completions', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(() => ({
-      student: getLocal('labxplore_local_student'),
-      achievements: getLocal('labxplore_local_achievements', []),
-      completions: getLocal('labxplore_local_completions', []),
+      student: getLocal(`labxplore_local_student_${uid}`),
+      achievements: getLocal(`labxplore_local_achievements_${uid}`, []),
+      completions: getLocal(`labxplore_local_completions_${uid}`, []),
     }));
   },
 
@@ -171,10 +215,11 @@ export const api = {
     request(`/achievements/${slug}/unlock`, { method: 'POST' }).catch(() => ({ unlocked: slug })),
 
   addXp: (amount) => {
+    const uid = getActiveUserId();
     try {
-      const student = getLocal('labxplore_local_student', { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
+      const student = getLocal(`labxplore_local_student_${uid}`, { name: 'Scholar', level: 1, xp: 0, xp_for_level: 1000 });
       student.xp = (student.xp || 0) + (amount || 0);
-      setLocal('labxplore_local_student', student);
+      setLocal(`labxplore_local_student_${uid}`, student);
     } catch {}
     return request('/xp', { method: 'POST', body: JSON.stringify({ amount }) }).catch(() => ({ xp: amount }));
   },

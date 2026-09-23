@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { X, Sparkles, ArrowRight, Search, Zap, Compass, Atom, RotateCcw } from 'lucide-react';
 import {
   ALL_PHYSICS_EXPERIMENTS,
@@ -12,16 +12,17 @@ const PAGE_SIZE = 36;
 
 export default function PresetsModal({ isOpen, onClose, onSelectPreset }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearch = useDeferredValue(searchQuery);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const totalAllCount = useMemo(() => getPhysicsExperimentCount(), []);
 
-  // Filter and search experiments
+  // Filter and search experiments with non-blocking deferred query
   const filteredExperiments = useMemo(() => {
-    const res = searchPhysicsExperiments(searchQuery, selectedCategory, 500, 0);
+    const res = searchPhysicsExperiments(deferredSearch, selectedCategory, 500, 0);
     return res.experiments;
-  }, [searchQuery, selectedCategory]);
+  }, [deferredSearch, selectedCategory]);
 
   const displayedExperiments = useMemo(() => {
     return filteredExperiments.slice(0, visibleCount);

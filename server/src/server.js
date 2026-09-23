@@ -23,6 +23,7 @@ import {
   getSavedExperiments,
   saveExperiment,
   unsaveExperiment,
+  resetUserData,
   getQuestions,
   getQuestionBankChapters,
   getQuestionBankStats,
@@ -82,13 +83,19 @@ app.get(['/health', '/api/health'], (_req, res) => {
 
 app.get('/api/student', (req, res) => {
   const userId = req.headers['x-user-id'] || req.query.userId || '1';
-  res.json({ student: getStudent(userId), achievements: getAchievements() });
+  res.json({ student: getStudent(userId), achievements: getAchievements(userId) });
 });
 
 app.put('/api/student', (req, res) => {
   const userId = req.headers['x-user-id'] || req.body?.userId || req.body?.id || '1';
   const updated = updateStudent(userId, req.body || {});
   res.json({ student: updated });
+});
+
+app.post('/api/student/reset', (req, res) => {
+  const userId = req.headers['x-user-id'] || req.body?.userId || req.body?.id || '1';
+  const result = resetUserData(userId);
+  res.json(result);
 });
 
 app.get('/api/saved', (req, res) => {
@@ -120,9 +127,10 @@ app.delete('/api/saved/:id', (req, res) => {
   }
 });
 
-app.get('/api/achievements', (_req, res) => {
+app.get('/api/achievements', (req, res) => {
   try {
-    res.json(getAchievements());
+    const userId = req.headers['x-user-id'] || req.query.userId || '1';
+    res.json(getAchievements(userId));
   } catch (err) {
     res.status(500).json({ error: 'Failed to retrieve achievements' });
   }
@@ -146,11 +154,11 @@ app.post('/api/completions', (req, res) => {
     }
     recordCompletion(kind, ref, Number(xp) || 0, userId);
     if (Array.isArray(achievements)) {
-      for (const slug of achievements) unlockAchievement(slug);
+      for (const slug of achievements) unlockAchievement(slug, userId);
     }
     res.json({
       student: getStudent(userId),
-      achievements: getAchievements(),
+      achievements: getAchievements(userId),
       completions: getCompletions(userId),
     });
   } catch (err) {
@@ -160,7 +168,8 @@ app.post('/api/completions', (req, res) => {
 
 app.post('/api/achievements/:slug/unlock', (req, res) => {
   try {
-    res.json(unlockAchievement(req.params.slug));
+    const userId = req.headers['x-user-id'] || req.body?.userId || '1';
+    res.json(unlockAchievement(req.params.slug, userId));
   } catch (err) {
     res.status(500).json({ error: 'Failed to unlock achievement' });
   }

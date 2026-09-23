@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import {
   FlaskConical,
   Search,
@@ -17,19 +17,40 @@ import {
 } from 'lucide-react';
 
 import ChemistryDashboard from './ChemistryDashboard.jsx';
-import ReactionLibraryView from './ReactionLibraryView.jsx';
 import VirtualLabWorkspace from './VirtualLabWorkspace.jsx';
-import ReactionSimulatorView from './ReactionSimulatorView.jsx';
-import EquationBalancerView from './EquationBalancerView.jsx';
-import NamedReactionsView from './NamedReactionsView.jsx';
-import ReactionGraphView from './ReactionGraphView.jsx';
-import MoleculeExplorerView from './MoleculeExplorerView.jsx';
-import ExperimentLibraryView from './ExperimentLibraryView.jsx';
-import ReactionQuizView from './ReactionQuizView.jsx';
-import ReactionFlashcardView from './ReactionFlashcardView.jsx';
-import SavedProjectsModal from './SavedProjectsModal.jsx';
-import AiChemistryAssistantDrawer from './AiChemistryAssistantDrawer.jsx';
 import DragDropChemistryWorkspace from '../DragDropChemistryWorkspace.jsx';
+
+// High-speed lazy loading for secondary chemistry tab views
+const ReactionLibraryView = lazy(() => import('./ReactionLibraryView.jsx'));
+const ReactionSimulatorView = lazy(() => import('./ReactionSimulatorView.jsx'));
+const EquationBalancerView = lazy(() => import('./EquationBalancerView.jsx'));
+const NamedReactionsView = lazy(() => import('./NamedReactionsView.jsx'));
+const ReactionGraphView = lazy(() => import('./ReactionGraphView.jsx'));
+const MoleculeExplorerView = lazy(() => import('./MoleculeExplorerView.jsx'));
+const ExperimentLibraryView = lazy(() => import('./ExperimentLibraryView.jsx'));
+const ReactionQuizView = lazy(() => import('./ReactionQuizView.jsx'));
+const ReactionFlashcardView = lazy(() => import('./ReactionFlashcardView.jsx'));
+const SavedProjectsModal = lazy(() => import('./SavedProjectsModal.jsx'));
+const AiChemistryAssistantDrawer = lazy(() => import('./AiChemistryAssistantDrawer.jsx'));
+
+function ChemistryTabSkeleton() {
+  return (
+    <div className="w-full rounded-3xl border border-sky-100 bg-white p-6 shadow-xs animate-pulse">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-10 w-10 rounded-2xl bg-sky-100" />
+        <div className="space-y-2">
+          <div className="h-4 w-48 rounded-md bg-slate-200" />
+          <div className="h-3 w-64 rounded-md bg-slate-100" />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="h-32 rounded-2xl bg-slate-100" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 import {
   getChemistryReactionCount,
@@ -166,81 +187,87 @@ export default function ChemistryHub({ initialTab = 'dashboard' }) {
         </div>
       </div>
 
-      {/* Main View Router */}
+      {/* Main View Router with Instant Skeleton Transition */}
       <div className="w-full">
-        {activeTab === 'dashboard' && (
-          <ChemistryDashboard
-            onNavigate={handleNavigate}
-            stats={{
-              reactions: reactionCount,
-              experiments: experimentsCount,
-              named: namedCount,
-              molecules: moleculesCount
-            }}
-          />
-        )}
+        <Suspense fallback={<ChemistryTabSkeleton />}>
+          {activeTab === 'dashboard' && (
+            <ChemistryDashboard
+              onNavigate={handleNavigate}
+              stats={{
+                reactions: reactionCount,
+                experiments: experimentsCount,
+                named: namedCount,
+                molecules: moleculesCount
+              }}
+            />
+          )}
 
-        {activeTab === 'lab' && (
-          <VirtualLabWorkspace initialPreset={activePreset} />
-        )}
+          {activeTab === 'lab' && (
+            <VirtualLabWorkspace initialPreset={activePreset} />
+          )}
 
-        {activeTab === 'library' && (
-          <ReactionLibraryView
-            onRunInLab={handleRunInLab}
-            onAddToWorkspace={handleAddToWorkspace}
-            initialFilters={libraryFilters}
-          />
-        )}
+          {activeTab === 'library' && (
+            <ReactionLibraryView
+              onRunInLab={handleRunInLab}
+              onAddToWorkspace={handleAddToWorkspace}
+              initialFilters={libraryFilters}
+            />
+          )}
 
-        {activeTab === 'workspace' && (
-          <DragDropChemistryWorkspace initialReaction={activePreset} />
-        )}
+          {activeTab === 'workspace' && (
+            <DragDropChemistryWorkspace initialReaction={activePreset} />
+          )}
 
-        {activeTab === 'simulator' && (
-          <ReactionSimulatorView onTransferToLab={handleRunInLab} />
-        )}
+          {activeTab === 'simulator' && (
+            <ReactionSimulatorView onTransferToLab={handleRunInLab} />
+          )}
 
-        {activeTab === 'balancer' && (
-          <EquationBalancerView />
-        )}
+          {activeTab === 'balancer' && (
+            <EquationBalancerView />
+          )}
 
-        {activeTab === 'named' && (
-          <NamedReactionsView onRunInLab={handleRunInLab} />
-        )}
+          {activeTab === 'named' && (
+            <NamedReactionsView onRunInLab={handleRunInLab} />
+          )}
 
-        {activeTab === 'synthesis' && (
-          <ReactionGraphView onRunInLab={handleRunInLab} />
-        )}
+          {activeTab === 'synthesis' && (
+            <ReactionGraphView onRunInLab={handleRunInLab} />
+          )}
 
-        {activeTab === 'molecules' && (
-          <MoleculeExplorerView />
-        )}
+          {activeTab === 'molecules' && (
+            <MoleculeExplorerView />
+          )}
 
-        {activeTab === 'experiments' && (
-          <ExperimentLibraryView onLaunchInLab={handleRunInLab} />
-        )}
+          {activeTab === 'experiments' && (
+            <ExperimentLibraryView onLaunchInLab={handleRunInLab} />
+          )}
 
-        {activeTab === 'quiz' && (
-          <ReactionQuizView />
-        )}
+          {activeTab === 'quiz' && (
+            <ReactionQuizView />
+          )}
 
-        {activeTab === 'flashcards' && (
-          <ReactionFlashcardView />
-        )}
+          {activeTab === 'flashcards' && (
+            <ReactionFlashcardView />
+          )}
+
+          {/* Persistent AI Chemistry Tutor Drawer */}
+          {isAiDrawerOpen && (
+            <AiChemistryAssistantDrawer
+              isOpen={isAiDrawerOpen}
+              onClose={() => setIsAiDrawerOpen(false)}
+            />
+          )}
+
+          {/* Saved Projects Modal */}
+          {isSavedModalOpen && (
+            <SavedProjectsModal
+              isOpen={isSavedModalOpen}
+              onClose={() => setIsSavedModalOpen(false)}
+              onLoadProject={handleLoadSavedProject}
+            />
+          )}
+        </Suspense>
       </div>
-
-      {/* Persistent AI Chemistry Tutor Drawer */}
-      <AiChemistryAssistantDrawer
-        isOpen={isAiDrawerOpen}
-        onClose={() => setIsAiDrawerOpen(false)}
-      />
-
-      {/* Saved Projects Modal */}
-      <SavedProjectsModal
-        isOpen={isSavedModalOpen}
-        onClose={() => setIsSavedModalOpen(false)}
-        onLoadProject={handleLoadSavedProject}
-      />
     </div>
   );
 }

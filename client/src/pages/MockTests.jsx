@@ -157,23 +157,26 @@ export default function MockTests() {
   };
 
   // -------------------------------------------------------------
-  // SUPABASE 50-Q MOCK TEST HANDLERS
+  // -------------------------------------------------------------
+  // SUPABASE & BETTER-SQLITE3 50-Q MOCK TEST PIPELINE
   // -------------------------------------------------------------
   const handleStartQbTest = async () => {
     setQbLoading(true);
     setQbError(null);
-    sounds.playSimStart();
+    try {
+      sounds?.playSimStart?.();
+    } catch {}
 
     try {
-      // Direct query to Supabase: Fetch 50 random questions where exam_level = :examLevel
+      // Direct query to local better-sqlite3 edge tier with Supabase fallback
       const questions = await fetchMockTestQuestions({
         examLevel,
         limit: 50,
         subject: selectedSubject === 'All' ? undefined : selectedSubject,
       });
 
-      if (!questions || questions.length === 0) {
-        throw new Error(`No questions returned from Supabase for exam_level = '${examLevel}'.`);
+      if (!questions || !Array.isArray(questions) || questions.length === 0) {
+        throw new Error(`Could not retrieve questions for examination level '${examLevel}'. Please select another subject or difficulty.`);
       }
 
       setQbQuestions(questions);
@@ -184,12 +187,19 @@ export default function MockTests() {
       setShowSubmitModal(false);
       setPhase('QB_TESTING');
     } catch (err) {
-      console.error('Supabase Mock Test query error:', err);
+      console.error('Mock Test fetch error:', err);
       setQbError(err.message || 'Failed to query Question Bank.');
     } finally {
       setQbLoading(false);
     }
   };
+
+  // Auto-recovery: if in testing phase but questions haven't populated yet, fetch immediately
+  useEffect(() => {
+    if (phase === 'QB_TESTING' && (!qbQuestions || qbQuestions.length === 0) && !qbLoading && !qbError) {
+      handleStartQbTest();
+    }
+  }, [phase, qbQuestions, qbLoading, qbError]);
 
   const handleSelectQbAnswer = (optionKey) => {
     sounds.playClick();

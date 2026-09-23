@@ -1,37 +1,49 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ProgressProvider } from './context/ProgressContext.jsx';
 import { PerformanceProvider } from './context/PerformanceContext.jsx';
 import { LanguageProvider } from './context/LanguageContext.jsx';
 import Layout from './components/Layout.jsx';
-import Landing from './pages/Landing.jsx';
-import Login from './pages/Login.jsx';
-import Signup from './pages/Signup.jsx';
-import Home from './pages/Home.jsx';
-import PhysicsLab from './pages/PhysicsLab.jsx';
-import ChemistryLab from './pages/ChemistryLab.jsx';
-import Quizzes from './pages/Quizzes.jsx';
-import DailyChallenge from './pages/DailyChallenge.jsx';
-import MockTests from './pages/MockTests.jsx';
-import Progress from './pages/Progress.jsx';
-import Achievements from './pages/Achievements.jsx';
-import FunGames from './pages/FunGames.jsx';
-import SavedExperiments from './pages/SavedExperiments.jsx';
-import Profile from './pages/Profile.jsx';
-import Settings from './pages/Settings.jsx';
-import SnapAndSolvePage from './pages/SnapAndSolvePage.jsx';
-import PomodoroPage from './pages/PomodoroPage.jsx';
-import SandboxLabPage from './pages/SandboxLabPage.jsx';
-import PeerBattlesPage from './pages/PeerBattlesPage.jsx';
-import SpacedRepetitionPage from './pages/SpacedRepetitionPage.jsx';
-import ExperimentalBetaPage from './pages/ExperimentalBetaPage.jsx';
-import TeacherCockpit from './pages/TeacherCockpit.jsx';
-import AdminDashboard from './pages/AdminDashboard.jsx';
 import RoleGuard from './components/Auth/RoleGuard.jsx';
-
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import NetworkFallbackToast from './components/NetworkFallbackToast.jsx';
+import RouteLoadingFallback from './components/RouteLoadingFallback.jsx';
+
+// High-speed route-level code splitting
+const Landing = lazy(() => import('./pages/Landing.jsx'));
+const Login = lazy(() => import('./pages/Login.jsx'));
+const Signup = lazy(() => import('./pages/Signup.jsx'));
+const Home = lazy(() => import('./pages/Home.jsx'));
+const PhysicsLab = lazy(() => import('./pages/PhysicsLab.jsx'));
+const ChemistryLab = lazy(() => import('./pages/ChemistryLab.jsx'));
+const Quizzes = lazy(() => import('./pages/Quizzes.jsx'));
+const DailyChallenge = lazy(() => import('./pages/DailyChallenge.jsx'));
+const MockTests = lazy(() => import('./pages/MockTests.jsx'));
+const Progress = lazy(() => import('./pages/Progress.jsx'));
+const Achievements = lazy(() => import('./pages/Achievements.jsx'));
+const FunGames = lazy(() => import('./pages/FunGames.jsx'));
+const SavedExperiments = lazy(() => import('./pages/SavedExperiments.jsx'));
+const Profile = lazy(() => import('./pages/Profile.jsx'));
+const Settings = lazy(() => import('./pages/Settings.jsx'));
+const SnapAndSolvePage = lazy(() => import('./pages/SnapAndSolvePage.jsx'));
+const PomodoroPage = lazy(() => import('./pages/PomodoroPage.jsx'));
+const SandboxLabPage = lazy(() => import('./pages/SandboxLabPage.jsx'));
+const PeerBattlesPage = lazy(() => import('./pages/PeerBattlesPage.jsx'));
+const SpacedRepetitionPage = lazy(() => import('./pages/SpacedRepetitionPage.jsx'));
+const ExperimentalBetaPage = lazy(() => import('./pages/ExperimentalBetaPage.jsx'));
+const TeacherCockpit = lazy(() => import('./pages/TeacherCockpit.jsx'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard.jsx'));
+
+// Warm up key student destinations during browser idle intervals
+if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+  window.requestIdleCallback(() => {
+    import('./pages/Home.jsx');
+    import('./pages/PhysicsLab.jsx');
+    import('./pages/ChemistryLab.jsx');
+  });
+}
 
 // Smart Home: Displays Landing for visitors, redirects authenticated users to their role-based portal
 function RootRoute() {
@@ -60,9 +72,10 @@ export default function App() {
           <PerformanceProvider>
             <AuthProvider>
               <ProgressProvider>
-              <BrowserRouter>
-              <NetworkFallbackToast />
-              <Routes>
+                <BrowserRouter>
+                  <NetworkFallbackToast />
+                  <Suspense fallback={<RouteLoadingFallback />}>
+                    <Routes>
               {/* Standalone Public Pages */}
               <Route path="/" element={<RootRoute />} />
               <Route path="/landing" element={<Landing />} />
@@ -109,8 +122,9 @@ export default function App() {
               {/* Fallback route */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </BrowserRouter>
-        </ProgressProvider>
+          </Suspense>
+        </BrowserRouter>
+      </ProgressProvider>
       </AuthProvider>
     </PerformanceProvider>
     </LanguageProvider>

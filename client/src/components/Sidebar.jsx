@@ -30,6 +30,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
+import { prefetchRoute } from '../utils/prefetchRoute.js';
 
 export function LabXploreLogo({ className = '' }) {
   const { t } = useLanguage();
@@ -410,6 +411,7 @@ export default function Sidebar({ isOpen, onClose }) {
                       key={to}
                       to={to}
                       onClick={onClose}
+                      onMouseEnter={() => prefetchRoute(to)}
                       className={({ isActive }) =>
                         `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                           isActive
@@ -445,6 +447,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     key={to}
                     to={to}
                     onClick={onClose}
+                    onMouseEnter={() => prefetchRoute(to)}
                     className={({ isActive }) =>
                       `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                         isActive

@@ -36,6 +36,7 @@ pnpm-debug.log*
 # Temporary Test Scratch Scripts
 test_all_factors_audit.mjs
 test_physics_state_fixes.mjs
+supabase/.temp/
 *.tmp
 *.temp
 

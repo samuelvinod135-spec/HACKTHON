@@ -30,21 +30,21 @@ export default function DailyChallenge() {
   const [completedDays, setCompletedDays] = useState(() => {
     try {
       const saved = localStorage.getItem('labxplore_completed_tasks');
-      return saved ? JSON.parse(saved) : [1]; // Day 1 completed by default
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return [1];
+      return [];
     }
   });
 
   const [activeDay, setActiveDay] = useState(() => {
     try {
       const saved = localStorage.getItem('labxplore_completed_tasks');
-      const list = saved ? JSON.parse(saved) : [1];
+      const list = saved ? JSON.parse(saved) : [];
       // Next uncompleted day
       const nextUnfinished = DAILY_TASKS.find((t) => !list.includes(t.day));
-      return nextUnfinished ? nextUnfinished.day : 2;
+      return nextUnfinished ? nextUnfinished.day : 1;
     } catch {
-      return 2;
+      return 1;
     }
   });
 

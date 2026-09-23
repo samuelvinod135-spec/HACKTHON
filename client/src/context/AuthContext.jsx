@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase.js';
-import { api } from '../api.js';
+import { api, purgeUserData } from '../api.js';
+import { extractUsername } from '../utils/userUtils.js';
 import { useTelemetryStore } from '../store/useTelemetryStore.js';
 import { useStealthScaffoldingStore } from '../store/useStealthScaffoldingStore.js';
 import { usePreferenceStore } from '../store/usePreferenceStore.js';
@@ -13,7 +14,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch or construct profile from Supabase
+  // Fetch or construct profile from Supabase with dynamic username extraction
   const loadProfile = useCallback(async (authUser) => {
     if (!authUser) {
       setProfile(null);
@@ -26,6 +27,10 @@ export function AuthProvider({ children }) {
         .select('*')
         .eq('id', authUser.id)
         .maybeSingle();
+
+      const dynamicUsername =
+        authUser.user_metadata?.username ||
+        extractUsername(authUser.email, 'Scholar');
 
       if (data && !error) {
         // Fetch institution name if assigned
@@ -53,7 +58,7 @@ export function AuthProvider({ children }) {
         const fullProfile = {
           ...data,
           email: authUser.email || data.email,
-          username: data.username || authUser.user_metadata?.username || authUser.email?.split('@')[0],
+          username: data.username || dynamicUsername,
           level: data.level || 1,
           xp: data.xp || 0,
           xp_for_level: data.xp_for_level || 1000,
@@ -61,9 +66,7 @@ export function AuthProvider({ children }) {
           full_name:
             data.full_name ||
             authUser.user_metadata?.full_name ||
-            data.username ||
-            authUser.email?.split('@')[0] ||
-            'Scholar',
+            dynamicUsername,
           grade_level: data.grade_level || authUser.user_metadata?.grade_level || 'Grade 9-10',
           role: data.role || 'student',
           institution_id: data.institution_id || null,
@@ -86,11 +89,10 @@ export function AuthProvider({ children }) {
         return fullProfile;
       }
 
-      // If profile row doesn't exist yet, insert real user profile
+      // If profile row doesn't exist yet, insert dynamic user profile
       const derivedUsername =
         authUser.user_metadata?.username ||
-        authUser.email?.split('@')[0] ||
-        'student';
+        extractUsername(authUser.email, 'Scholar');
 
       const initialProfile = {
         id: authUser.id,
@@ -105,7 +107,7 @@ export function AuthProvider({ children }) {
         xp_for_level: 1000,
         grade_level: authUser.user_metadata?.grade_level || 'Grade 9-10',
         role: 'student',
-        streak_count: 1,
+        streak_count: 0,
       };
 
       await supabase.from('profiles').upsert(initialProfile).catch(() => {});
@@ -113,27 +115,28 @@ export function AuthProvider({ children }) {
 
       api.updateStudent({
         name: initialProfile.full_name,
-        level: initialProfile.level,
-        xp: initialProfile.xp,
-        xp_for_level: initialProfile.xp_for_level,
+        level: 1,
+        xp: 0,
+        xp_for_level: 1000,
       }).catch(() => {});
 
       return initialProfile;
     } catch (err) {
       console.warn('Could not fetch Supabase profile:', err);
+      const dynamicUsername = extractUsername(authUser.email, 'Scholar');
       const fallback = {
         id: authUser.id,
         full_name:
           authUser.user_metadata?.full_name ||
-          authUser.email?.split('@')[0] ||
-          'Scholar',
-        username: authUser.user_metadata?.username || authUser.email?.split('@')[0],
+          dynamicUsername,
+        username: authUser.user_metadata?.username || dynamicUsername,
         email: authUser.email,
         avatar_url: '',
         level: 1,
         xp: 0,
         xp_for_level: 1000,
         grade_level: 'Grade 9-10',
+        streak_count: 0,
       };
       setProfile(fallback);
       return fallback;
@@ -157,6 +160,12 @@ export function AuthProvider({ children }) {
         if (!mounted) return;
 
         if (initialSession?.user) {
+          const prevUid = localStorage.getItem('labxplore_last_auth_user_id');
+          const currUid = initialSession.user.id;
+          if (prevUid && prevUid !== currUid) {
+            purgeUserData(prevUid);
+          }
+          localStorage.setItem('labxplore_last_auth_user_id', currUid);
           setSession(initialSession);
           setUser(initialSession.user);
           await loadProfile(initialSession.user);
@@ -177,13 +186,28 @@ export function AuthProvider({ children }) {
       if (!mounted) return;
 
       if (newSession?.user) {
+        const prevUid = localStorage.getItem('labxplore_last_auth_user_id');
+        const currUid = newSession.user.id;
+        if (prevUid && prevUid !== currUid) {
+          purgeUserData(prevUid);
+        }
+        localStorage.setItem('labxplore_last_auth_user_id', currUid);
         setSession(newSession);
         setUser(newSession.user);
         await loadProfile(newSession.user);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('labxplore:user-changed', { detail: { userId: currUid } }));
+        }
       } else if (event === 'SIGNED_OUT') {
+        const prevUid = localStorage.getItem('labxplore_last_auth_user_id');
+        localStorage.removeItem('labxplore_last_auth_user_id');
+        purgeUserData(prevUid);
         setSession(null);
         setUser(null);
         setProfile(null);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('labxplore:auth-signout'));
+        }
       }
       setLoading(false);
     });
@@ -582,6 +606,7 @@ export function AuthProvider({ children }) {
     signOut,
     updateProfile,
     addXp,
+    extractUsername,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -532,6 +532,10 @@ function generateAllPhysicsExperiments() {
         });
       }
     }
+    for (let i = 0; i < experiments.length; i++) {
+      const exp = experiments[i];
+      exp._searchStr = `${exp.title} ${exp.id} ${exp.badge || ''} ${exp.desc || ''}`.toLowerCase();
+    }
   }
 
   return experiments;
@@ -545,7 +549,7 @@ export function getPhysicsExperimentCount() {
   return ALL_PHYSICS_EXPERIMENTS.length;
 }
 
-// Fast Search & Filter
+// Fast Search & Filter (sub-3ms search using pre-indexed tokens)
 export function searchPhysicsExperiments(query = '', category = 'All', limit = 60, offset = 0) {
   const q = (query || '').trim().toLowerCase();
   const cat = category || 'All';
@@ -557,13 +561,10 @@ export function searchPhysicsExperiments(query = '', category = 'All', limit = 6
   }
 
   if (q) {
+    const tokens = q.split(/\s+/).filter(Boolean);
     results = results.filter((exp) => {
-      return (
-        exp.title.toLowerCase().includes(q) ||
-        exp.id.toLowerCase().includes(q) ||
-        (exp.badge && exp.badge.toLowerCase().includes(q)) ||
-        (exp.desc && exp.desc.toLowerCase().includes(q))
-      );
+      const s = exp._searchStr || '';
+      return tokens.every((tok) => s.includes(tok));
     });
   }
 

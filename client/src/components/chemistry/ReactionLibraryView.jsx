@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useDeferredValue } from 'react';
 import {
   Search,
   Filter,
@@ -25,6 +25,7 @@ import {
 
 export default function ReactionLibraryView({ onRunInLab, onAddToWorkspace, onOpenExplain, initialFilters = {} }) {
   const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query);
   const [classFilter, setClassFilter] = useState(initialFilters.classLevel || 'All Classes');
   const [categoryFilter, setCategoryFilter] = useState(initialFilters.category || 'All Categories');
   const [difficultyFilter, setDifficultyFilter] = useState('All Difficulties');
@@ -41,14 +42,14 @@ export default function ReactionLibraryView({ onRunInLab, onAddToWorkspace, onOp
   });
   const [copiedId, setCopiedId] = useState(null);
 
-  // Filtered and searched reactions
+  // Filtered and searched reactions with non-blocking deferred query
   const searchResults = useMemo(() => {
-    return searchChemistryReactions(query, {
+    return searchChemistryReactions(deferredQuery, {
       classLevel: classFilter,
       category: categoryFilter,
       difficulty: difficultyFilter
     }, 12000, 0);
-  }, [query, classFilter, categoryFilter, difficultyFilter]);
+  }, [deferredQuery, classFilter, categoryFilter, difficultyFilter]);
 
   const totalResults = searchResults.length;
   const totalPages = Math.max(1, Math.ceil(totalResults / pageSize));

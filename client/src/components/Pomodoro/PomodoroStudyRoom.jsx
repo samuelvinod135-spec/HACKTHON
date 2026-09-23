@@ -67,10 +67,10 @@ export default function PomodoroStudyRoom({ isFullscreenOverlay = false, onClose
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(() => {
-    return parseInt(localStorage.getItem('labxplore_pomodoro_completed') || '3', 10);
+    return parseInt(localStorage.getItem('labxplore_pomodoro_completed') || '0', 10);
   });
   const [totalFocusMinutes, setTotalFocusMinutes] = useState(() => {
-    return parseInt(localStorage.getItem('labxplore_pomodoro_focus_min') || '75', 10);
+    return parseInt(localStorage.getItem('labxplore_pomodoro_focus_min') || '0', 10);
   });
 
   // Audio states

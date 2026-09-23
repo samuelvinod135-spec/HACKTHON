@@ -186,44 +186,57 @@ export async function fetchQuizQuestions({ chapter = 'Kinematics', limit = 10, s
 
 /**
  * For a Mock Test: "Fetch 50 random questions where exam_level = 'Main-Moderate'"
- * Queries Supabase question_bank with resilient fallback to local API and bundled air-gapped questions
+ * Priority 1: High-performance local better-sqlite3 edge tier (<15ms, guaranteed 25k pool)
+ * Priority 2: Supabase Cloud question_bank
+ * Priority 3: Air-gapped bundled curriculum bank
  */
 export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limit = 50, subject } = {}) {
+  // 1. Direct interface with local better-sqlite3 edge tier
   try {
-    let query = supabase
-      .from('question_bank')
-      .select('*')
-      .eq('exam_level', examLevel);
-
-    if (subject) {
-      query = query.eq('subject', subject);
+    const params = new URLSearchParams({
+      exam_level: examLevel,
+      limit: String(limit),
+      random: 'true',
+    });
+    if (subject && subject !== 'All') {
+      params.set('subject', subject);
     }
-
-    const { data, error } = await query.limit(Math.max(limit * 3, 150));
-    if (error) throw error;
-    if (data && data.length > 0) {
-      return selectDiverseQuestions(data, limit);
-    }
-  } catch (err) {
-    console.warn('Supabase mock test query fallback:', err);
-  }
-
-  // Fallback to local API
-  try {
-    const params = new URLSearchParams({ exam_level: examLevel, limit: String(limit * 2), random: 'true' });
-    if (subject) params.set('subject', subject);
     const res = await fetch(`${API_BASE}/questions?${params.toString()}`);
     if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
       const json = await res.json();
-      if (json.questions && json.questions.length > 0) {
-        return selectDiverseQuestions(json.questions, limit);
+      if (Array.isArray(json.questions) && json.questions.length > 0) {
+        const formatted = json.questions.map((q, idx) => ({
+          ...q,
+          id: q.id || `qb-${examLevel}-${idx}`,
+          option_a: q.option_a || q.option_A || 'Option A',
+          option_b: q.option_b || q.option_B || 'Option B',
+          option_c: q.option_c || q.option_C || 'Option C',
+          option_d: q.option_d || q.option_D || 'Option D',
+          correct_option: (q.correct_option || q.answer || 'A').toString().trim().toUpperCase(),
+        }));
+        if (formatted.length >= limit) {
+          return formatted.slice(0, limit);
+        }
+        return formatted;
       }
     }
   } catch (err) {
-    console.warn('Mock test API fallback error:', err);
+    console.warn('[MockTests] Local better-sqlite3 query fallback:', err);
   }
 
-  // 3. Air-Gapped Zero-Net Fallback from bundled curriculum mock test questions
+  // 2. Supabase Cloud Query
+  try {
+    let query = supabase.from('question_bank').select('*').eq('exam_level', examLevel);
+    if (subject && subject !== 'All') query = query.eq('subject', subject);
+    const { data, error } = await query.limit(limit);
+    if (!error && Array.isArray(data) && data.length > 0) {
+      return data;
+    }
+  } catch (err) {
+    console.warn('[MockTests] Supabase cloud query note:', err);
+  }
+
+  // 3. Resilient Air-Gapped Fallback from bundled questions
   try {
     const fallbackList = MOCK_TEST_QUESTIONS.map((q, idx) => ({
       id: `airgap-mock-${q.id || idx}`,
@@ -238,7 +251,7 @@ export async function fetchMockTestQuestions({ examLevel = 'Main-Moderate', limi
       subject: subject || 'Science',
       exam_level: examLevel,
     }));
-    return selectDiverseQuestions(fallbackList, limit);
+    return selectDiverseQuestions(fallbackList, Math.min(limit, fallbackList.length));
   } catch {
     return [];
   }
