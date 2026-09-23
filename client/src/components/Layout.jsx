@@ -8,7 +8,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[#edf2f8]">
+    <div className="relative flex h-screen overflow-hidden bg-[#edf2f8] dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">

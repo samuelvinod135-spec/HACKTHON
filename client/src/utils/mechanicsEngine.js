@@ -48,13 +48,15 @@ export function calculateProjectileTrajectory(launcher, env, numPoints = 80) {
   const angleDeg = launcher.params?.angle ?? 45;
   const angleRad = (angleDeg * Math.PI) / 180;
   const m = launcher.params?.mass ?? 2.0;
+  const isLeft = launcher.params?.direction === 'left';
+  const dir = isLeft ? -1 : 1;
 
-  const vx0 = v0 * Math.cos(angleRad);
+  const vx0 = dir * v0 * Math.cos(angleRad);
   const vy0 = v0 * Math.sin(angleRad);
 
   // Time of flight: t_flight = 2 * vy0 / g
   const tFlight = g > 0 ? (2 * vy0) / g : 10;
-  const maxRange = vx0 * tFlight;
+  const maxRange = Math.abs((v0 * Math.cos(angleRad)) * tFlight);
   const maxHeight = (vy0 * vy0) / (2 * (g || 0.01));
 
   // Visual scale factors (canvas meters to pixels)
@@ -80,6 +82,7 @@ export function calculateProjectileTrajectory(launcher, env, numPoints = 80) {
     vx0,
     vy0,
     EkMax: 0.5 * m * v0 * v0,
+    totalTimeSec: tFlight,
   };
 }
 

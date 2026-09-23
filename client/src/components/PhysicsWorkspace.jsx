@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Play,
   Pause,
@@ -17,6 +18,7 @@ import {
   Share2,
   Check,
   Trash2,
+  Rocket,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
 import { usePerformance } from '../context/PerformanceContext.jsx';
@@ -24,6 +26,7 @@ import PhysicsCanvas from './physics/PhysicsCanvas.jsx';
 import PhysicsPalette from './physics/PhysicsPalette.jsx';
 import EnvironmentControls from './physics/EnvironmentControls.jsx';
 import LensSettingsPopover from './physics/LensSettingsPopover.jsx';
+import ProjectileControls from './physics/ProjectileControls.jsx';
 import ComponentInspector from './physics/ComponentInspector.jsx';
 import LiveReadingsPanel from './physics/LiveReadingsPanel.jsx';
 import FormulaPanel from './physics/FormulaPanel.jsx';
@@ -44,11 +47,12 @@ function fmtTime(ms) {
 export default function PhysicsWorkspace() {
   const { record } = useProgress();
   const { isLiteMode } = usePerformance();
+  const [searchParams] = useSearchParams();
 
-  // Project title
-  const [title, setTitle] = useState('Ray Optics & Focal Refraction Lab');
+  // Project title - clean default initialization
+  const [title, setTitle] = useState('Physics Lab Workspace');
   const [editingTitle, setEditingTitle] = useState(false);
-  const [titleDraft, setTitleDraft] = useState(title);
+  const [titleDraft, setTitleDraft] = useState('Physics Lab Workspace');
   const [savedToast, setSavedToast] = useState(false);
 
   // Environment Settings
@@ -63,18 +67,13 @@ export default function PhysicsWorkspace() {
   const [running, setRunning] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
 
-  // Canvas Components - default with high-priority Ray Optics setup
-  const [components, setComponents] = useState(() => {
-    const defaultPreset = PRESET_EXPERIMENTS[0]; // Convex Lens Focal Convergence
-    return defaultPreset.components.map((c, idx) => ({
-      ...c,
-      id: `${c.type}-${idx + 1}`,
-    }));
-  });
+  // Canvas Components - starts completely clean & empty (no experiments load until selected)
+  const [components, setComponents] = useState([]);
 
-  // Selected item
-  const [selectedId, setSelectedId] = useState('lens-1');
+  // Selected item & interactive controllers
+  const [selectedId, setSelectedId] = useState(null);
   const [lensPopoverOpen, setLensPopoverOpen] = useState(false);
+  const [projectileControlsOpen, setProjectileControlsOpen] = useState(true);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [presetsModalOpen, setPresetsModalOpen] = useState(false);
 
@@ -133,8 +132,10 @@ export default function PhysicsWorkspace() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [running, isLiteMode]);
 
-  // Selected component reference
+  // Selected component references
   const selectedComp = components.find((c) => c.id === selectedId);
+  const projectileComp = components.find((c) => c.type === 'projectile');
+  const hasProjectile = !!projectileComp;
 
   // Check if active workspace is predominantly optics
   const isOpticsMode =
@@ -155,11 +156,29 @@ export default function PhysicsWorkspace() {
       params: { ...compDef.defaultParams },
     };
 
-    setComponents((prev) => [...prev, newComp]);
+    setComponents((prev) => {
+      const next = [...prev, newComp];
+      // When adding to a clean workspace, dynamically update title
+      if (prev.length === 0 || title === 'Physics Lab Workspace' || title === 'Clean Workbench') {
+        let autoTitle = 'Custom Physics Experiment';
+        if (compDef.type === 'projectile') autoTitle = 'Projectile Motion Simulation';
+        else if (compDef.type === 'convex_lens' || compDef.type === 'concave_lens' || compDef.type === 'laser') autoTitle = 'Ray Optics & Focal Refraction Lab';
+        else if (compDef.type === 'pendulum') autoTitle = 'Simple Harmonic Pendulum Lab';
+        else if (compDef.type === 'ramp') autoTitle = 'Inclined Plane Dynamics Lab';
+        else if (compDef.type === 'spring') autoTitle = 'Hooke’s Law & Spring Dynamics';
+        setTitle(autoTitle);
+        setTitleDraft(autoTitle);
+      }
+      return next;
+    });
+
     setSelectedId(newId);
 
     if (newComp.type === 'convex_lens' || newComp.type === 'concave_lens') {
       setLensPopoverOpen(true);
+    }
+    if (newComp.type === 'projectile') {
+      setProjectileControlsOpen(true);
     }
 
     record({
@@ -168,7 +187,7 @@ export default function PhysicsWorkspace() {
       xp: 25,
       achievements: ['tinkerer'],
     });
-  }, [record]);
+  }, [record, title]);
 
   const handleUpdateComponent = useCallback((updated) => {
     setComponents((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
@@ -208,19 +227,36 @@ export default function PhysicsWorkspace() {
       id: `${c.type}-${Date.now()}-${i}`,
     }));
     setComponents(newComps);
-    setTitle(preset.title);
+    const updatedTitle = preset.title || 'Physics Experiment';
+    setTitle(updatedTitle);
+    setTitleDraft(updatedTitle);
     setElapsedMs(0);
     setRunning(false); // Load in Setup Mode so student can arrange & inspect first
     setSelectedId(newComps[0]?.id || null);
     setLensPopoverOpen(false);
 
+    if (newComps.some((c) => c.type === 'projectile')) {
+      setProjectileControlsOpen(true);
+    }
+
     record({
       kind: 'experiment',
-      ref: preset.title,
+      ref: updatedTitle,
       xp: 50,
       achievements: ['explorer'],
     });
   }, [record]);
+
+  // URL search query listener (e.g. /physics?preset=projectile-range)
+  useEffect(() => {
+    const presetQuery = searchParams.get('preset') || searchParams.get('experiment') || searchParams.get('topic');
+    if (presetQuery) {
+      const matched = findPhysicsExperiment(presetQuery);
+      if (matched) {
+        handleSelectPreset(matched);
+      }
+    }
+  }, [searchParams, handleSelectPreset]);
 
   const handleToggleRun = () => {
     if (running) {
@@ -260,8 +296,11 @@ export default function PhysicsWorkspace() {
     setSelectedId(null);
     setLensPopoverOpen(false);
     setInspectorOpen(false);
+    setProjectileControlsOpen(false);
     setElapsedMs(0);
     setRunning(false);
+    setTitle('Physics Lab Workspace');
+    setTitleDraft('Physics Lab Workspace');
   };
 
   const handleSaveWorkspace = () => {
@@ -393,6 +432,24 @@ export default function PhysicsWorkspace() {
             onOpenPresets={() => setPresetsModalOpen(true)}
           />
 
+          {/* Projectile Controls toggle button when projectile is active */}
+          {hasProjectile && (
+            <button
+              type="button"
+              data-testid="toggle-projectile-controls-btn"
+              onClick={() => setProjectileControlsOpen((s) => !s)}
+              className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold shadow-xs transition cursor-pointer ${
+                projectileControlsOpen
+                  ? 'bg-amber-100/90 border border-amber-300 text-amber-950 font-bold'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+              title="Toggle Projectile Parameter Controls (Velocity, Mass, Angle, Direction)"
+            >
+              <Rocket size={13} className={projectileControlsOpen ? 'text-amber-700' : 'text-slate-400'} />
+              <span className="hidden sm:inline">Projectile Controls</span>
+            </button>
+          )}
+
           {/* Overlays toggle buttons */}
           <button
             onClick={() => setShowLiveReadings((s) => !s)}
@@ -449,6 +506,9 @@ export default function PhysicsWorkspace() {
               if (!comp || (comp.type !== 'convex_lens' && comp.type !== 'concave_lens')) {
                 setLensPopoverOpen(false);
               }
+              if (comp?.type === 'projectile') {
+                setProjectileControlsOpen(true);
+              }
             }}
             onUpdateComponent={handleUpdateComponent}
             onDeleteComponent={handleDeleteComponent}
@@ -456,6 +516,10 @@ export default function PhysicsWorkspace() {
             onOpenLensSettings={(lens) => {
               setSelectedId(lens.id);
               setLensPopoverOpen(true);
+            }}
+            onOpenProjectileControls={(proj) => {
+              setSelectedId(proj.id);
+              setProjectileControlsOpen(true);
             }}
             onDropNewComponent={handleDropNewComponent}
             onQuickLoadPreset={(presetId) => {
@@ -486,7 +550,7 @@ export default function PhysicsWorkspace() {
 
             {showFormula && (
               <FormulaPanel
-                activeType={selectedComp?.type || (isOpticsMode ? 'convex_lens' : 'pendulum')}
+                activeType={selectedComp?.type || (hasProjectile ? 'projectile' : isOpticsMode ? 'convex_lens' : 'pendulum')}
                 onClose={() => setShowFormula(false)}
               />
             )}
@@ -501,8 +565,21 @@ export default function PhysicsWorkspace() {
             />
           )}
 
-          {/* Floating Component Inspector (Non-lens or when opened) */}
-          {inspectorOpen && selectedComp && selectedComp.type !== 'convex_lens' && selectedComp.type !== 'concave_lens' && (
+          {/* Floating Projectile Motion Controls (Velocity, Mass, Angle, Direction) */}
+          {hasProjectile && projectileControlsOpen && projectileComp && (
+            <ProjectileControls
+              launcher={projectileComp}
+              onChange={handleUpdateComponent}
+              env={env}
+              running={running}
+              onToggleRun={handleToggleRun}
+              onReset={handleReset}
+              onClose={() => setProjectileControlsOpen(false)}
+            />
+          )}
+
+          {/* Floating Component Inspector (Non-lens, non-projectile or when opened) */}
+          {inspectorOpen && selectedComp && selectedComp.type !== 'convex_lens' && selectedComp.type !== 'concave_lens' && selectedComp.type !== 'projectile' && (
             <ComponentInspector
               component={selectedComp}
               onChange={handleUpdateComponent}

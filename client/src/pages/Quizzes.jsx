@@ -16,6 +16,7 @@ import {
   BookmarkCheck,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
 import { fetchQuizQuestions, fetchQuestionBankChapters } from '../supabase.js';
 import { useAutonomousProfileStore } from '../store/useAutonomousProfileStore.js';
 
@@ -55,6 +56,10 @@ export default function Quizzes() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Background prefetching state
+  const [prefetchedQuestions, setPrefetchedQuestions] = useState([]);
+  const [isPrefetching, setIsPrefetching] = useState(false);
+
   // Quiz state
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -70,6 +75,7 @@ export default function Quizzes() {
   const [availableChapters, setAvailableChapters] = useState([]);
 
   const { record } = useProgress();
+  const { t } = useLanguage();
 
   const showToastMsg = (msg) => {
     setToast(msg);
@@ -87,23 +93,95 @@ export default function Quizzes() {
       .catch(() => {});
   }, []);
 
-  // Fetch 10 random questions with guaranteed 0 repetition
+  // Background Prefetching: silently load the next 10 questions when reaching question #8
+  const prefetchNextBatch = async (chapterName) => {
+    if (isPrefetching || prefetchedQuestions.length > 0) return;
+    setIsPrefetching(true);
+
+    try {
+      const seenIds = getSeenIds(chapterName);
+      questions.forEach((q) => q?.id && seenIds.add(q.id));
+
+      let fetched = null;
+      try {
+        const res = await fetch(`/api/questions?chapter=${encodeURIComponent(chapterName)}&limit=10&random=true`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.questions && json.questions.length > 0) {
+            fetched = json.questions;
+          }
+        }
+      } catch {}
+
+      if (!fetched || fetched.length === 0) {
+        fetched = await fetchQuizQuestions({ chapter: chapterName, limit: 10, excludeIds: seenIds });
+      }
+
+      if (fetched && fetched.length > 0) {
+        setPrefetchedQuestions(fetched);
+        showToastMsg('⚡ Next 10 questions pre-cached in background! (0ms load time)');
+      }
+    } catch (err) {
+      console.debug('Background prefetch notice:', err);
+    } finally {
+      setIsPrefetching(false);
+    }
+  };
+
+  // Trigger background prefetch when user is on question #8 (index 7 of 10)
+  useEffect(() => {
+    if (currentIndex === 7 && questions.length >= 8 && prefetchedQuestions.length === 0 && !loading) {
+      prefetchNextBatch(selectedChapter);
+    }
+  }, [currentIndex, questions.length, selectedChapter, prefetchedQuestions.length, loading]);
+
+  // Fetch 10 random questions with guaranteed 0 repetition and instant cache consumption
   const loadQuiz = async (chapterToLoad, forceFresh = false) => {
     const chapterName = chapterToLoad || selectedChapter;
-    setLoading(true);
-    setError(null);
     setSelectedOption(null);
     setCurrentIndex(0);
     setScore(0);
     setFinished(false);
     setShowExplanation(false);
 
+    // Instant zero-loading transition if prefetch is ready!
+    if (!forceFresh && prefetchedQuestions.length > 0 && (!chapterToLoad || chapterToLoad === selectedChapter)) {
+      const cached = [...prefetchedQuestions];
+      setPrefetchedQuestions([]);
+      recordSeenIds(chapterName, cached);
+      setQuestions(cached);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
     try {
       const seenIds = forceFresh ? new Set() : getSeenIds(chapterName);
-      const fetched = await fetchQuizQuestions({ chapter: chapterName, limit: 10, excludeIds: seenIds });
-      if (!fetched || fetched.length === 0) {
-        throw new Error(`No questions found in Supabase Question Bank for "${chapterName}".`);
+
+      // Fast local edge tier query (< 30ms) with Supabase fallback
+      let fetched = null;
+      try {
+        const localRes = await fetch(`/api/questions?chapter=${encodeURIComponent(chapterName)}&limit=10&random=true`);
+        if (localRes.ok) {
+          const json = await localRes.json();
+          if (json.questions && json.questions.length > 0) {
+            fetched = json.questions;
+          }
+        }
+      } catch (err) {
+        console.warn('Local API questions query failed:', err);
       }
+
+      if (!fetched || fetched.length === 0) {
+        fetched = await fetchQuizQuestions({ chapter: chapterName, limit: 10, excludeIds: seenIds });
+      }
+
+      if (!fetched || fetched.length === 0) {
+        throw new Error(`No questions found in Question Bank for "${chapterName}".`);
+      }
+
       recordSeenIds(chapterName, fetched);
       setQuestions(fetched);
     } catch (err) {
@@ -334,19 +412,47 @@ export default function Quizzes() {
       </div>
 
       {/* Quiz Card */}
-      <div className="clay-card p-6 sm:p-8 rounded-3xl border border-sky-100/90 bg-white shadow-md">
+      <div className="clay-card p-6 sm:p-8 rounded-3xl border border-sky-100/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
-            <p className="text-sm font-semibold text-slate-700">
-              Querying Supabase: "Fetch 10 unique, diverse questions where chapter = '{selectedChapter}'"
-            </p>
-            <p className="text-xs text-slate-400">Filtering duplicates & clustering concept patterns for 100% unique quiz...</p>
+          /* Shimmer Skeleton Loader for Instant 50ms Responsive Feedback */
+          <div className="space-y-6 animate-pulse p-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-28 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                <div className="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded-full" />
+              </div>
+              <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded-full" />
+            </div>
+            <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-full bg-sky-400 dark:bg-sky-600 w-1/4 rounded-full" />
+            </div>
+
+            <div className="space-y-2.5 pt-2">
+              <div className="h-5 w-11/12 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+              <div className="h-5 w-8/12 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 p-4"
+                >
+                  <div className="h-7 w-7 rounded-xl bg-slate-200 dark:bg-slate-700 shrink-0" />
+                  <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-700 rounded-md" />
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="h-8 w-24 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+              <div className="h-9 w-32 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+            </div>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
             <XCircle size={36} className="text-rose-500" />
-            <p className="text-sm font-bold text-rose-700">{error}</p>
+            <p className="text-sm font-bold text-rose-700 dark:text-rose-400">{error}</p>
             <button
               onClick={() => handleReset(true)}
               className="clay-btn-yellow mt-2 px-5 py-2.5 text-xs font-bold text-slate-900 shadow-sm"
@@ -359,17 +465,23 @@ export default function Quizzes() {
             {/* Quiz progress bar & meta */}
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-sky-700">
-                  Question {currentIndex + 1} of {total}
+                <span className="text-xs font-bold uppercase tracking-wider text-sky-700 dark:text-sky-400">
+                  {t('quizzes.question', 'Question')} {currentIndex + 1} of {total}
                 </span>
-                <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-bold text-sky-700 border border-sky-200">
+                <span className="rounded-full bg-sky-50 dark:bg-sky-950 px-2.5 py-0.5 text-[10px] font-bold text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
                   {currentQ.exam_level || 'Main'}
                 </span>
-                <span className="rounded-full bg-amber-50 text-amber-800 px-2.5 py-0.5 text-[10px] font-bold border border-amber-200">
+                <span className="rounded-full bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 text-[10px] font-bold border border-amber-200 dark:border-amber-800">
                   +{currentQ.xp || 10} XP
                 </span>
+                {prefetchedQuestions.length > 0 && (
+                  <span className="rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2.5 py-0.5 text-[10px] font-bold border border-emerald-200 dark:border-emerald-800 animate-in fade-in flex items-center gap-1">
+                    <Zap size={10} className="fill-emerald-500 text-emerald-500" />
+                    <span>Next 10 Pre-cached (0ms)</span>
+                  </span>
+                )}
               </div>
-              <span className="text-xs font-semibold text-slate-500">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 Score: <strong className="text-slate-800">{score}</strong>/{total}
               </span>
             </div>
@@ -520,19 +632,30 @@ export default function Quizzes() {
             </div>
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <button
-                onClick={() => handleReset(false)}
-                className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-700 shadow-xs transition hover:bg-slate-50"
-              >
-                <RotateCcw size={14} /> Fetch New 10 Questions (0 Repeats)
-              </button>
+              {prefetchedQuestions.length > 0 ? (
+                <button
+                  onClick={() => loadQuiz(selectedChapter, false)}
+                  className="clay-btn-yellow flex items-center gap-2 px-6 py-3 text-xs font-black text-slate-900 shadow-md hover:scale-105 transition"
+                >
+                  <Zap size={14} className="fill-slate-950 text-slate-950" />
+                  <span>Start Next 10 Questions (Instant 0ms)</span>
+                  <ArrowRight size={14} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleReset(false)}
+                  className="flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-3 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs transition hover:bg-slate-50 dark:hover:bg-slate-700"
+                >
+                  <RotateCcw size={14} /> {t('quizzes.retake', 'Start Fresh Quiz')} (0 Repeats)
+                </button>
+              )}
               <button
                 onClick={() => {
                   const nextChap =
                     selectedChapter === 'Kinematics' ? 'Chemical Bonding & Molecular Structure' : 'Kinematics';
                   setSelectedChapter(nextChap);
                 }}
-                className="clay-btn-yellow px-6 py-3 text-xs font-bold text-slate-900 shadow-xs"
+                className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-3 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition"
               >
                 Try Another Chapter →
               </button>

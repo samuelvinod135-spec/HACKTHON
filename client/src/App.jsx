@@ -29,6 +29,7 @@ import TeacherCockpit from './pages/TeacherCockpit.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import RoleGuard from './components/Auth/RoleGuard.jsx';
 
+import { ThemeProvider } from './context/ThemeContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import NetworkFallbackToast from './components/NetworkFallbackToast.jsx';
 
@@ -37,7 +38,7 @@ function RootRoute() {
   const { isAuthenticated, loading, profile } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#edf2f8] flex items-center justify-center">
+      <div className="min-h-screen bg-[#edf2f8] dark:bg-slate-950 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -54,11 +55,12 @@ function RootRoute() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <LanguageProvider>
-        <PerformanceProvider>
-          <AuthProvider>
-            <ProgressProvider>
-            <BrowserRouter>
+      <ThemeProvider>
+        <LanguageProvider>
+          <PerformanceProvider>
+            <AuthProvider>
+              <ProgressProvider>
+              <BrowserRouter>
               <NetworkFallbackToast />
               <Routes>
               {/* Standalone Public Pages */}
@@ -88,8 +90,8 @@ export default function App() {
                 <Route path="/snap-solve" element={<SnapAndSolvePage />} />
                 <Route path="/experimental" element={<ExperimentalBetaPage />} />
                 <Route path="/beta" element={<ExperimentalBetaPage />} />
-                <Route path="/pomodoro" element={<ExperimentalBetaPage />} />
-                <Route path="/battles" element={<ExperimentalBetaPage />} />
+                <Route path="/pomodoro" element={<PomodoroPage />} />
+                <Route path="/battles" element={<PeerBattlesPage />} />
                 <Route path="/sandbox" element={<SandboxLabPage />} />
                 <Route path="/spaced-repetition" element={<SpacedRepetitionPage />} />
                 <Route path="/help" element={<Settings />} />
@@ -112,6 +114,7 @@ export default function App() {
       </AuthProvider>
     </PerformanceProvider>
     </LanguageProvider>
+    </ThemeProvider>
     </ErrorBoundary>
   );
 }

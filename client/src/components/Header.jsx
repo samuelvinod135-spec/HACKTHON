@@ -27,6 +27,8 @@ import {
   Languages,
   Check,
   Building2,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { api } from '../api.js';
 import { useProgress } from '../context/ProgressContext.jsx';
@@ -36,6 +38,7 @@ import CreditStageModal from './CreditStages/CreditStageModal.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
 import { usePerformance } from '../context/PerformanceContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 const SEARCH_INDEX = [
   { title: 'Snap & Solve (Smart OCR)', type: 'Innovation', to: '/snap-solve', icon: Camera },
@@ -58,6 +61,7 @@ export default function Header({ onMenuClick }) {
   const { student } = useProgress();
   const { user, profile, signOut, isAuthenticated, isTeacher, isAdmin, switchPersona } = useAuth();
   const { isLiteMode, toggleLiteMode } = usePerformance();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const { currentLang, setLanguage, supportedLanguages, t } = useLanguage();
@@ -155,8 +159,8 @@ export default function Header({ onMenuClick }) {
 
       {/* Center: Clay Capsule Search Bar (matches reference image) */}
       <div ref={containerRef} className="relative flex flex-1 justify-center px-2 max-w-xl mx-auto">
-        <div className="clay-card relative flex w-full max-w-[480px] items-center rounded-full bg-white px-4 py-2 shadow-sm">
-          <Search size={16} className="text-slate-400 shrink-0 mr-2.5" />
+        <div className="clay-card relative flex w-full max-w-[480px] items-center rounded-full bg-white dark:bg-slate-800 px-4 py-2 shadow-sm border border-slate-100 dark:border-slate-700">
+          <Search size={16} className="text-slate-400 dark:text-slate-500 shrink-0 mr-2.5" />
           <input
             ref={inputRef}
             type="text"
@@ -167,7 +171,7 @@ export default function Header({ onMenuClick }) {
             }}
             onFocus={() => setIsOpen(true)}
             placeholder={t('search.placeholder', 'Search experiments, topics...')}
-            className="w-full bg-transparent text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 outline-none"
+            className="w-full bg-transparent text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none"
           />
 
           {query ? (
@@ -300,12 +304,27 @@ export default function Header({ onMenuClick }) {
           className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black transition-all border shadow-xs active:scale-95 cursor-pointer ${
             isLiteMode
               ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-amber-400/20 animate-pulse'
-              : 'bg-white text-slate-600 border-sky-100 hover:bg-sky-50 hover:text-sky-700'
+              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-sky-100 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-slate-700 hover:text-sky-700 dark:hover:text-white'
           }`}
           title={isLiteMode ? "Lite Mode Active (30 FPS, Flat CSS, Low Compute) - Click to restore 60 FPS" : "Click to activate Lite Mode for low-spec demo devices"}
         >
           <Zap size={13} className={isLiteMode ? "text-slate-950 fill-slate-950" : "text-amber-500"} />
           <span className="hidden md:inline">{isLiteMode ? 'Lite Mode' : 'Lite Mode'}</span>
+        </button>
+
+        {/* Theme Toggle Button (Sun / Moon) */}
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border shadow-xs transition-all active:scale-95 cursor-pointer bg-white dark:bg-slate-800 text-slate-700 dark:text-amber-400 border-sky-100 dark:border-slate-700 hover:bg-sky-50 dark:hover:bg-slate-700"
+          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          aria-label="Toggle theme mode"
+        >
+          {isDark ? (
+            <Sun size={15} className="text-amber-400" />
+          ) : (
+            <Moon size={15} className="text-slate-600" />
+          )}
         </button>
 
         {/* Institutional ILOS Role Capsule */}

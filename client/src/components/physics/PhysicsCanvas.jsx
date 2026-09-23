@@ -33,6 +33,7 @@ export default function PhysicsCanvas({
   onDeleteComponent,
   onDuplicateComponent,
   onOpenLensSettings,
+  onOpenProjectileControls,
   onDropNewComponent,
   onQuickLoadPreset,
   env,
@@ -321,8 +322,9 @@ export default function PhysicsCanvas({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // 1. Clear background
-      ctx.fillStyle = '#ffffff';
+      // 1. Clear background - 100% theme aware (Deep OLED Dark in dark mode, crisp white in light mode)
+      const isDarkTheme = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+      ctx.fillStyle = isDarkTheme ? '#080d1a' : '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
       // 2. Camera View Transform (Zoom & Pan)
@@ -650,6 +652,16 @@ export default function PhysicsCanvas({
             </button>
           )}
 
+          {selectedComp.type === 'projectile' && (
+            <button
+              onClick={() => onOpenProjectileControls?.(selectedComp)}
+              className="flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 transition"
+              title="Adjust Projectile Motion Parameters (Velocity, Angle, Mass, Direction)"
+            >
+              <Sliders size={12} /> Projectile Controls
+            </button>
+          )}
+
           <button
             onClick={() => {
               sounds.playClick();
@@ -695,8 +707,11 @@ export default function PhysicsCanvas({
 
 function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1) {
   const step = 20;
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   ctx.save();
-  ctx.strokeStyle = snapToGrid ? 'rgba(203, 213, 225, 0.4)' : 'rgba(226, 232, 240, 0.25)';
+  ctx.strokeStyle = isDark
+    ? (snapToGrid ? 'rgba(71, 85, 105, 0.45)' : 'rgba(30, 41, 59, 0.35)')
+    : (snapToGrid ? 'rgba(203, 213, 225, 0.4)' : 'rgba(226, 232, 240, 0.25)');
   ctx.lineWidth = 0.6 / zoom;
 
   // Calculate visible world boundaries
@@ -720,7 +735,7 @@ function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1
   }
 
   // Optical bench principal optical axis line (y = 350)
-  ctx.strokeStyle = 'rgba(20, 184, 166, 0.35)';
+  ctx.strokeStyle = isDark ? 'rgba(45, 212, 191, 0.65)' : 'rgba(20, 184, 166, 0.35)';
   ctx.lineWidth = 1 / zoom;
   ctx.setLineDash([8 / zoom, 6 / zoom]);
   ctx.beginPath();
@@ -730,7 +745,7 @@ function drawGrid(ctx, width, height, snapToGrid, pan = { x: 0, y: 0 }, zoom = 1
   ctx.setLineDash([]);
 
   // Coordinate axis origin accents
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+  ctx.strokeStyle = isDark ? 'rgba(100, 116, 139, 0.65)' : 'rgba(148, 163, 184, 0.5)';
   ctx.lineWidth = 1 / zoom;
   ctx.beginPath();
   ctx.moveTo(0, startY);
@@ -1250,7 +1265,8 @@ function drawPendulum(ctx, comp, state) {
 // 7. Projectile Launcher Cannon
 function drawProjectileLauncher(ctx, comp) {
   const angle = comp.params?.angle ?? 45;
-  const rad = (-angle * Math.PI) / 180;
+  const isLeft = comp.params?.direction === 'left';
+  const rad = isLeft ? (-Math.PI + (angle * Math.PI) / 180) : (-angle * Math.PI) / 180;
 
   ctx.save();
   // Heavy base
@@ -1274,7 +1290,7 @@ function drawProjectileLauncher(ctx, comp) {
   // Angle indicator arc
   ctx.fillStyle = '#c2410c';
   ctx.font = 'bold 9px monospace';
-  ctx.fillText(`${angle}°`, 18, -12);
+  ctx.fillText(`${angle}° ${isLeft ? '←' : '→'}`, isLeft ? -36 : 18, -12);
 
   ctx.restore();
 }

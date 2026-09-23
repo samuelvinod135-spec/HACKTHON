@@ -169,7 +169,7 @@ export function getAchievements() {
 
 export function getCompletions(userId = '1') {
   const uid = String(userId || '1');
-  return db.prepare('SELECT * FROM completion WHERE user_id = ? OR user_id = "1" ORDER BY completed_at').all(uid);
+  return db.prepare("SELECT * FROM completion WHERE user_id = ? OR user_id = '1' ORDER BY completed_at").all(uid);
 }
 
 export function addXp(userId = '1', amount = 0) {
@@ -258,7 +258,7 @@ export function updateStudent(userId = '1', { name, level, xp, xp_for_level } = 
 
 export function getSavedExperiments(userId = '1') {
   const uid = String(userId || '1');
-  return db.prepare('SELECT * FROM saved_experiment WHERE user_id = ? OR user_id = "1" ORDER BY created_at DESC').all(uid);
+  return db.prepare("SELECT * FROM saved_experiment WHERE user_id = ? OR user_id = '1' ORDER BY created_at DESC").all(uid);
 }
 
 export function saveExperiment({ id, experiment_id, title, discipline, link } = {}, userId = '1') {
@@ -280,7 +280,7 @@ export function saveExperiment({ id, experiment_id, title, discipline, link } = 
 
 export function unsaveExperiment(id, userId = '1') {
   const uid = String(userId || '1');
-  db.prepare('DELETE FROM saved_experiment WHERE (id = ? OR experiment_id = ?) AND (user_id = ? OR user_id = "1")').run(id, id, uid);
+  db.prepare("DELETE FROM saved_experiment WHERE (id = ? OR experiment_id = ?) AND (user_id = ? OR user_id = '1')").run(id, id, uid);
   return getSavedExperiments(uid);
 }
 
@@ -317,51 +317,61 @@ export async function getQuestions({
   chapter,
   topic,
   exam_level,
-  limit = 50,
+  limit = 10,
   random = false,
 } = {}) {
   try {
     const clauses = [];
     const params = [];
 
+    // Utilize existing indexes (idx_qb_subject, idx_qb_chapter, idx_qb_exam_level) with COLLATE NOCASE
     if (subject) {
-      clauses.push('LOWER(subject) = LOWER(?)');
+      clauses.push('subject = ? COLLATE NOCASE');
       params.push(subject);
     }
     if (chapter) {
-      clauses.push('LOWER(chapter) = LOWER(?)');
+      clauses.push('chapter = ? COLLATE NOCASE');
       params.push(chapter);
     }
     if (topic) {
-      clauses.push('LOWER(topic) LIKE LOWER(?)');
+      clauses.push('topic LIKE ? COLLATE NOCASE');
       params.push(`%${topic}%`);
     }
     if (exam_level) {
-      clauses.push('LOWER(exam_level) = LOWER(?)');
+      clauses.push('exam_level = ? COLLATE NOCASE');
       params.push(exam_level);
     }
 
-    let sql = 'SELECT * FROM question_bank';
-    if (clauses.length > 0) {
-      sql += ` WHERE ${clauses.join(' AND ')}`;
-    }
+    const whereClause = clauses.length > 0 ? ` WHERE ${clauses.join(' AND ')}` : '';
+    const numLimit = Math.min(Math.max(Number(limit) || 10, 1), 50);
 
+    let rows = [];
     if (random) {
-      sql += ' ORDER BY RANDOM()';
+      // High-performance index-assisted sampling: avoid full-table scan ORDER BY RANDOM()
+      const countStmt = db.prepare(`SELECT COUNT(*) as total FROM question_bank${whereClause}`);
+      const countResult = countStmt.get(...params);
+      const total = countResult?.total || 0;
+
+      if (total <= numLimit) {
+        const sql = `SELECT * FROM question_bank${whereClause} LIMIT ${numLimit}`;
+        rows = db.prepare(sql).all(...params);
+      } else {
+        const maxOffset = total - numLimit;
+        const randomOffset = Math.floor(Math.random() * (maxOffset + 1));
+        const sql = `SELECT * FROM question_bank${whereClause} LIMIT ${numLimit} OFFSET ${randomOffset}`;
+        rows = db.prepare(sql).all(...params);
+      }
     } else {
-      sql += ' ORDER BY id ASC';
+      const sql = `SELECT * FROM question_bank${whereClause} ORDER BY id ASC LIMIT ${numLimit}`;
+      rows = db.prepare(sql).all(...params);
     }
 
-    const numLimit = Math.min(Math.max(Number(limit) || 50, 1), 200);
-    sql += ` LIMIT ${numLimit}`;
-
-    const rows = db.prepare(sql).all(...params);
     if (rows && rows.length > 0) return rows;
   } catch (e) {
     console.warn('SQLite query failed, falling back to Supabase:', e.message);
   }
 
-  return fetchQuestionsFromSupabase({ subject, chapter, exam_level, limit });
+  return fetchQuestionsFromSupabase({ subject, chapter, exam_level, limit: limit || 10 });
 }
 
 export async function getQuestionBankChapters(subject) {

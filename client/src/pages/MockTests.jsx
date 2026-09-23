@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import { Link } from 'react-router-dom';
 import {
   GraduationCap,
@@ -21,14 +21,84 @@ import {
   HelpCircle,
   Layers,
   BarChart3,
+  RefreshCw,
 } from 'lucide-react';
 import { useProgress } from '../context/ProgressContext.jsx';
+import { useLanguage } from '../context/LanguageContext.jsx';
 import { MOCK_TEST_QUESTIONS, CONCEPTS } from '../mockTestData.js';
 import { fetchMockTestQuestions } from '../supabase.js';
 import { sounds } from '../utils/soundEffects.js';
 
+/**
+ * Dedicated Error Boundary to prevent white screen crashes during
+ * mock test results calculation or scorecard rendering.
+ */
+class MockTestsErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('[MockTestsErrorBoundary] Caught runtime exception:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="clay-card rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-12 text-center space-y-6 border border-rose-200 dark:border-rose-900 shadow-2xl animate-in zoom-in-95 duration-200 max-w-3xl mx-auto my-8">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 shadow-sm">
+            <AlertTriangle size={36} />
+          </div>
+          <div>
+            <span className="rounded-md bg-rose-100 dark:bg-rose-950 px-2.5 py-0.5 text-[10px] font-extrabold text-rose-800 dark:text-rose-300">
+              Diagnostic Safeguard Active
+            </span>
+            <h2 className="mt-2 text-2xl font-black text-slate-900 dark:text-slate-100">
+              Scorecard Calculation Protected
+            </h2>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+              We encountered an unexpected data discrepancy while rendering your score report, but your test responses are safe.
+            </p>
+          </div>
+          {this.state.error?.message && (
+            <div className="mx-auto max-w-md rounded-xl bg-slate-50 dark:bg-slate-800 p-3 text-left border border-slate-200 dark:border-slate-700">
+              <p className="text-[11px] font-mono text-rose-600 dark:text-rose-400 break-words">
+                Notice: {this.state.error.message}
+              </p>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                if (this.props.onReset) this.props.onReset();
+              }}
+              className="clay-btn-yellow px-6 py-2.5 text-xs font-extrabold text-slate-900 shadow-md hover:scale-105 transition"
+            >
+              Return to Test Dashboard
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+            >
+              <RotateCcw size={14} /> Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function MockTests() {
   const { record } = useProgress();
+  const { t } = useLanguage();
 
   // Test Mode in INTRO: 'QB_50' (Supabase Question Bank 50-Q Test) | 'ADAPTIVE_10' (Diagnostic Intervention)
   const [testMode, setTestMode] = useState('QB_50');
@@ -140,25 +210,36 @@ export default function MockTests() {
   const handleFinishQbTest = async () => {
     setShowSubmitModal(false);
     setPhase('QB_COMPLETED');
-    sounds.playSimStart();
 
-    // Calculate score
-    let correctCount = 0;
-    qbQuestions.forEach((q, idx) => {
-      const chosen = qbAnswers[idx];
-      const correct = (q.correct_option || '').toUpperCase();
-      if (chosen && chosen.toUpperCase() === correct) {
-        correctCount++;
+    try {
+      sounds?.playSimStart?.();
+    } catch {}
+
+    try {
+      // Calculate score safely with strict null guards
+      let correctCount = 0;
+      const safeQuestions = Array.isArray(qbQuestions) ? qbQuestions : [];
+      safeQuestions.forEach((q, idx) => {
+        if (!q) return;
+        const chosen = (qbAnswers?.[idx] || '').toString().trim().toUpperCase();
+        const correct = (q?.correct_option || q?.answer || '').toString().trim().toUpperCase();
+        if (chosen && chosen === correct) {
+          correctCount++;
+        }
+      });
+
+      const earnedXp = 200 + correctCount * 12;
+      if (typeof record === 'function') {
+        await record({
+          kind: 'quiz',
+          ref: `50-Question Mock Test (${examLevel || 'Main'})`,
+          xp: earnedXp,
+          achievements: correctCount >= 40 ? ['master-physicist'] : [],
+        });
       }
-    });
-
-    const earnedXp = 200 + correctCount * 12;
-    await record({
-      kind: 'quiz',
-      ref: `50-Question Mock Test (${examLevel})`,
-      xp: earnedXp,
-      achievements: correctCount >= 40 ? ['master-physicist'] : [],
-    });
+    } catch (err) {
+      console.warn('Mock test XP recording warning:', err);
+    }
   };
 
   // -------------------------------------------------------------
@@ -306,13 +387,22 @@ export default function MockTests() {
 
   const finishAdaptiveTest = async () => {
     setPhase('COMPLETED');
-    sounds.playSimStart();
-    await record({
-      kind: 'quiz',
-      ref: '10-Question Adaptive Mock Test',
-      xp: 150 + testScore * 15,
-      achievements: testScore >= 8 ? ['master-physicist'] : [],
-    });
+    try {
+      sounds?.playSimStart?.();
+    } catch {}
+
+    try {
+      if (typeof record === 'function') {
+        await record({
+          kind: 'quiz',
+          ref: '10-Question Adaptive Mock Test',
+          xp: 150 + (Number(testScore) || 0) * 15,
+          achievements: (testScore || 0) >= 8 ? ['master-physicist'] : [],
+        });
+      }
+    } catch (err) {
+      console.warn('Adaptive test XP recording warning:', err);
+    }
   };
 
   // -------------------------------------------------------------
@@ -323,11 +413,12 @@ export default function MockTests() {
   const qbTotalFlagged = Object.values(qbFlags).filter(Boolean).length;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {/* ========================================================= */}
-      {/* PHASE 1: WELCOME & MOCK TEST SELECTION INTRO */}
-      {/* ========================================================= */}
-      {phase === 'INTRO' && (
+    <MockTestsErrorBoundary onReset={() => setPhase('INTRO')}>
+      <div className="mx-auto max-w-5xl space-y-6">
+        {/* ========================================================= */}
+        {/* PHASE 1: WELCOME & MOCK TEST SELECTION INTRO */}
+        {/* ========================================================= */}
+        {phase === 'INTRO' && (
         <div className="clay-card rounded-3xl bg-white p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -558,6 +649,30 @@ export default function MockTests() {
       {/* ========================================================= */}
       {/* PHASE 2A: SUPABASE 50-QUESTION MOCK TEST ACTIVE */}
       {/* ========================================================= */}
+      {phase === 'QB_TESTING' && !currentQbQ && (
+        <div className="clay-card rounded-3xl bg-white dark:bg-slate-900 p-8 text-center space-y-4 border border-amber-200 dark:border-amber-900 shadow-xl">
+          <AlertTriangle size={36} className="mx-auto text-amber-500" />
+          <h2 className="text-lg font-black text-slate-900 dark:text-slate-100">No Questions Loaded</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+            {qbError || 'Could not retrieve questions for this examination level. Please select another subject or difficulty.'}
+          </p>
+          <div className="flex justify-center gap-3 pt-2">
+            <button
+              onClick={handleStartQbTest}
+              className="clay-btn-yellow px-5 py-2 text-xs font-bold text-slate-900"
+            >
+              Retry Fetching
+            </button>
+            <button
+              onClick={() => setPhase('INTRO')}
+              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300"
+            >
+              Back to Test Selection
+            </button>
+          </div>
+        </div>
+      )}
+
       {phase === 'QB_TESTING' && currentQbQ && (
         <div className="space-y-5 animate-in fade-in duration-150">
           {/* Top Bar: Exam Level, Timer & Status */}
@@ -800,29 +915,35 @@ export default function MockTests() {
       {/* PHASE 2B: SUPABASE 50-QUESTION MOCK TEST COMPLETED */}
       {/* ========================================================= */}
       {phase === 'QB_COMPLETED' && (
-        <div className="clay-card rounded-3xl bg-white p-6 sm:p-10 shadow-2xl border border-slate-100 space-y-8 animate-in zoom-in-95 duration-200">
+        <div className="clay-card rounded-3xl bg-white dark:bg-slate-900 p-6 sm:p-10 shadow-2xl border border-slate-100 dark:border-slate-800 space-y-8 animate-in zoom-in-95 duration-200">
           {(() => {
+            const safeList = Array.isArray(qbQuestions) ? qbQuestions : [];
+            const totalQ = Math.max(1, safeList.length || 50);
             let correct = 0;
-            qbQuestions.forEach((q, idx) => {
-              if (qbAnswers[idx] && qbAnswers[idx].toUpperCase() === (q.correct_option || '').toUpperCase()) {
+            safeList.forEach((q, idx) => {
+              if (!q) return;
+              const chosen = (qbAnswers?.[idx] || '').toString().trim().toUpperCase();
+              const correctOpt = (q?.correct_option || q?.answer || '').toString().trim().toUpperCase();
+              if (chosen && chosen === correctOpt) {
                 correct++;
               }
             });
-            const pct = Math.round((correct / 50) * 100);
+            const pct = Math.round((correct / totalQ) * 100);
+            const pace = Math.round((Number(elapsedSec) || 0) / totalQ);
 
             return (
               <>
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
                   <div className="flex items-center gap-3.5">
                     <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 text-white shadow-md">
                       <Award size={32} />
                     </span>
                     <div>
-                      <span className="rounded-md bg-emerald-100 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-800">
-                        50-Question Examination Completed
+                      <span className="rounded-md bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-800 dark:text-emerald-300">
+                        {totalQ}-Question Examination Completed
                       </span>
-                      <h1 className="mt-1 text-2xl sm:text-3xl font-black text-slate-900">
-                        Mock Test Results · {examLevel}
+                      <h1 className="mt-1 text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100">
+                        {t('mockTests.resultsTitle', 'Mock Test Results')} · {examLevel}
                       </h1>
                     </div>
                   </div>
@@ -830,104 +951,116 @@ export default function MockTests() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleStartQbTest}
-                      className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 transition"
+                      className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition"
                     >
-                      <RotateCcw size={13} /> Fetch 50 New Random Questions
+                      <RotateCcw size={13} /> {t('mockTests.retake', 'Fetch 50 New Random Questions')}
                     </button>
                     <button
                       onClick={() => setPhase('INTRO')}
                       className="clay-btn-yellow flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-bold text-slate-900 shadow-xs"
                     >
-                      <span>Choose Different Level</span>
+                      <span>{t('mockTests.chooseDifferent', 'Choose Different Level')}</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Score Breakdown Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                  <div className="rounded-2xl bg-emerald-50/70 p-4 border border-emerald-100">
-                    <p className="text-[10px] font-bold uppercase text-emerald-800">Total Score</p>
-                    <p className="mt-1 text-2xl font-black text-emerald-900">{correct} / 50</p>
-                    <p className="text-[10px] text-emerald-700">{pct}% Overall Accuracy</p>
+                  <div className="rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 p-4 border border-emerald-100 dark:border-emerald-900">
+                    <p className="text-[10px] font-bold uppercase text-emerald-800 dark:text-emerald-400">{t('mockTests.totalScore', 'Total Score')}</p>
+                    <p className="mt-1 text-2xl font-black text-emerald-900 dark:text-emerald-200">{correct} / {totalQ}</p>
+                    <p className="text-[10px] text-emerald-700 dark:text-emerald-400">{pct}% Overall Accuracy</p>
                   </div>
-                  <div className="rounded-2xl bg-sky-50/70 p-4 border border-sky-100">
-                    <p className="text-[10px] font-bold uppercase text-sky-800">Time Taken</p>
-                    <p className="mt-1 text-2xl font-black text-sky-900">{fmtTime(elapsedSec)}</p>
-                    <p className="text-[10px] text-sky-700">Pace: {Math.round(elapsedSec / 50)}s / question</p>
+                  <div className="rounded-2xl bg-sky-50/70 dark:bg-sky-950/40 p-4 border border-sky-100 dark:border-sky-900">
+                    <p className="text-[10px] font-bold uppercase text-sky-800 dark:text-sky-400">{t('mockTests.timeTaken', 'Time Taken')}</p>
+                    <p className="mt-1 text-2xl font-black text-sky-900 dark:text-sky-200">{fmtTime(elapsedSec)}</p>
+                    <p className="text-[10px] text-sky-700 dark:text-sky-400">Pace: {pace}s / question</p>
                   </div>
-                  <div className="rounded-2xl bg-amber-50/70 p-4 border border-amber-100">
-                    <p className="text-[10px] font-bold uppercase text-amber-800">Attempted</p>
-                    <p className="mt-1 text-2xl font-black text-amber-900">{qbTotalAnswered} / 50</p>
-                    <p className="text-[10px] text-amber-700">{50 - qbTotalAnswered} Skipped</p>
+                  <div className="rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 p-4 border border-amber-100 dark:border-amber-900">
+                    <p className="text-[10px] font-bold uppercase text-amber-800 dark:text-amber-400">{t('mockTests.attempted', 'Attempted')}</p>
+                    <p className="mt-1 text-2xl font-black text-amber-900 dark:text-amber-200">{qbTotalAnswered} / {totalQ}</p>
+                    <p className="text-[10px] text-amber-700 dark:text-amber-400">{Math.max(0, totalQ - qbTotalAnswered)} Skipped</p>
                   </div>
-                  <div className="rounded-2xl bg-amber-50/70 p-4 border border-amber-100">
-                    <p className="text-[10px] font-bold uppercase text-amber-800">XP Awarded</p>
-                    <p className="mt-1 text-2xl font-black text-amber-900">+{200 + correct * 12} XP</p>
-                    <p className="text-[10px] text-amber-700">Logged to Profile</p>
+                  <div className="rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 p-4 border border-amber-100 dark:border-amber-900">
+                    <p className="text-[10px] font-bold uppercase text-amber-800 dark:text-amber-400">{t('mockTests.xpAwarded', 'XP Awarded')}</p>
+                    <p className="mt-1 text-2xl font-black text-amber-900 dark:text-amber-200">+{200 + correct * 12} XP</p>
+                    <p className="text-[10px] text-amber-700 dark:text-amber-400">Logged to Profile</p>
                   </div>
                 </div>
 
                 {/* Comprehensive 50-Question Answer Key & Explanations */}
                 <div className="space-y-4 pt-2">
-                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <BookOpen size={14} /> Comprehensive 50-Question Solution Key & Explanations
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <BookOpen size={14} /> {t('mockTests.solutionKey', 'Comprehensive Solution Key & Explanations')}
                   </h3>
 
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                    {qbQuestions.map((q, idx) => {
-                      const userChoice = qbAnswers[idx];
-                      const correctOpt = (q.correct_option || '').toUpperCase();
-                      const isCorrect = userChoice && userChoice.toUpperCase() === correctOpt;
+                  {safeList.length === 0 ? (
+                    <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                      No question logs available for this session.
+                    </div>
+                  ) : (
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                      {safeList.map((q, idx) => {
+                        if (!q) return null;
+                        const userChoice = qbAnswers?.[idx];
+                        const correctOpt = (q?.correct_option || q?.answer || '').toString().trim().toUpperCase();
+                        const isCorrect = userChoice && userChoice.toString().trim().toUpperCase() === correctOpt;
 
-                      return (
-                        <div
-                          key={q.id || idx}
-                          className={`rounded-2xl border p-4 text-xs transition ${
-                            isCorrect
-                              ? 'border-emerald-200 bg-emerald-50/40'
-                              : userChoice
-                              ? 'border-rose-200 bg-rose-50/40'
-                              : 'border-slate-200 bg-slate-50/50'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <span className="font-bold text-slate-900">
-                              Q{idx + 1}. {q.question}
-                            </span>
-                            <span
-                              className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                                isCorrect
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : userChoice
-                                  ? 'bg-rose-100 text-rose-800'
-                                  : 'bg-slate-200 text-slate-700'
-                              }`}
-                            >
-                              {isCorrect ? 'Correct (+4)' : userChoice ? 'Incorrect (-1)' : 'Unattempted (0)'}
-                            </span>
-                          </div>
+                        const optA = q.option_a ?? q.option_A ?? q.options?.[0] ?? 'Option A';
+                        const optB = q.option_b ?? q.option_B ?? q.options?.[1] ?? 'Option B';
+                        const optC = q.option_c ?? q.option_C ?? q.options?.[2] ?? 'Option C';
+                        const optD = q.option_d ?? q.option_D ?? q.options?.[3] ?? 'Option D';
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-3 text-[11px] text-slate-600">
-                            <div>A: {q.option_a || q.option_A}</div>
-                            <div>B: {q.option_b || q.option_B}</div>
-                            <div>C: {q.option_c || q.option_C}</div>
-                            <div>D: {q.option_d || q.option_D}</div>
-                          </div>
-
-                          <div className="rounded-xl bg-white border border-slate-200/70 p-3 space-y-1">
-                            <div className="flex items-center gap-2 font-bold text-slate-800">
-                              <span>Your Choice: <b>{userChoice || 'None'}</b></span>
-                              <span>·</span>
-                              <span className="text-emerald-700">Correct Option: <b>{correctOpt} ({q.answer})</b></span>
+                        return (
+                          <div
+                            key={q.id || idx}
+                            className={`rounded-2xl border p-4 text-xs transition ${
+                              isCorrect
+                                ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/30'
+                                : userChoice
+                                ? 'border-rose-200 dark:border-rose-800 bg-rose-50/40 dark:bg-rose-950/30'
+                                : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <span className="font-bold text-slate-900 dark:text-slate-100">
+                                Q{idx + 1}. {q.question || 'Untitled Question'}
+                              </span>
+                              <span
+                                className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                                  isCorrect
+                                    ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                                    : userChoice
+                                    ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
+                                    : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                }`}
+                              >
+                                {isCorrect ? 'Correct (+4)' : userChoice ? 'Incorrect (-1)' : 'Unattempted (0)'}
+                              </span>
                             </div>
-                            <p className="text-slate-600 leading-relaxed text-[11px]">
-                              <b>Explanation: </b>{q.explanation}
-                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-3 text-[11px] text-slate-600 dark:text-slate-300">
+                              <div>A: {optA}</div>
+                              <div>B: {optB}</div>
+                              <div>C: {optC}</div>
+                              <div>D: {optD}</div>
+                            </div>
+
+                            <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 p-3 space-y-1">
+                              <div className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
+                                <span>Your Choice: <b>{userChoice || 'None'}</b></span>
+                                <span>·</span>
+                                <span className="text-emerald-700 dark:text-emerald-400">Correct Option: <b>{correctOpt} {q.answer ? `(${q.answer})` : ''}</b></span>
+                              </div>
+                              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-[11px]">
+                                <b>Explanation: </b>{q.explanation || 'Verified conceptual solution according to standard JEE curriculum.'}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </>
             );
@@ -1304,5 +1437,6 @@ export default function MockTests() {
         </div>
       )}
     </div>
+    </MockTestsErrorBoundary>
   );
 }
