@@ -28,6 +28,7 @@ import {
 import { useProgress } from '../context/ProgressContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { usePerformance } from '../context/PerformanceContext.jsx';
 import UserAvatar from './UserAvatar.jsx';
 import { getCreditStage } from '../utils/creditStages.js';
 import { prefetchRoute } from '../utils/prefetchRoute.js';
@@ -115,6 +116,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const { t } = useLanguage();
   const { student } = useProgress();
   const { profile, isTeacher, isAdmin, isStudent } = useAuth();
+  const { isLiteMode } = usePerformance();
   const location = useLocation();
   const [chemExpanded, setChemExpanded] = useState(true);
 
@@ -325,8 +327,8 @@ export default function Sidebar({ isOpen, onClose }) {
                         <div
                           className={`flex items-center justify-between rounded-2xl px-4 py-2 text-xs font-semibold transition ${
                             isMainActive
-                              ? 'bg-sky-50/90 text-sky-900 font-bold border border-sky-200/80 shadow-xs'
-                              : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                              ? 'bg-sky-50/90 dark:bg-sky-950/70 text-sky-900 dark:text-sky-200 font-bold border border-sky-200/80 dark:border-sky-800 shadow-xs'
+                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
                           }`}
                         >
                           <Link
@@ -335,7 +337,7 @@ export default function Sidebar({ isOpen, onClose }) {
                             className="flex flex-1 items-center justify-between"
                           >
                             <div className="flex items-center gap-3">
-                              <Icon size={17} className={isMainActive ? 'text-sky-600' : ''} />
+                              <Icon size={17} className={isMainActive ? 'text-sky-600 dark:text-sky-400' : ''} />
                               <span>{t(tKey, label)}</span>
                             </div>
                             {badge && (
@@ -349,7 +351,7 @@ export default function Sidebar({ isOpen, onClose }) {
                               e.stopPropagation();
                               setChemExpanded((prev) => !prev);
                             }}
-                            className="p-1 rounded-lg hover:bg-slate-200/60 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                            className="p-1 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer"
                             title="Toggle sub-pages"
                           >
                             <ChevronDown
@@ -362,7 +364,7 @@ export default function Sidebar({ isOpen, onClose }) {
                         </div>
 
                         {chemExpanded && (
-                          <div className="ml-4 pl-3 border-l-2 border-sky-100 flex flex-col gap-1 my-0.5">
+                          <div className="ml-4 pl-3 border-l-2 border-sky-100 dark:border-slate-800 flex flex-col gap-1 my-0.5">
                             {subItems.map((sub) => {
                               const isSubActive =
                                 isChemRoute &&
@@ -378,8 +380,8 @@ export default function Sidebar({ isOpen, onClose }) {
                                   onClick={onClose}
                                   className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition ${
                                     isSubActive
-                                      ? 'bg-sky-100/90 text-sky-900 font-bold shadow-2xs'
-                                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                                      ? 'bg-sky-100/90 dark:bg-sky-950/80 text-sky-900 dark:text-sky-300 font-bold shadow-2xs'
+                                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200'
                                   }`}
                                 >
                                   <div className="flex items-center gap-2.5">
@@ -390,8 +392,8 @@ export default function Sidebar({ isOpen, onClose }) {
                                     <span
                                       className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
                                         isSubActive
-                                          ? 'bg-sky-200 text-sky-800'
-                                          : 'bg-slate-100 text-slate-600'
+                                          ? 'bg-sky-200 dark:bg-sky-900 text-sky-800 dark:text-sky-200'
+                                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                       }`}
                                     >
                                       {sub.badge}
@@ -434,48 +436,53 @@ export default function Sidebar({ isOpen, onClose }) {
                 })}
               </nav>
 
-              {/* Hackathon Innovations Navigation */}
-              <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-4">
-                <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-sky-400 flex items-center justify-between">
-                  <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
-                  <span className="bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
-                    NEW
-                  </span>
-                </div>
-                {HACKATHON_MENU.map(({ to, label, tKey, icon: Icon, badge }) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    onClick={onClose}
-                    onMouseEnter={() => prefetchRoute(to)}
-                    className={({ isActive }) =>
-                      `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
-                        isActive
-                          ? 'bg-sky-100/80 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800 shadow-xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 active:bg-sky-50 dark:active:bg-slate-800'
-                      }`
-                    }
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon size={16} />
-                      <span>{t(tKey, label)}</span>
-                    </div>
-                    {badge && (
-                      <span className="rounded bg-sky-50 text-sky-600 border border-sky-200/80 px-1.5 py-0.5 text-[9px] font-mono font-bold">
-                        {badge}
-                      </span>
-                    )}
-                  </NavLink>
-                ))}
-              </nav>
+              {/* Hackathon Innovations Navigation (Omitted in Lite Mode for maximum performance) */}
+              {!isLiteMode && (
+                <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-4">
+                  <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-sky-400 flex items-center justify-between">
+                    <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
+                    <span className="bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
+                      NEW
+                    </span>
+                  </div>
+                  {HACKATHON_MENU.map(({ to, label, tKey, icon: Icon, badge }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      onClick={onClose}
+                      onMouseEnter={() => prefetchRoute(to)}
+                      className={({ isActive }) =>
+                        `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
+                          isActive
+                            ? 'bg-sky-100/80 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800 shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 active:bg-sky-50 dark:active:bg-slate-800'
+                        }`
+                      }
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon size={16} />
+                        <span>{t(tKey, label)}</span>
+                      </div>
+                      {badge && (
+                        <span className="rounded bg-sky-50 dark:bg-slate-800 text-sky-600 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                          {badge}
+                        </span>
+                      )}
+                    </NavLink>
+                  ))}
+                </nav>
+              )}
             </>
           )}
 
           {/* Secondary Navigation */}
-          <nav className="flex flex-col gap-1.5 border-t border-slate-100 pt-4">
+          <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-4">
             {SECONDARY_MENU.filter(({ to }) => {
               if (isTeacher || isAdmin) {
                 return !['/progress', '/achievements', '/saved'].includes(to);
+              }
+              if (isLiteMode) {
+                return ['/progress', '/profile', '/settings'].includes(to);
               }
               return true;
             }).map(({ to, label, tKey, icon: Icon }) => (

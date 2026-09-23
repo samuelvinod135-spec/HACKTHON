@@ -81,43 +81,43 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border border-sky-200/90 bg-white p-6 sm:p-8 shadow-sm transition-all ${className}`}
+      className={`relative overflow-hidden rounded-3xl border border-sky-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm transition-all ${className}`}
       id="autonomous-intelligence-card"
     >
       {/* Decorative ambient backdrop */}
-      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/15 via-yellow-400/10 to-amber-300/15 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-to-br from-sky-400/15 via-yellow-400/10 to-amber-300/15 dark:from-sky-500/10 dark:to-indigo-500/10 blur-3xl" />
 
       {/* 1. Header Bar: Autonomous AI Monitor Status */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sky-100 pb-5">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sky-100 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-3.5">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500 text-white shadow-md shadow-sky-500/25">
             <Brain size={26} className="animate-pulse" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-sky-800 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">
-                <Zap size={11} className="text-sky-600" />
+              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/70 px-2.5 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">
+                <Zap size={11} className="text-sky-600 dark:text-sky-400" />
                 100% Autonomous AI Progress Monitor
               </span>
-              <span className="text-[10px] font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                 Zero Manual Input · Live Telemetry
               </span>
             </div>
-            <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <h2 className="mt-1 text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               Cognitive Learning Health & Guidance
             </h2>
           </div>
         </div>
 
         {/* Dynamic Mode Switcher (Insights | Dynamic Path | Achievements) */}
-        <div className="flex items-center gap-1 rounded-2xl border border-sky-100 bg-white p-1 shadow-xs">
+        <div className="flex items-center gap-1 rounded-2xl border border-sky-100 dark:border-slate-800 bg-white dark:bg-slate-850 dark:bg-slate-900 p-1 shadow-xs">
           <button
             type="button"
             onClick={() => setActiveTab('insights')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'insights'
                 ? 'bg-sky-500 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Insights & Gaps
@@ -128,7 +128,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'path'
                 ? 'bg-sky-500 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Learning Path ({learningPath.length})
@@ -139,7 +139,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'achievements'
                 ? 'bg-sky-500 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Achievements ({achievements.length})
@@ -150,12 +150,12 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
       {/* 2. Top Metric Showcase: Overall Learning Health Score + Explainability */}
       <div className="relative z-10 my-6 grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
         {/* Left: Dynamic Circular Health Gauge */}
-        <div className="md:col-span-4 flex items-center gap-4 p-4 rounded-2xl bg-white border border-sky-100 shadow-sm">
+        <div className="md:col-span-4 flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-850 dark:bg-slate-800/80 border border-sky-100 dark:border-slate-800 shadow-sm">
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center">
             {/* SVG Circular Progress */}
             <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 36 36">
               <path
-                className="text-slate-100"
+                className="text-slate-100 dark:text-slate-700"
                 strokeWidth="3.5"
                 stroke="currentColor"
                 fill="none"
@@ -173,39 +173,39 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
               />
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-xl font-black text-slate-900 tracking-tight">{overallScore}</span>
-              <span className="text-[9px] font-bold text-slate-400 -mt-1">/ 100</span>
+              <span className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{overallScore}</span>
+              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 -mt-1">/ 100</span>
             </div>
           </div>
 
           <div className="flex-1 min-w-0">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Learning Health Score
             </span>
             <div className="mt-1">{renderTrendBadge()}</div>
-            <p className="mt-1 text-[11px] font-medium text-slate-500 truncate">
+            <p className="mt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
               {quizStats.totalQuestionsAnswered} responses · {labEvaluations.length} lab runs
             </p>
           </div>
         </div>
 
         {/* Right: Explainable AI Rationale ("Why did my score change?") */}
-        <div className="md:col-span-8 p-4 rounded-2xl bg-sky-50/70 border border-sky-200/70">
+        <div className="md:col-span-8 p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200/70 dark:border-sky-800/60">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2.5">
-              <Sparkles size={18} className="text-sky-600 mt-0.5 shrink-0" />
+              <Sparkles size={18} className="text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
               <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-sky-900">
+                <h4 className="text-xs font-black uppercase tracking-wider text-sky-900 dark:text-sky-300">
                   AI Autonomous Score Rationale
                 </h4>
-                <p className="mt-1 text-xs font-medium text-slate-700 leading-relaxed">
+                <p className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-300 leading-relaxed">
                   {overallExplanation}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setShowExplanationModal(!showExplanationModal)}
-              className="shrink-0 text-sky-700 hover:text-sky-900 text-[11px] font-bold underline cursor-pointer"
+              className="shrink-0 text-sky-700 dark:text-sky-400 hover:text-sky-900 dark:hover:text-sky-300 text-[11px] font-bold underline cursor-pointer"
             >
               {showExplanationModal ? 'Hide Breakdown' : 'View Formula'}
             </button>
@@ -213,7 +213,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
           {/* Collapsible Transparent Formula Details */}
           {showExplanationModal && (
-            <div className="mt-3 pt-3 border-t border-sky-200/60 text-[11px] text-slate-600 space-y-1">
+            <div className="mt-3 pt-3 border-t border-sky-200/60 dark:border-sky-800/60 text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
               <p>
                 • <strong>Bayesian Mastery Base:</strong> Average of all CBSE/NCERT curriculum domains ({Math.round(
                   Object.values(topicsMastery).reduce((acc, t) => acc + (t.score || 50), 0) /
@@ -297,22 +297,22 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
       {activeTab === 'insights' && (
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Left Column: Discovered Conceptual Weaknesses */}
-          <div className="rounded-2xl border border-rose-200/80 bg-rose-50/40 p-5 shadow-sm flex flex-col justify-between">
+          <div className="rounded-2xl border border-rose-200/80 dark:border-rose-900/50 bg-rose-50/40 dark:bg-rose-950/20 p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between border-b border-rose-200/60 pb-3">
+              <div className="flex items-center justify-between border-b border-rose-200/60 dark:border-rose-900/40 pb-3">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle size={18} className="text-rose-600" />
-                  <h4 className="text-xs font-black uppercase tracking-wider text-rose-950">
+                  <AlertTriangle size={18} className="text-rose-600 dark:text-rose-400" />
+                  <h4 className="text-xs font-black uppercase tracking-wider text-rose-950 dark:text-rose-200">
                     Discovered Conceptual Friction ({weaknesses.length})
                   </h4>
                 </div>
-                <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/50 px-2 py-0.5 rounded-full">
                   Signature Matched
                 </span>
               </div>
 
               {weaknesses.length === 0 ? (
-                <div className="py-8 text-center text-xs font-medium text-slate-500">
+                <div className="py-8 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
                   <CheckCircle2 size={24} className="mx-auto text-emerald-500 mb-1" />
                   No recurring conceptual misconceptions detected. All verified competencies nominal.
                 </div>
@@ -321,29 +321,29 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   {weaknesses.map((w) => (
                     <div
                       key={w.id}
-                      className="p-3 rounded-xl bg-white/95 border border-rose-200 shadow-2xs space-y-1.5"
+                      className="p-3 rounded-xl bg-white/95 dark:bg-slate-900/90 border border-rose-200 dark:border-rose-900/40 shadow-2xs space-y-1.5"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black uppercase text-rose-800 bg-rose-50 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-black uppercase text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded">
                           {w.topic}
                         </span>
-                        <span className="text-[10px] font-bold text-rose-600">
+                        <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">
                           {w.evidenceCount} error signals
                         </span>
                       </div>
-                      <p className="text-xs font-bold text-slate-800 leading-snug">
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-snug">
                         {w.label}
                       </p>
-                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                         {w.explanation}
                       </p>
                       <div className="pt-1 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-rose-700">
+                        <span className="text-[10px] font-bold text-rose-700 dark:text-rose-400">
                           AI: {w.whyExplanation}
                         </span>
                         <Link
                           to={w.remediationLink}
-                          className="inline-flex items-center gap-1 text-[11px] font-black text-sky-700 hover:text-sky-900 underline"
+                          className="inline-flex items-center gap-1 text-[11px] font-black text-sky-700 dark:text-sky-400 hover:text-sky-900 dark:hover:text-sky-300 underline"
                         >
                           <span>{w.remediationBtn}</span>
                           <ChevronRight size={12} />
@@ -355,28 +355,28 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
               )}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-rose-200/50 text-[10px] text-slate-500">
+            <div className="mt-4 pt-3 border-t border-rose-200/50 dark:border-rose-900/40 text-[10px] text-slate-500 dark:text-slate-400">
               * Inferred autonomously from incorrect answer selections and lab coordinate discrepancies.
             </div>
           </div>
 
           {/* Right Column: Verified Empirical Strengths */}
-          <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-5 shadow-sm flex flex-col justify-between">
+          <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/50 bg-emerald-50/40 dark:bg-emerald-950/20 p-5 shadow-sm flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between border-b border-emerald-200/60 pb-3">
+              <div className="flex items-center justify-between border-b border-emerald-200/60 dark:border-emerald-900/40 pb-3">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 size={18} className="text-emerald-600" />
-                  <h4 className="text-xs font-black uppercase tracking-wider text-emerald-950">
+                  <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" />
+                  <h4 className="text-xs font-black uppercase tracking-wider text-emerald-950 dark:text-emerald-200">
                     Empirical Strengths ({strengths.length})
                   </h4>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded-full">
                   &gt;80% Retention
                 </span>
               </div>
 
               {strengths.length === 0 ? (
-                <div className="py-8 text-center text-xs font-medium text-slate-500">
+                <div className="py-8 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
                   Continue answering questions and calibrating labs to validate empirical strengths.
                 </div>
               ) : (
@@ -384,25 +384,25 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   {strengths.map((s, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-xl bg-white/95 border border-emerald-200 shadow-2xs space-y-1"
+                      className="p-3 rounded-xl bg-white/95 dark:bg-slate-900/90 border border-emerald-200 dark:border-emerald-900/40 shadow-2xs space-y-1"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-black uppercase text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded">
                           {s.topic}
                         </span>
-                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded-md">
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-md">
                           {s.badge}
                         </span>
                       </div>
-                      <p className="text-xs font-bold text-slate-800">{s.label}</p>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">{s.evidence}</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{s.label}</p>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">{s.evidence}</p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-emerald-200/50 text-[10px] text-slate-500">
+            <div className="mt-4 pt-3 border-t border-emerald-200/50 dark:border-emerald-900/40 text-[10px] text-slate-500 dark:text-slate-400">
               * Validated through consistent high-accuracy responses and zero hesitation latency.
             </div>
           </div>
@@ -413,10 +413,10 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
       {activeTab === 'path' && (
         <div className="relative z-10 space-y-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-700">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
               Individualized Cognitive Sequence (Calculated from live mastery gaps)
             </span>
-            <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-full">
               Auto-Adaptive
             </span>
           </div>
@@ -427,38 +427,38 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                 key={step.step}
                 className={`p-4 rounded-2xl border transition-all ${
                   step.status === 'completed'
-                    ? 'bg-emerald-50/70 border-emerald-200 text-slate-800'
+                    ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-slate-800 dark:text-slate-200'
                     : step.status === 'current'
-                    ? 'bg-sky-50/90 border-sky-300 ring-2 ring-sky-400/30'
-                    : 'bg-white/80 border-slate-200 text-slate-600'
+                    ? 'bg-sky-50/90 dark:bg-sky-950/50 border-sky-300 dark:border-sky-700 ring-2 ring-sky-400/30'
+                    : 'bg-white/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span
                     className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
                       step.status === 'completed'
-                        ? 'bg-emerald-200 text-emerald-900'
+                        ? 'bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100'
                         : step.status === 'current'
                         ? 'bg-sky-500 text-white'
-                        : 'bg-slate-200 text-slate-700'
+                        : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     {step.stage}
                   </span>
-                  <span className="text-[11px] font-black text-slate-900">
+                  <span className="text-[11px] font-black text-slate-900 dark:text-slate-100">
                     {step.currentScore}
                   </span>
                 </div>
 
-                <h5 className="text-xs font-black text-slate-900 mt-2 leading-snug">
+                <h5 className="text-xs font-black text-slate-900 dark:text-slate-100 mt-2 leading-snug">
                   {step.title}
                 </h5>
 
-                <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-200/60">
-                  <span className="text-[10px] text-slate-500">Target: {step.targetScore}</span>
+                <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Target: {step.targetScore}</span>
                   <Link
                     to={step.link}
-                    className="inline-flex items-center gap-1 text-[11px] font-black text-sky-700 hover:text-sky-900"
+                    className="inline-flex items-center gap-1 text-[11px] font-black text-sky-700 dark:text-sky-400 hover:text-sky-900 dark:hover:text-sky-300"
                   >
                     <span>Launch</span>
                     <ArrowRight size={11} />
@@ -474,10 +474,10 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
       {activeTab === 'achievements' && (
         <div className="relative z-10 space-y-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-700">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
               Autonomous Achievements Unlocked (Purely Earned from Telemetry Events)
             </span>
-            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
               Zero Manual Assignment
             </span>
           </div>
@@ -486,17 +486,17 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
             {achievements.map((ach) => (
               <div
                 key={ach.slug}
-                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white border border-sky-100 shadow-2xs"
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-slate-800 shadow-2xs"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-yellow-400 to-amber-200 text-2xl shadow-xs">
                   {ach.icon}
                 </div>
                 <div>
-                  <h5 className="text-xs font-black text-slate-900">{ach.name}</h5>
-                  <p className="text-[11px] font-medium text-slate-600 mt-0.5 leading-snug">
+                  <h5 className="text-xs font-black text-slate-900 dark:text-slate-100">{ach.name}</h5>
+                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 mt-0.5 leading-snug">
                     {ach.description}
                   </p>
-                  <span className="text-[9px] font-bold text-slate-400">
+                  <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500">
                     Autonomous unlock: {new Date(ach.unlockedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -508,10 +508,10 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
 
       {/* 6. Real-time Telemetry Simulator for Instant Visual Proof (Dev / Demo Mode) */}
       {import.meta.env.DEV && (
-        <div className="relative z-10 mt-6 pt-4 border-t border-sky-100/70 flex flex-wrap items-center justify-between gap-3 text-slate-500">
+        <div className="relative z-10 mt-6 pt-4 border-t border-sky-100/70 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
               Live Autonomous Pipeline Test Harness:
             </span>
           </div>
@@ -526,7 +526,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   questionText: 'Calculated projectile range with correct g vector',
                 })
               }
-              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 cursor-pointer transition-colors"
+              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-100 dark:bg-emerald-950/70 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 cursor-pointer transition-colors"
             >
               + Answer Kinematics Correctly
             </button>
@@ -541,7 +541,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   notes: 'Sign convention confusion',
                 })
               }
-              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 cursor-pointer transition-colors"
+              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-rose-100 dark:bg-rose-950/70 hover:bg-rose-200 dark:hover:bg-rose-900 text-rose-900 dark:text-rose-200 border border-rose-300 dark:border-rose-800 cursor-pointer transition-colors"
             >
               - Trigger Kinematics Error
             </button>
@@ -556,7 +556,7 @@ export default function AutonomousIntelligenceCard({ className = '' }) {
                   link: '/physics',
                 })
               }
-              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 cursor-pointer transition-colors"
+              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-sky-100 dark:bg-sky-950/70 hover:bg-sky-200 dark:hover:bg-sky-900 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-800 cursor-pointer transition-colors"
             >
               + Complete 96% Lab Run
             </button>
