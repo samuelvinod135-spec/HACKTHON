@@ -146,13 +146,13 @@ export default function Header({ onMenuClick }) {
   const displayName = profile?.username || dynamicUsername || profile?.full_name?.split(' ')[0] || (student?.name && student.name !== 'Student Scholar' ? student.name.split(' ')[0] : 'Scholar');
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 sm:h-20 w-full shrink-0 items-center justify-between px-3 sm:px-6 bg-[#edf2f8]/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/80 transition-colors">
+    <header className="sticky top-0 z-30 flex h-16 sm:h-20 w-full shrink-0 items-center justify-between px-3 sm:px-6 bg-[#edf2f8]/90 dark:bg-[#222222]/95 backdrop-blur-md border-b border-slate-200/60 dark:border-[#333333] transition-colors">
       {/* Left: Mobile Toggle Button & Brand */}
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={onMenuClick}
           aria-label="Open sidebar"
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-2xs md:hidden cursor-pointer"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] text-slate-600 dark:text-white shadow-2xs md:hidden cursor-pointer"
         >
           <Menu size={18} />
         </button>
@@ -163,8 +163,8 @@ export default function Header({ onMenuClick }) {
 
       {/* Center: Robust Responsive Search Bar */}
       <div ref={containerRef} className="relative flex flex-1 items-center justify-center px-2 max-w-lg mx-2 sm:mx-4 min-w-[140px] sm:min-w-[240px]">
-        <div className="relative flex w-full items-center rounded-full bg-white dark:bg-slate-900 px-3.5 py-1.5 sm:py-2 shadow-xs border border-slate-200 dark:border-slate-800 focus-within:border-sky-400 dark:focus-within:border-sky-500 transition-all">
-          <Search size={15} className="text-slate-400 dark:text-slate-500 shrink-0 mr-2" />
+        <div className="relative flex w-full items-center rounded-full bg-white dark:bg-[#1A1A1A] px-3.5 py-1.5 sm:py-2 shadow-xs border border-slate-200 dark:border-[#3D3D3D] focus-within:border-sky-400 dark:focus-within:border-[#B673FF] transition-all">
+          <Search size={15} className="text-slate-400 dark:text-[#A0A0A0] shrink-0 mr-2" />
           <input
             ref={inputRef}
             type="text"
@@ -175,7 +175,7 @@ export default function Header({ onMenuClick }) {
             }}
             onFocus={() => setIsOpen(true)}
             placeholder={t('search.placeholder', 'Search experiments, topics...')}
-            className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none"
+            className="w-full min-w-0 bg-transparent text-xs sm:text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder:text-[#A0A0A0] outline-none"
           />
 
           {query ? (
@@ -187,15 +187,15 @@ export default function Header({ onMenuClick }) {
               <X size={14} />
             </button>
           ) : (
-            <kbd className="hidden xl:inline-flex mr-2 text-[10px] font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+            <kbd className="hidden xl:inline-flex mr-2 text-[10px] font-semibold text-slate-400 dark:text-[#A0A0A0] bg-slate-100 dark:bg-[#2D2D2D] px-1.5 py-0.5 rounded border border-slate-200 dark:border-[#3D3D3D]">
               Ctrl K
             </kbd>
           )}
 
-          {/* Yellow Circular Search Button */}
+          {/* Search Button (Amber in Light, Vibrant Lavender #B673FF in Dark) */}
           <button
             onClick={() => query && handleSelect(results[0]?.to || '/')}
-            className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-xs transition cursor-pointer"
+            className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-amber-400 hover:bg-amber-300 dark:bg-[#B673FF] dark:hover:bg-[#C894FF] text-slate-950 dark:text-white shadow-xs transition cursor-pointer"
             aria-label="Search"
           >
             <Search size={13} strokeWidth={2.5} />
@@ -203,12 +203,12 @@ export default function Header({ onMenuClick }) {
 
           {/* Instant Dropdown Results */}
           {isOpen && (
-            <div className="absolute left-0 right-0 top-full mt-2 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 p-2 shadow-2xl z-50 border border-slate-200 dark:border-slate-800">
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <div className="absolute left-0 right-0 top-full mt-2 max-h-80 overflow-y-auto rounded-2xl bg-white dark:bg-[#2D2D2D] p-2 shadow-2xl z-50 border border-slate-200 dark:border-[#3D3D3D]">
+              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-[#A0A0A0]">
                 {query.trim() ? t('search.matchingResults', 'Matching Results') : t('search.suggestedExplorations', 'Suggested Explorations')}
               </div>
               {results.length === 0 ? (
-                <div className="p-4 text-center text-xs text-slate-400 dark:text-slate-500">
+                <div className="p-4 text-center text-xs text-slate-400 dark:text-[#A0A0A0]">
                   {t('search.noResults', 'No experiments found for')} "{query}"
                 </div>
               ) : (
@@ -218,16 +218,16 @@ export default function Header({ onMenuClick }) {
                     <button
                       key={item.title}
                       onClick={() => handleSelect(item.to)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-xs transition hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-xs transition hover:bg-slate-100 dark:hover:bg-[#3D3D3D] cursor-pointer"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-[#222222] text-sky-600 dark:text-[#B673FF]">
                         <ItemIcon size={16} />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-slate-800 dark:text-slate-200">{item.title}</p>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500">{item.type}</span>
+                        <p className="truncate font-semibold text-slate-800 dark:text-white">{item.title}</p>
+                        <span className="text-[10px] text-slate-400 dark:text-[#A0A0A0]">{item.type}</span>
                       </div>
-                      <ArrowRight size={13} className="text-slate-300 dark:text-slate-600" />
+                      <ArrowRight size={13} className="text-slate-300 dark:text-[#A0A0A0]" />
                     </button>
                   );
                 })
@@ -245,20 +245,20 @@ export default function Header({ onMenuClick }) {
             <button
               type="button"
               onClick={() => setLangDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs bg-white dark:bg-[#2D2D2D] text-slate-700 dark:text-white border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D] cursor-pointer"
               title="Switch Language"
             >
-              <Languages size={13} className="text-sky-500" />
+              <Languages size={13} className="text-sky-500 dark:text-[#B673FF]" />
               <span className="font-bold">
                 {supportedLanguages.find((l) => l.code === currentLang)?.badge || 'EN'}
               </span>
-              <ChevronDown size={11} className={`text-slate-400 transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown size={11} className={`text-slate-400 dark:text-[#A0A0A0] transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {langDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl bg-white dark:bg-slate-900 p-2 shadow-2xl z-50 border border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
-                <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-800 mb-1 flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl bg-white dark:bg-[#2D2D2D] p-2 shadow-2xl z-50 border border-slate-200 dark:border-[#3D3D3D] animate-in fade-in slide-in-from-top-2">
+                <div className="px-3 py-1.5 border-b border-slate-100 dark:border-[#3D3D3D] mb-1 flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#A0A0A0]">
                     Languages
                   </span>
                 </div>
@@ -274,12 +274,12 @@ export default function Header({ onMenuClick }) {
                         }}
                         className={`flex w-full items-center justify-between px-3 py-2 rounded-xl text-xs transition text-left cursor-pointer ${
                           isSelected
-                            ? 'bg-sky-50 dark:bg-sky-950/70 text-sky-900 dark:text-sky-200 font-bold border border-sky-200 dark:border-sky-800'
-                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            ? 'bg-sky-50 dark:bg-[#3D3D3D] text-sky-900 dark:text-[#B673FF] font-bold border border-sky-200 dark:border-[#B673FF]'
+                            : 'text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-[#3D3D3D]'
                         }`}
                       >
                         <span>{lang.native}</span>
-                        {isSelected && <Check size={13} className="text-sky-600 dark:text-sky-400" />}
+                        {isSelected && <Check size={13} className="text-sky-600 dark:text-[#B673FF]" />}
                       </button>
                     );
                   })}
@@ -295,12 +295,12 @@ export default function Header({ onMenuClick }) {
           onClick={toggleLiteMode}
           className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs active:scale-95 cursor-pointer ${
             isLiteMode
-              ? 'bg-amber-400 text-slate-950 border-amber-500 font-black shadow-amber-400/20'
-              : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+              ? 'bg-amber-400 dark:bg-[#B673FF] text-slate-950 dark:text-white border-amber-500 dark:border-[#B673FF] font-black'
+              : 'bg-white dark:bg-[#2D2D2D] text-slate-600 dark:text-[#A0A0A0] border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D] dark:hover:text-white'
           }`}
           title={isLiteMode ? "Lite Mode Active (Essential Functions Only) - Click to restore full AI mode" : "Click to activate Lite Mode (clean, simple, less clutter)"}
         >
-          <Zap size={13} className={isLiteMode ? "text-slate-950 fill-slate-950" : "text-amber-500"} />
+          <Zap size={13} className={isLiteMode ? "text-slate-950 dark:text-white fill-current" : "text-amber-500 dark:text-[#B673FF]"} />
           <span className="hidden sm:inline">{isLiteMode ? 'Lite Mode (ON)' : 'Lite Mode'}</span>
         </button>
 
@@ -308,12 +308,12 @@ export default function Header({ onMenuClick }) {
         <button
           type="button"
           onClick={toggleTheme}
-          className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border shadow-2xs transition-all active:scale-95 cursor-pointer bg-white dark:bg-slate-900 text-slate-700 dark:text-amber-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+          className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border shadow-2xs transition-all active:scale-95 cursor-pointer bg-white dark:bg-[#2D2D2D] text-slate-700 dark:text-[#B673FF] border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
           title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           aria-label="Toggle theme mode"
         >
           {isDark ? (
-            <Sun size={15} className="text-amber-400" />
+            <Sun size={15} className="text-[#B673FF]" />
           ) : (
             <Moon size={15} className="text-slate-600" />
           )}
@@ -324,11 +324,11 @@ export default function Header({ onMenuClick }) {
           <button
             type="button"
             onClick={() => setStageModalOpen(true)}
-            className="hidden lg:flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-900 px-3 py-1.5 shadow-2xs border border-slate-200 dark:border-slate-800 hover:border-amber-400 transition cursor-pointer text-xs font-bold text-slate-800 dark:text-slate-200"
+            className="hidden lg:flex items-center gap-1.5 rounded-full bg-white dark:bg-[#2D2D2D] px-3 py-1.5 shadow-2xs border border-slate-200 dark:border-[#3D3D3D] hover:border-amber-400 dark:hover:border-[#B673FF] transition cursor-pointer text-xs font-bold text-slate-800 dark:text-white"
             title="Click to view Credit Stages & Status"
           >
-            <span className="text-amber-500 font-mono">⚡ {xp.toLocaleString()} Credits</span>
-            <span className="hidden 2xl:inline text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 px-2 py-0.2 rounded-full text-[10px]">
+            <span className="text-amber-500 dark:text-[#B673FF] font-mono">⚡ {xp.toLocaleString()} Credits</span>
+            <span className="hidden 2xl:inline text-sky-800 dark:text-white bg-sky-50 dark:bg-[#1A1A1A] px-2 py-0.2 rounded-full text-[10px] border border-transparent dark:border-[#3D3D3D]">
               Stage {stageInfo.stage}
             </span>
           </button>
@@ -338,11 +338,11 @@ export default function Header({ onMenuClick }) {
         {!isLiteMode && (
           <Link
             to="/daily-challenge"
-            className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] text-slate-600 dark:text-white hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
             title="3 new lab notifications"
           >
             <Bell size={16} />
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-slate-950">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-[#B673FF] text-[9px] font-bold text-slate-950 dark:text-white">
               3
             </span>
           </Link>
@@ -352,12 +352,12 @@ export default function Header({ onMenuClick }) {
         {!isLiteMode && (
           <Link
             to="/saved"
-            className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] text-slate-600 dark:text-white hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
             title={`${savedCount} saved experiments`}
           >
             <ShoppingBag size={16} />
             {savedCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-slate-950">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-[#B673FF] text-[9px] font-bold text-slate-950 dark:text-white">
                 {savedCount}
               </span>
             )}
@@ -368,7 +368,7 @@ export default function Header({ onMenuClick }) {
         <div ref={profileRef} className="relative">
           <button
             onClick={() => setProfileOpen((o) => !o)}
-            className="clay-btn-circle flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 text-slate-800 dark:text-slate-200 cursor-pointer"
+            className="clay-btn-circle flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 text-slate-800 dark:text-white cursor-pointer dark:bg-[#2D2D2D] dark:border-[#3D3D3D]"
           >
             <UserAvatar
               name={displayName}
@@ -376,15 +376,15 @@ export default function Header({ onMenuClick }) {
               avatarUrl={profile?.avatar_url}
               size="sm"
             />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-100 max-w-[100px] truncate">
+            <span className="text-xs font-bold text-slate-800 dark:text-white max-w-[100px] truncate">
               {displayName}
             </span>
-            <ChevronDown size={14} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-slate-400 dark:text-[#A0A0A0] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Profile / Settings Dropdown */}
           {profileOpen && (
-            <div className="clay-card absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white dark:bg-slate-900 p-3 shadow-2xl z-50 border border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
+            <div className="clay-card absolute right-0 top-full mt-2 w-72 rounded-2xl bg-white dark:bg-[#2D2D2D] p-3 shadow-2xl z-50 border border-slate-100 dark:border-[#3D3D3D] animate-in fade-in slide-in-from-top-2">
               {isAuthenticated || userEmail ? (
                 /* ================= LOGGED IN STATE ================= */
                 <div>

@@ -46,17 +46,17 @@ export default function Home() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               {t('dashboard.welcomeBack', 'Welcome back')}, {name} <span className="text-2xl">👋</span>
             </h1>
             {isLiteMode && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2.5 py-0.5 text-[11px] font-black text-amber-900 dark:text-amber-300">
-                <Zap size={11} className="fill-amber-500 text-amber-500" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-[#1A1A1A] border border-amber-300 dark:border-[#3D3D3D] px-2.5 py-0.5 text-[11px] font-black text-amber-900 dark:text-[#B673FF]">
+                <Zap size={11} className="fill-amber-500 text-amber-500 dark:fill-[#B673FF] dark:text-[#B673FF]" />
                 <span>Lite Mode Active</span>
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-[#A0A0A0]">
             {isLiteMode
               ? 'Streamlined mode active: displaying essential lab workspaces and core practice.'
               : t('dashboard.greetingSubtitle', 'Ready to explore, experiment and learn today?')}
@@ -66,14 +66,14 @@ export default function Home() {
         <div className="flex items-center gap-3">
           {/* Main Primary View Switcher: Hidden in Lite Mode to keep only necessary functions */}
           {!isLiteMode && (
-            <div className="flex items-center gap-1 rounded-2xl border border-sky-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 shadow-sm">
+            <div className="flex items-center gap-1 rounded-2xl border border-sky-200 dark:border-[#3D3D3D] bg-white dark:bg-[#2D2D2D] p-1.5 shadow-sm">
               <button
                 type="button"
                 onClick={() => setActiveTab('engine')}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   activeTab === 'engine'
-                    ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/20'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    ? 'bg-gradient-to-r from-sky-500 to-indigo-600 dark:from-[#9A4EFF] dark:to-[#B673FF] text-white shadow-md shadow-sky-500/20'
+                    : 'text-slate-600 dark:text-[#A0A0A0] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1A1A1A]'
                 }`}
               >
                 <Cpu size={14} />
@@ -84,8 +84,8 @@ export default function Home() {
                 onClick={() => setActiveTab('utility')}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   activeTab === 'utility'
-                    ? 'bg-yellow-300 text-slate-950 shadow-md border border-yellow-400'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    ? 'bg-yellow-300 dark:bg-[#B673FF] text-slate-950 dark:text-white shadow-md border border-yellow-400 dark:border-[#B673FF]'
+                    : 'text-slate-600 dark:text-[#A0A0A0] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-[#1A1A1A]'
                 }`}
               >
                 <Layers size={14} />

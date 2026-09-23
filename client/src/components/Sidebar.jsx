@@ -142,7 +142,7 @@ export default function Sidebar({ isOpen, onClose }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-200 md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white dark:bg-[#222222] border-r border-slate-100 dark:border-[#333333] shadow-sm transition-transform duration-200 md:static md:translate-x-0 ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
@@ -417,17 +417,17 @@ export default function Sidebar({ isOpen, onClose }) {
                       className={({ isActive }) =>
                         `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                           isActive
-                            ? 'bg-sky-100/80 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800 shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 active:bg-sky-50 dark:active:bg-slate-800'
+                            ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-[#B673FF] shadow-xs'
+                            : 'text-slate-600 dark:text-[#A0A0A0] hover:bg-slate-100/70 dark:hover:bg-[#2D2D2D] hover:text-slate-900 dark:hover:text-white active:bg-sky-50 dark:active:bg-[#2D2D2D]'
                         }`
                       }
                     >
                       <div className="flex items-center gap-3">
-                        <Icon size={17} />
+                        <Icon size={17} className={location.pathname === to ? 'text-sky-600 dark:text-[#B673FF]' : ''} />
                         <span>{t(tKey, label)}</span>
                       </div>
                       {badge && (
-                        <span className="rounded-full bg-yellow-300 text-slate-900 px-2 py-0.5 text-[9px] font-black shadow-xs">
+                        <span className="rounded-full bg-yellow-300 dark:bg-[#1A1A1A] text-slate-900 dark:text-[#B673FF] dark:border dark:border-[#3D3D3D] px-2 py-0.5 text-[9px] font-black shadow-xs">
                           {badge}
                         </span>
                       )}
@@ -438,10 +438,10 @@ export default function Sidebar({ isOpen, onClose }) {
 
               {/* Hackathon Innovations Navigation (Omitted in Lite Mode for maximum performance) */}
               {!isLiteMode && (
-                <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-4">
-                  <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-sky-400 flex items-center justify-between">
+                <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-[#333333] pt-4">
+                  <div className="px-4 pb-1 text-[10px] font-black uppercase tracking-wider text-sky-600 dark:text-[#B673FF] flex items-center justify-between">
                     <span>{t('nav.smartInnovations', 'Smart Innovations')}</span>
-                    <span className="bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1.5 py-0.2 rounded font-extrabold text-[8px]">
+                    <span className="bg-sky-100 dark:bg-[#1A1A1A] text-sky-700 dark:text-[#B673FF] dark:border dark:border-[#3D3D3D] px-1.5 py-0.2 rounded font-extrabold text-[8px]">
                       NEW
                     </span>
                   </div>
@@ -454,8 +454,8 @@ export default function Sidebar({ isOpen, onClose }) {
                       className={({ isActive }) =>
                         `flex items-center justify-between rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                           isActive
-                            ? 'bg-sky-100/80 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800 shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 active:bg-sky-50 dark:active:bg-slate-800'
+                            ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-[#B673FF] shadow-xs'
+                            : 'text-slate-600 dark:text-[#A0A0A0] hover:bg-slate-100/70 dark:hover:bg-[#2D2D2D] hover:text-slate-900 dark:hover:text-white active:bg-sky-50 dark:active:bg-[#2D2D2D]'
                         }`
                       }
                     >
@@ -464,7 +464,7 @@ export default function Sidebar({ isOpen, onClose }) {
                         <span>{t(tKey, label)}</span>
                       </div>
                       {badge && (
-                        <span className="rounded bg-sky-50 dark:bg-slate-800 text-sky-600 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800 px-1.5 py-0.5 text-[9px] font-mono font-bold">
+                        <span className="rounded bg-sky-50 dark:bg-[#1A1A1A] text-sky-600 dark:text-[#B673FF] border border-sky-200/80 dark:border-[#3D3D3D] px-1.5 py-0.5 text-[9px] font-mono font-bold">
                           {badge}
                         </span>
                       )}
@@ -476,7 +476,7 @@ export default function Sidebar({ isOpen, onClose }) {
           )}
 
           {/* Secondary Navigation */}
-          <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800 pt-4">
+          <nav className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-[#333333] pt-4">
             {SECONDARY_MENU.filter(({ to }) => {
               if (isTeacher || isAdmin) {
                 return !['/progress', '/achievements', '/saved'].includes(to);
@@ -493,8 +493,8 @@ export default function Sidebar({ isOpen, onClose }) {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-2xl px-4 py-2.5 text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-sky-100/80 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800 shadow-xs'
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200 active:bg-sky-50 dark:active:bg-slate-800'
+                      ? 'bg-sky-100/80 dark:bg-[#2D2D2D] text-sky-800 dark:text-white font-bold border border-sky-200 dark:border-[#B673FF] shadow-xs'
+                      : 'text-slate-500 dark:text-[#A0A0A0] hover:bg-slate-100/70 dark:hover:bg-[#2D2D2D] hover:text-slate-800 dark:hover:text-white active:bg-sky-50 dark:active:bg-[#2D2D2D]'
                   }`
                 }
               >
@@ -548,7 +548,7 @@ export default function Sidebar({ isOpen, onClose }) {
             <Link
               to="/profile"
               onClick={onClose}
-              className="clay-card block p-3.5 transition hover:shadow-md"
+              className="clay-card block p-3.5 transition hover:shadow-md dark:bg-[#2D2D2D] dark:border-[#3D3D3D]"
             >
               <div className="flex items-center gap-3">
                 <UserAvatar
@@ -558,23 +558,23 @@ export default function Sidebar({ isOpen, onClose }) {
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="truncate text-xs font-bold text-slate-900 dark:text-slate-100">
+                    <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
                       {name}
                     </p>
-                    <span className="text-[9px] font-black text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950 px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-850">
+                    <span className="text-[9px] font-black text-sky-800 dark:text-[#B673FF] bg-sky-50 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-sky-200 dark:border-[#3D3D3D]">
                       Stage {stageInfo.stage}
                     </span>
                   </div>
-                  <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-[#A0A0A0] truncate mt-0.5">
                     {stageInfo.title}
                   </p>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 p-0.5 border border-sky-100 dark:border-slate-700">
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-[#1A1A1A] p-0.5 border border-sky-100 dark:border-[#3D3D3D]">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 transition-all duration-500"
+                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-sky-400 dark:from-[#9A4EFF] dark:via-[#B673FF] dark:to-[#D4A5FF] transition-all duration-500"
                       style={{ width: `${xpPct}%` }}
                     />
                   </div>
-                  <p className="mt-1 text-right text-[9px] font-semibold text-slate-400">
+                  <p className="mt-1 text-right text-[9px] font-semibold text-slate-400 dark:text-[#A0A0A0]">
                     {xp.toLocaleString()} Credits · Level {level}
                   </p>
                 </div>

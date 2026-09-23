@@ -23,6 +23,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { supabase } from '../../supabase.js';
+import { useTheme } from '../../context/ThemeContext.jsx';
 
 // Realistic curricular baseline data for initial display and offline operation
 const DEFAULT_MASTERY_DELTAS = [
@@ -35,6 +36,7 @@ const DEFAULT_MASTERY_DELTAS = [
 ];
 
 export default function MasteryDeltaView({ className = '' }) {
+  const { isDark } = useTheme();
   const [data, setData] = useState(DEFAULT_MASTERY_DELTAS);
   const [chartType, setChartType] = useState('bar'); // 'bar' | 'line'
   const [isLoading, setIsLoading] = useState(false);
@@ -83,27 +85,27 @@ export default function MasteryDeltaView({ className = '' }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 shadow-xs">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-[#2D2D2D] dark:text-[#B673FF] shadow-xs">
               <TrendingUp size={18} />
             </span>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
               Mastery Delta: Proof of Learning
             </h2>
           </div>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <p className="mt-0.5 text-xs text-slate-500 dark:text-[#A0A0A0]">
             Rigorous diagnostic tracking comparing Pre-Investigation baselines against Post-Lab assessments.
           </p>
         </div>
 
         {/* Chart View Toggle */}
-        <div className="flex items-center gap-1 rounded-2xl border border-sky-100 bg-sky-50/60 p-1 self-start sm:self-auto">
+        <div className="flex items-center gap-1 rounded-2xl border border-sky-100 bg-sky-50/60 dark:border-[#3D3D3D] dark:bg-[#1A1A1A] p-1 self-start sm:self-auto">
           <button
             type="button"
             onClick={() => setChartType('bar')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
               chartType === 'bar'
-                ? 'bg-white text-sky-900 shadow-xs border border-sky-200'
-                : 'text-slate-500 hover:text-slate-900'
+                ? 'bg-white text-sky-900 shadow-xs border border-sky-200 dark:bg-[#2D2D2D] dark:text-white dark:border-[#3D3D3D]'
+                : 'text-slate-500 hover:text-slate-900 dark:text-[#A0A0A0] dark:hover:text-white'
             }`}
           >
             <BarChart3 size={13} />
@@ -114,8 +116,8 @@ export default function MasteryDeltaView({ className = '' }) {
             onClick={() => setChartType('line')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
               chartType === 'line'
-                ? 'bg-white text-sky-900 shadow-xs border border-sky-200'
-                : 'text-slate-500 hover:text-slate-900'
+                ? 'bg-white text-sky-900 shadow-xs border border-sky-200 dark:bg-[#2D2D2D] dark:text-white dark:border-[#3D3D3D]'
+                : 'text-slate-500 hover:text-slate-900 dark:text-[#A0A0A0] dark:hover:text-white'
             }`}
           >
             <LineChartIcon size={13} />
@@ -127,104 +129,104 @@ export default function MasteryDeltaView({ className = '' }) {
       {/* 2. Claymorphic Summary Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Average Mastery Growth */}
-        <div className="clay-card relative flex flex-col justify-between p-5 bg-gradient-to-br from-emerald-50/50 via-white to-sky-50/40 rounded-3xl border border-emerald-100 shadow-sm overflow-hidden">
+        <div className="clay-card relative flex flex-col justify-between p-5 bg-gradient-to-br from-emerald-50/50 via-white to-sky-50/40 dark:from-[#2D2D2D] dark:via-[#2D2D2D] dark:to-[#2D2D2D] rounded-3xl border border-emerald-100 dark:border-[#3D3D3D] shadow-sm overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800">
+            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800 dark:text-[#B673FF]">
               Average Mastery Growth
             </span>
-            <span className="flex items-center gap-1 rounded-full bg-emerald-100/90 text-emerald-800 px-2 py-0.5 text-[10px] font-black">
+            <span className="flex items-center gap-1 rounded-full bg-emerald-100/90 text-emerald-800 dark:bg-[#1A1A1A] dark:text-[#B673FF] px-2 py-0.5 text-[10px] font-black">
               <Zap size={11} /> Verified
             </span>
           </div>
           <div className="my-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black tracking-tight text-emerald-600">
+              <span className="text-3xl sm:text-4xl font-black tracking-tight text-emerald-600 dark:text-[#B673FF]">
                 +{avgGrowth}%
               </span>
-              <span className="text-xs font-bold text-slate-400">gain per module</span>
+              <span className="text-xs font-bold text-slate-400 dark:text-[#A0A0A0]">gain per module</span>
             </div>
-            <p className="mt-1 text-[11px] font-medium text-slate-500">
-              Pre-test baseline avg <span className="font-bold text-slate-700">{avgPre}%</span> rose to{' '}
-              <span className="font-bold text-emerald-600">{avgPost}%</span>.
+            <p className="mt-1 text-[11px] font-medium text-slate-500 dark:text-[#A0A0A0]">
+              Pre-test baseline avg <span className="font-bold text-slate-700 dark:text-white">{avgPre}%</span> rose to{' '}
+              <span className="font-bold text-emerald-600 dark:text-[#B673FF]">{avgPost}%</span>.
             </p>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-[#1A1A1A] overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 dark:from-[#9A4EFF] dark:to-[#B673FF] transition-all duration-500"
               style={{ width: `${Math.min(100, Math.max(10, Number(avgGrowth) * 2.5))}%` }}
             />
           </div>
         </div>
 
         {/* Card 2: Peak Improvement Topic */}
-        <div className="clay-card relative flex flex-col justify-between p-5 bg-white rounded-3xl border border-sky-100 shadow-sm">
+        <div className="clay-card relative flex flex-col justify-between p-5 bg-white dark:bg-[#2D2D2D] rounded-3xl border border-sky-100 dark:border-[#3D3D3D] shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-sky-800">
+            <span className="text-[11px] font-black uppercase tracking-wider text-sky-800 dark:text-[#B673FF]">
               Highest Conceptual Leap
             </span>
-            <span className="flex items-center gap-1 rounded-full bg-sky-100 text-sky-800 px-2 py-0.5 text-[10px] font-black">
+            <span className="flex items-center gap-1 rounded-full bg-sky-100 text-sky-800 dark:bg-[#1A1A1A] dark:text-[#B673FF] px-2 py-0.5 text-[10px] font-black">
               <Sparkles size={11} /> Peak Delta
             </span>
           </div>
           <div className="my-3">
-            <p className="text-lg font-black text-slate-900 truncate">
+            <p className="text-lg font-black text-slate-900 dark:text-white truncate">
               {highestGainTopic.chapter}
             </p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs font-mono font-black text-slate-400">
+              <span className="text-xs font-mono font-black text-slate-400 dark:text-[#A0A0A0]">
                 {highestGainTopic.pre_score}% → {highestGainTopic.post_score}%
               </span>
-              <span className="rounded-md bg-emerald-50 text-emerald-700 px-1.5 py-0.5 text-[10px] font-black border border-emerald-200">
+              <span className="rounded-md bg-emerald-50 text-emerald-700 dark:bg-[#1A1A1A] dark:text-[#B673FF] px-1.5 py-0.5 text-[10px] font-black border border-emerald-200 dark:border-[#3D3D3D]">
                 +{highestGainTopic.delta}%
               </span>
             </div>
           </div>
-          <p className="text-[10px] text-slate-400 font-medium">
+          <p className="text-[10px] text-slate-400 dark:text-[#A0A0A0] font-medium">
             Solidified through interactive simulation & targeted theory timestamps.
           </p>
         </div>
 
         {/* Card 3: Validated Chapters */}
-        <div className="clay-card relative flex flex-col justify-between p-5 bg-white rounded-3xl border border-sky-100 shadow-sm">
+        <div className="clay-card relative flex flex-col justify-between p-5 bg-white dark:bg-[#2D2D2D] rounded-3xl border border-sky-100 dark:border-[#3D3D3D] shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-[#A0A0A0]">
               Assessed Units
             </span>
-            <span className="flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2 py-0.5 text-[10px] font-black">
+            <span className="flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 dark:bg-[#1A1A1A] dark:text-[#A0A0A0] px-2 py-0.5 text-[10px] font-black">
               <CheckCircle2 size={11} /> {data.length} Units
             </span>
           </div>
           <div className="my-3">
-            <span className="text-3xl font-black text-slate-900">
+            <span className="text-3xl font-black text-slate-900 dark:text-white">
               {data.filter((d) => d.post_score >= 80).length} / {data.length}
             </span>
-            <span className="text-xs font-bold text-slate-400 block mt-1">
+            <span className="text-xs font-bold text-slate-400 dark:text-[#A0A0A0] block mt-1">
               Units achieving &ge; 80% Post-Test Mastery
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 font-medium">
+          <p className="text-[10px] text-slate-400 dark:text-[#A0A0A0] font-medium">
             Zero regression observed across all evaluated curriculum chapters.
           </p>
         </div>
       </div>
 
       {/* 3. Recharts Visualization Container */}
-      <div className="clay-card rounded-3xl border border-sky-100 bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <div className="clay-card rounded-3xl border border-sky-100 bg-white dark:bg-[#2D2D2D] dark:border-[#3D3D3D] p-5 shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#3D3D3D] pb-3 mb-4">
           <div>
-            <h3 className="text-xs sm:text-sm font-black text-slate-800">
+            <h3 className="text-xs sm:text-sm font-black text-slate-800 dark:text-white">
               Module-by-Module Diagnostic Delta
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-400 dark:text-[#A0A0A0]">
               Measured pre-lab diagnostic score vs post-investigation achievement.
             </p>
           </div>
           <div className="flex items-center gap-3 text-[11px] font-bold">
-            <span className="flex items-center gap-1.5 text-slate-500">
-              <span className="h-3 w-3 rounded bg-slate-300 inline-block" /> Pre-Test Score
+            <span className="flex items-center gap-1.5 text-slate-500 dark:text-[#A0A0A0]">
+              <span className="h-3 w-3 rounded bg-slate-300 dark:bg-[#3D3D3D] inline-block" /> Pre-Test Score
             </span>
-            <span className="flex items-center gap-1.5 text-emerald-700">
-              <span className="h-3 w-3 rounded bg-emerald-500 inline-block" /> Post-Test Score
+            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-[#B673FF]">
+              <span className="h-3 w-3 rounded bg-emerald-500 dark:bg-[#B673FF] inline-block" /> Post-Test Score
             </span>
           </div>
         </div>
@@ -233,37 +235,37 @@ export default function MasteryDeltaView({ className = '' }) {
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'bar' ? (
               <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#3D3D3D' : '#f1f5f9'} vertical={false} />
                 <XAxis
                   dataKey="chapter"
-                  tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  tick={{ fill: isDark ? '#A0A0A0' : '#64748b', fontSize: 11, fontWeight: 600 }}
+                  axisLine={{ stroke: isDark ? '#3D3D3D' : '#e2e8f0' }}
                   tickLine={false}
                 />
                 <YAxis
                   domain={[0, 100]}
-                  tick={{ fill: '#94a3b8', fontSize: 10 }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  tick={{ fill: isDark ? '#A0A0A0' : '#94a3b8', fontSize: 10 }}
+                  axisLine={{ stroke: isDark ? '#3D3D3D' : '#e2e8f0' }}
                   tickLine={false}
                   unit="%"
                 />
                 <Tooltip content={<CustomDeltaTooltip />} />
-                <Bar dataKey="pre_score" name="Pre-Test" fill="#cbd5e1" radius={[6, 6, 0, 0]} maxBarSize={32} />
-                <Bar dataKey="post_score" name="Post-Test" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="pre_score" name="Pre-Test" fill={isDark ? '#3D3D3D' : '#cbd5e1'} radius={[6, 6, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="post_score" name="Post-Test" fill={isDark ? '#B673FF' : '#10b981'} radius={[6, 6, 0, 0]} maxBarSize={32} />
               </BarChart>
             ) : (
               <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#3D3D3D' : '#f1f5f9'} vertical={false} />
                 <XAxis
                   dataKey="chapter"
-                  tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  tick={{ fill: isDark ? '#A0A0A0' : '#64748b', fontSize: 11, fontWeight: 600 }}
+                  axisLine={{ stroke: isDark ? '#3D3D3D' : '#e2e8f0' }}
                   tickLine={false}
                 />
                 <YAxis
                   domain={[0, 100]}
-                  tick={{ fill: '#94a3b8', fontSize: 10 }}
-                  axisLine={{ stroke: '#e2e8f0' }}
+                  tick={{ fill: isDark ? '#A0A0A0' : '#94a3b8', fontSize: 10 }}
+                  axisLine={{ stroke: isDark ? '#3D3D3D' : '#e2e8f0' }}
                   tickLine={false}
                   unit="%"
                 />
@@ -272,18 +274,18 @@ export default function MasteryDeltaView({ className = '' }) {
                   type="monotone"
                   dataKey="pre_score"
                   name="Pre-Test"
-                  stroke="#94a3b8"
+                  stroke={isDark ? '#666666' : '#94a3b8'}
                   strokeWidth={2}
                   strokeDasharray="4 4"
-                  dot={{ fill: '#94a3b8', r: 4 }}
+                  dot={{ fill: isDark ? '#666666' : '#94a3b8', r: 4 }}
                 />
                 <Line
                   type="monotone"
                   dataKey="post_score"
                   name="Post-Test"
-                  stroke="#10b981"
+                  stroke={isDark ? '#B673FF' : '#10b981'}
                   strokeWidth={3}
-                  dot={{ fill: '#10b981', r: 5 }}
+                  dot={{ fill: isDark ? '#B673FF' : '#10b981', r: 5 }}
                 />
               </LineChart>
             )}
@@ -299,22 +301,22 @@ function CustomDeltaTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
     const dataObj = payload[0].payload;
     return (
-      <div className="rounded-2xl border border-sky-100 bg-white/95 backdrop-blur-sm p-3 shadow-xl text-xs">
-        <p className="font-black text-slate-900 border-b border-slate-100 pb-1.5 mb-1.5">
+      <div className="rounded-2xl border border-sky-100 bg-white/95 dark:bg-[#222222]/95 dark:border-[#3D3D3D] backdrop-blur-sm p-3 shadow-xl text-xs">
+        <p className="font-black text-slate-900 dark:text-white border-b border-slate-100 dark:border-[#3D3D3D] pb-1.5 mb-1.5">
           {label}
         </p>
         <div className="space-y-1">
-          <div className="flex items-center justify-between gap-4 text-slate-500">
+          <div className="flex items-center justify-between gap-4 text-slate-500 dark:text-[#A0A0A0]">
             <span>Pre-Test Diagnostic:</span>
-            <span className="font-mono font-bold text-slate-700">{dataObj.pre_score}%</span>
+            <span className="font-mono font-bold text-slate-700 dark:text-white">{dataObj.pre_score}%</span>
           </div>
-          <div className="flex items-center justify-between gap-4 text-emerald-700 font-bold">
+          <div className="flex items-center justify-between gap-4 text-emerald-700 dark:text-[#B673FF] font-bold">
             <span>Post-Test Achievement:</span>
             <span className="font-mono">{dataObj.post_score}%</span>
           </div>
-          <div className="flex items-center justify-between gap-4 pt-1 border-t border-slate-100 text-[11px] font-black text-sky-700">
+          <div className="flex items-center justify-between gap-4 pt-1 border-t border-slate-100 dark:border-[#3D3D3D] text-[11px] font-black text-sky-700 dark:text-[#B673FF]">
             <span>Mastery Delta:</span>
-            <span className="rounded bg-emerald-50 px-1.5 py-0.2 text-emerald-700 border border-emerald-200">
+            <span className="rounded bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-[#1A1A1A] dark:text-[#B673FF] dark:border-[#3D3D3D] px-1.5 py-0.2">
               +{dataObj.delta}%
             </span>
           </div>

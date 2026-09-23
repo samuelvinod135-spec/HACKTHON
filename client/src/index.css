@@ -14,6 +14,17 @@
   --color-clay-green: #10b981;
   --color-clay-teal: #14b8a6;
   --color-clay-yellow: #facc15;
+
+  /* Charcoal & Black System Palette */
+  --color-charcoal-canvas: #1a1a1a;
+  --color-charcoal-surface: #222222;
+  --color-charcoal-card: #2d2d2d;
+  --color-charcoal-border: #3d3d3d;
+
+  /* Vibrant Lavender Accent Palette */
+  --color-lavender: #b673ff;
+  --color-lavender-light: #c894ff;
+  --color-lavender-dark: #9a4eff;
 }
 
 * { 
@@ -43,8 +54,8 @@ body {
 html.dark body,
 .dark #root,
 html.dark #root {
-  background-color: #030712 !important;
-  color: #f8fafc !important;
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
 }
 
 ::-webkit-scrollbar { width: 7px; height: 7px; }
@@ -200,13 +211,12 @@ html.dark #root {
     transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.2s ease, border-color 0.2s ease;
   }
   .dark .clay-card, .dark .lab-card {
-    background-color: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: #2d2d2d !important;
+    border: 1px solid #3d3d3d !important;
     box-shadow:
-      0 12px 28px -4px rgba(0, 0, 0, 0.4),
-      0 4px 10px -2px rgba(0, 0, 0, 0.3),
-      inset 0 -1px 2px rgba(0, 0, 0, 0.5),
-      inset 0 1px 2px rgba(255, 255, 255, 0.1);
+      0 12px 28px -4px rgba(0, 0, 0, 0.5),
+      0 4px 10px -2px rgba(0, 0, 0, 0.4),
+      inset 0 1px 2px rgba(255, 255, 255, 0.05);
   }
   .clay-card:hover, .lab-card:hover {
     box-shadow: 
@@ -216,11 +226,10 @@ html.dark #root {
       inset 0 3px 5px rgba(255, 255, 255, 0.98);
   }
   .dark .clay-card:hover, .dark .lab-card:hover {
+    border-color: #4d4d4d !important;
     box-shadow:
-      0 16px 32px -4px rgba(0, 0, 0, 0.5),
-      0 6px 12px -2px rgba(0, 0, 0, 0.35),
-      inset 0 -1px 2px rgba(0, 0, 0, 0.5),
-      inset 0 1px 2px rgba(255, 255, 255, 0.15);
+      0 16px 32px -4px rgba(0, 0, 0, 0.65),
+      0 6px 12px -2px rgba(0, 0, 0, 0.45);
   }
 
   /* Blue-Tinted White Clay Card (Chemistry Workspace) */
@@ -235,13 +244,12 @@ html.dark #root {
     border: 1px solid rgba(255, 255, 255, 0.95);
   }
   .dark .clay-card-blue {
-    background: linear-gradient(145deg, #0b1a2e 0%, #071322 100%);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    color: #e0f2fe;
+    background: #2d2d2d !important;
+    border: 1px solid #3d3d3d !important;
+    color: #ffffff !important;
     box-shadow:
-      0 14px 30px -4px rgba(0, 0, 0, 0.65),
-      inset 0 -1px 2px rgba(0, 0, 0, 0.6),
-      inset 0 1px 2px rgba(56, 189, 248, 0.15);
+      0 14px 30px -4px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(255, 255, 255, 0.05);
   }
 
   /* Green-Tinted White Clay Card (Physics Workspace) */
@@ -256,13 +264,12 @@ html.dark #root {
     border: 1px solid rgba(255, 255, 255, 0.95);
   }
   .dark .clay-card-green {
-    background: linear-gradient(145deg, #062319 0%, #041912 100%);
-    border: 1px solid rgba(52, 211, 153, 0.25);
-    color: #d1fae5;
+    background: #2d2d2d !important;
+    border: 1px solid #3d3d3d !important;
+    color: #ffffff !important;
     box-shadow:
-      0 14px 30px -4px rgba(0, 0, 0, 0.65),
-      inset 0 -1px 2px rgba(0, 0, 0, 0.6),
-      inset 0 1px 2px rgba(52, 211, 153, 0.15);
+      0 14px 30px -4px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(255, 255, 255, 0.05);
   }
 
   /* Fresh Sky Blue Clay Card */
@@ -277,12 +284,12 @@ html.dark #root {
     border: 1px solid rgba(255, 255, 255, 0.95);
   }
   .dark .clay-card-sky, .dark .clay-card-teal {
-    background: linear-gradient(145deg, #081d30 0%, #051422 100%);
-    border: 1px solid rgba(14, 165, 233, 0.25);
-    color: #e0f2fe;
+    background: #2d2d2d !important;
+    border: 1px solid #3d3d3d !important;
+    color: #ffffff !important;
     box-shadow:
-      0 14px 30px -4px rgba(0, 0, 0, 0.65),
-      inset 0 1px 2px rgba(14, 165, 233, 0.15);
+      0 14px 30px -4px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(255, 255, 255, 0.05);
   }
 
   /* Banana Yellow Clay Card */
@@ -297,15 +304,15 @@ html.dark #root {
     border: 1px solid rgba(255, 255, 255, 0.8);
   }
   .dark .clay-card-yellow {
-    background: linear-gradient(145deg, #241c04 0%, #171202 100%);
-    border: 1px solid rgba(250, 204, 21, 0.25);
-    color: #fef08a;
+    background: #2d2d2d !important;
+    border: 1px solid #3d3d3d !important;
+    color: #ffffff !important;
     box-shadow:
-      0 14px 30px -4px rgba(0, 0, 0, 0.65),
-      inset 0 1px 2px rgba(250, 204, 21, 0.15);
+      0 14px 30px -4px rgba(0, 0, 0, 0.5),
+      inset 0 1px 2px rgba(255, 255, 255, 0.05);
   }
 
-  /* Signature 3D Banana Yellow Clay CTA Button */
+  /* Signature 3D Clay CTA Button (Banana Yellow in Light, Vibrant Lavender #B673FF in Dark) */
   .clay-btn-yellow, .btn-cta {
     background: linear-gradient(180deg, #fff066 0%, #ffe135 50%, #ffd000 100%);
     color: #1e293b;
@@ -331,6 +338,36 @@ html.dark #root {
     box-shadow: 
       0 3px 8px -2px rgba(234, 179, 8, 0.35),
       inset 0 2px 4px rgba(202, 138, 4, 0.3);
+  }
+
+  /* Vibrant Lavender #B673FF Primary CTA Buttons in Dark Mode */
+  .dark .clay-btn-yellow,
+  .dark .btn-cta,
+  .dark .btn-primary {
+    background: linear-gradient(180deg, #c894ff 0%, #b673ff 50%, #9a4eff 100%) !important;
+    color: #ffffff !important;
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 
+      0 6px 16px -2px rgba(182, 115, 255, 0.5),
+      inset 0 -3px 4px rgba(126, 48, 224, 0.4),
+      inset 0 3px 4px rgba(255, 255, 255, 0.4) !important;
+  }
+  .dark .clay-btn-yellow:hover,
+  .dark .btn-cta:hover,
+  .dark .btn-primary:hover {
+    background: linear-gradient(180deg, #d4a5ff 0%, #be84ff 50%, #a85eff 100%) !important;
+    box-shadow: 
+      0 8px 22px -2px rgba(182, 115, 255, 0.65),
+      inset 0 -3px 4px rgba(126, 48, 224, 0.4),
+      inset 0 3px 4px rgba(255, 255, 255, 0.55) !important;
+  }
+  .dark .clay-btn-yellow:active,
+  .dark .btn-cta:active,
+  .dark .btn-primary:active {
+    box-shadow: 
+      0 3px 8px -2px rgba(182, 115, 255, 0.4),
+      inset 0 2px 4px rgba(126, 48, 224, 0.5) !important;
   }
 
   /* 3D Sky Blue Clay Button */
@@ -725,137 +762,182 @@ html.dark #root {
 }
 
 /* ====================================================
-   🌑 100% OLED DEEP DARK SYSTEM ENGINE
+   🌑 CHARCOAL & BLACK SYSTEM ENGINE (#1A1A1A / #222222 / #2D2D2D / #B673FF)
    ==================================================== */
 
-/* Base containers & surface cards */
-.dark .bg-white:not([class*="dark:bg-"]) {
-  background-color: #0f172a !important;
-}
-.dark .bg-slate-50:not([class*="dark:bg-"]),
-.dark .bg-gray-50:not([class*="dark:bg-"]),
-.dark .bg-zinc-50:not([class*="dark:bg-"]) {
-  background-color: #0b1120 !important;
-}
-.dark .bg-slate-100:not([class*="dark:bg-"]),
-.dark .bg-gray-100:not([class*="dark:bg-"]),
-.dark .bg-zinc-100:not([class*="dark:bg-"]) {
-  background-color: #162032 !important;
-}
-.dark .bg-\[\#edf2f8\]:not([class*="dark:bg-"]) {
-  background-color: #030712 !important;
+/* 1. Outermost Canvas / Global App Background: Deep Charcoal (#1A1A1A) */
+.dark body,
+html.dark body,
+.dark #root,
+html.dark #root,
+.dark .app-canvas,
+.dark .bg-\[\#edf2f8\],
+.dark .bg-\[\#edf2f8\]\/90,
+.dark .dark\:bg-slate-950,
+.dark .dark\:bg-slate-950\/90,
+.dark .dark\:bg-slate-950\/80,
+.dark .dark\:bg-black {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
 }
 
-/* Translucent tinted surface cards */
+/* 2. Surface / Header Background: Dark Grey (#222222) */
+.dark header,
+.dark aside,
+.dark .surface-header,
+.dark .surface-sidebar,
+.dark .bg-slate-50:not([class*="dark:bg-"]),
+.dark .bg-gray-50:not([class*="dark:bg-"]),
+.dark .bg-zinc-50:not([class*="dark:bg-"]),
+.dark .dark\:bg-\[\#222222\],
+.dark .dark\:bg-slate-900\/50,
+.dark .dark\:bg-slate-900\/60 {
+  background-color: #222222 !important;
+  border-color: #333333 !important;
+}
+
+/* 3. Card & Component Background: Elevated Charcoal Grey (#2D2D2D) */
+.dark .bg-white,
+.dark .bg-slate-100:not([class*="dark:bg-"]),
+.dark .bg-gray-100:not([class*="dark:bg-"]),
+.dark .bg-zinc-100:not([class*="dark:bg-"]),
+.dark .dark\:bg-slate-900,
+.dark .dark\:bg-slate-850,
+.dark .dark\:bg-slate-800,
+.dark .clay-card,
+.dark .lab-card,
+.dark .card-sky-glass,
+.dark [role="dialog"],
+.dark .stat-card,
+.dark .dropdown-menu {
+  background-color: #2d2d2d !important;
+  border-color: #3d3d3d !important;
+}
+
+.dark .dark\:from-slate-900 {
+  --tw-gradient-from: #2d2d2d var(--tw-gradient-from-position) !important;
+}
+.dark .dark\:via-slate-900 {
+  --tw-gradient-via: #2d2d2d var(--tw-gradient-via-position) !important;
+}
+.dark .dark\:to-slate-850,
+.dark .dark\:to-slate-900 {
+  --tw-gradient-to: #2d2d2d var(--tw-gradient-to-position) !important;
+}
+
+.dark .clay-card-blue,
+.dark .clay-card-green,
+.dark .clay-card-sky,
+.dark .clay-card-teal,
+.dark .clay-card-yellow {
+  background: #2d2d2d !important;
+  border-color: #3d3d3d !important;
+  color: #ffffff !important;
+}
+
+/* Translucent tinted surface cards in dark mode -> Elevated Charcoal (#2D2D2D) */
 .dark .bg-sky-50:not([class*="dark:bg-"]),
 .dark .bg-sky-50\/30:not([class*="dark:bg-"]),
 .dark .bg-sky-50\/40:not([class*="dark:bg-"]),
 .dark .bg-sky-50\/50:not([class*="dark:bg-"]),
 .dark .bg-sky-50\/70:not([class*="dark:bg-"]),
 .dark .bg-sky-100:not([class*="dark:bg-"]),
-.dark .bg-sky-100\/80:not([class*="dark:bg-"]) {
-  background-color: rgba(14, 165, 233, 0.14) !important;
-}
+.dark .bg-sky-100\/80:not([class*="dark:bg-"]),
 .dark .bg-blue-50:not([class*="dark:bg-"]),
-.dark .bg-blue-50\/30:not([class*="dark:bg-"]),
-.dark .bg-blue-50\/50:not([class*="dark:bg-"]),
-.dark .bg-blue-100:not([class*="dark:bg-"]) {
-  background-color: rgba(59, 130, 246, 0.14) !important;
-}
 .dark .bg-emerald-50:not([class*="dark:bg-"]),
-.dark .bg-emerald-50\/50:not([class*="dark:bg-"]),
-.dark .bg-emerald-100:not([class*="dark:bg-"]),
-.dark .bg-emerald-100\/80:not([class*="dark:bg-"]) {
-  background-color: rgba(16, 185, 129, 0.14) !important;
-}
 .dark .bg-amber-50:not([class*="dark:bg-"]),
-.dark .bg-amber-50\/20:not([class*="dark:bg-"]),
-.dark .bg-amber-50\/50:not([class*="dark:bg-"]),
-.dark .bg-amber-50\/80:not([class*="dark:bg-"]),
-.dark .bg-amber-50\/90:not([class*="dark:bg-"]),
-.dark .bg-amber-100:not([class*="dark:bg-"]),
-.dark .bg-amber-100\/80:not([class*="dark:bg-"]),
-.dark .bg-amber-100\/90:not([class*="dark:bg-"]) {
-  background-color: rgba(245, 158, 11, 0.14) !important;
-}
-.dark .bg-orange-50:not([class*="dark:bg-"]),
-.dark .bg-orange-50\/50:not([class*="dark:bg-"]) {
-  background-color: rgba(249, 115, 22, 0.14) !important;
-}
-.dark .bg-teal-50:not([class*="dark:bg-"]),
-.dark .bg-teal-100:not([class*="dark:bg-"]),
-.dark .bg-teal-100\/80:not([class*="dark:bg-"]) {
-  background-color: rgba(20, 184, 166, 0.14) !important;
-}
 .dark .bg-rose-50:not([class*="dark:bg-"]),
-.dark .bg-rose-100:not([class*="dark:bg-"]) {
-  background-color: rgba(244, 63, 94, 0.14) !important;
-}
-.dark .bg-indigo-50:not([class*="dark:bg-"]),
-.dark .bg-indigo-100:not([class*="dark:bg-"]) {
-  background-color: rgba(99, 102, 241, 0.14) !important;
+.dark .bg-indigo-50:not([class*="dark:bg-"]) {
+  background-color: #2d2d2d !important;
+  border-color: #3d3d3d !important;
 }
 
-/* Gradients that fade from white or light tints */
+/* Gradients that fade from white in dark mode -> fade from #2D2D2D */
 .dark .from-white:not([class*="dark:from-"]) {
-  --tw-gradient-from: #0f172a var(--tw-gradient-from-position) !important;
+  --tw-gradient-from: #2d2d2d var(--tw-gradient-from-position) !important;
 }
 .dark .to-white:not([class*="dark:to-"]) {
-  --tw-gradient-to: #0f172a var(--tw-gradient-to-position) !important;
+  --tw-gradient-to: #2d2d2d var(--tw-gradient-to-position) !important;
 }
 
-/* High contrast dark text -> crisp luminous light text */
-.dark .text-slate-900:not([class*="dark:text-"]),
-.dark .text-slate-800:not([class*="dark:text-"]),
-.dark .text-gray-900:not([class*="dark:text-"]),
-.dark .text-gray-800:not([class*="dark:text-"]),
-.dark .text-neutral-900:not([class*="dark:text-"]),
-.dark .text-neutral-800:not([class*="dark:text-"]) {
-  color: #f8fafc !important;
-}
-.dark .text-slate-700:not([class*="dark:text-"]),
-.dark .text-gray-700:not([class*="dark:text-"]),
-.dark .text-neutral-700:not([class*="dark:text-"]) {
-  color: #e2e8f0 !important;
-}
-.dark .text-slate-600:not([class*="dark:text-"]),
-.dark .text-gray-600:not([class*="dark:text-"]) {
-  color: #cbd5e1 !important;
-}
-.dark .text-slate-500:not([class*="dark:text-"]),
-.dark .text-gray-500:not([class*="dark:text-"]) {
-  color: #94a3b8 !important;
+/* 4. Primary Text: Pure White (#FFFFFF) or high-contrast off-white */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6,
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-neutral-900,
+.dark .text-neutral-800,
+.dark .dark\:text-slate-100,
+.dark .dark\:text-slate-200,
+.dark .dark\:text-white,
+.dark .text-primary-white,
+.dark .text-pure-white {
+  color: #ffffff !important;
 }
 
-/* Tinted headings & labels */
-.dark .text-sky-900:not([class*="dark:text-"]),
-.dark .text-sky-800:not([class*="dark:text-"]),
-.dark .text-sky-700:not([class*="dark:text-"]) {
-  color: #7dd3fc !important;
-}
-.dark .text-amber-950:not([class*="dark:text-"]),
-.dark .text-amber-900:not([class*="dark:text-"]),
-.dark .text-amber-800:not([class*="dark:text-"]) {
-  color: #fde047 !important;
-}
-.dark .text-emerald-950:not([class*="dark:text-"]),
-.dark .text-emerald-900:not([class*="dark:text-"]),
-.dark .text-emerald-800:not([class*="dark:text-"]),
-.dark .text-emerald-700:not([class*="dark:text-"]) {
-  color: #6ee7b7 !important;
-}
-.dark .text-blue-900:not([class*="dark:text-"]),
-.dark .text-blue-800:not([class*="dark:text-"]),
-.dark .text-blue-700:not([class*="dark:text-"]) {
-  color: #93c5fd !important;
-}
-.dark .text-teal-900:not([class*="dark:text-"]),
-.dark .text-teal-800:not([class*="dark:text-"]),
-.dark .text-teal-700:not([class*="dark:text-"]) {
-  color: #5eead4 !important;
+/* 5. Secondary Text: Muted Light Grey (approx. #A0A0A0) */
+.dark .text-slate-500,
+.dark .text-slate-400,
+.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-gray-500,
+.dark .text-gray-400,
+.dark .text-neutral-500,
+.dark .text-neutral-400,
+.dark .dark\:text-slate-300,
+.dark .dark\:text-slate-400,
+.dark .dark\:text-slate-500,
+.dark .text-secondary-grey,
+.dark .text-muted-grey {
+  color: #a0a0a0 !important;
 }
 
-/* Borders in dark mode */
+/* Borders in Dark Mode */
+.dark .dark\:border-slate-800,
+.dark .dark\:border-slate-700,
+.dark .dark\:border-slate-900 {
+  border-color: #3d3d3d !important;
+}
+
+/* 6. Accent / Brand Color: Vibrant Lavender / Light Purple (approx. #B673FF) */
+/* Data Visualizations (Recharts Bar Charts, Lines, Tooltips) */
+.dark .recharts-bar-rectangle path:not([fill="#cbd5e1"]):not([fill="#64748b"]),
+.dark .recharts-bar-rectangles path:not([fill="#cbd5e1"]):not([fill="#64748b"]),
+.dark .recharts-active-bar path {
+  fill: #b673ff !important;
+}
+.dark .recharts-line .recharts-line-curve {
+  stroke: #b673ff !important;
+}
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #333333 !important;
+}
+.dark .recharts-text {
+  fill: #a0a0a0 !important;
+}
+.dark .recharts-default-tooltip {
+  background-color: #2d2d2d !important;
+  border-color: #3d3d3d !important;
+  color: #ffffff !important;
+}
+
+/* Progress Indicators in Dark Mode (Vibrant Lavender #B673FF Gradient) */
+.dark .progress-bar-fill,
+.dark [role="progressbar"] > div,
+.dark .bg-gradient-to-r.from-amber-400.to-sky-400,
+.dark .bg-gradient-to-r.from-sky-500.to-indigo-600,
+.dark .progress-lavender {
+  background: linear-gradient(90deg, #9a4eff 0%, #b673ff 50%, #d4a5ff 100%) !important;
+}
+
+/* Borders in Dark Mode (#3D3D3D / subtle elevated borders) */
 .dark .border-slate-100:not([class*="dark:border-"]),
 .dark .border-slate-200:not([class*="dark:border-"]),
 .dark .border-slate-200\/60:not([class*="dark:border-"]),
@@ -871,26 +953,31 @@ html.dark #root {
 .dark .border-amber-100:not([class*="dark:border-"]),
 .dark .border-amber-200:not([class*="dark:border-"]),
 .dark .border-emerald-200:not([class*="dark:border-"]) {
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #3d3d3d !important;
 }
 
-/* Subtle dividing lines */
 .dark .divide-slate-100 > * + *,
 .dark .divide-slate-200 > * + * {
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: #333333 !important;
 }
 
-/* Inputs, dropdowns, selects, textareas */
+/* Inputs, textareas, selects, and dropdown menus (#1A1A1A or #222222 with #3D3D3D border) */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([class*="dark:bg-"]),
 .dark textarea:not([class*="dark:bg-"]),
 .dark select:not([class*="dark:bg-"]) {
-  background-color: #0b1120 !important;
-  color: #f8fafc !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #3d3d3d !important;
+}
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #b673ff !important;
+  outline: none;
 }
 .dark select option {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
+  background-color: #2d2d2d !important;
+  color: #ffffff !important;
 }
 
 /* Hover states for interactive items */
@@ -899,7 +986,7 @@ html.dark #root {
 .dark .hover\:bg-gray-50:hover:not([class*="dark:hover:bg-"]),
 .dark .hover\:bg-white:hover:not([class*="dark:hover:bg-"]),
 .dark .hover\:bg-sky-50:hover:not([class*="dark:hover:bg-"]) {
-  background-color: #1e293b !important;
+  background-color: #3d3d3d !important;
 }
 .dark .hover\:text-slate-900:hover:not([class*="dark:hover:text-"]),
 .dark .hover\:text-slate-800:hover:not([class*="dark:hover:text-"]) {
@@ -908,17 +995,17 @@ html.dark #root {
 
 /* Keyboard shortcut badges */
 .dark kbd {
-  background-color: #1e293b !important;
-  color: #94a3b8 !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: #2d2d2d !important;
+  color: #a0a0a0 !important;
+  border-color: #3d3d3d !important;
 }
 
 /* Scrollbars */
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #3d3d3d;
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #555555;
 }
 
 @keyframes laser-scan {
