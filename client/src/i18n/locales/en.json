@@ -54,7 +54,10 @@
     "borderline": "Needs Review",
     "level": "Level",
     "xp": "XP",
-    "streak": "Day Streak"
+    "streak": "Day Streak",
+    "back": "Back",
+    "next": "Next",
+    "finishSteps": "Finish Steps"
   },
   "dashboard": {
     "welcomeBack": "Welcome back",
@@ -76,7 +79,23 @@
     "recentExperiments": "Recent Experiments",
     "quickActions": "Quick Actions",
     "myProgress": "My Progress Overview",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "observationRecorded": "Observation recorded in Student Journal: +50 Credits earned!",
+    "twentyMin": "20 min",
+    "funGamesToLearn": "Fun Games to Learn",
+    "allGames": "All games",
+    "exploreExperiments": "Explore Experiments",
+    "achievements": "Achievements",
+    "learnByDoing": "Learn by Doing",
+    "learnByDoingDesc": "Interactive guided simulations, test theoretical hypotheses, and master STEM concepts.",
+    "startExperiment": "Start Experiment",
+    "virtualLabInteractive": "Virtual Lab Interactive",
+    "igniteRibbon": "Ignite Ribbon",
+    "clickCanvasToIgnite": "Click canvas to ignite reaction",
+    "recordObservation": "Record Observation",
+    "utilityFocus": "Utility & Focus",
+    "reviews": "reviews",
+    "mediumDifficulty": "Medium Difficulty"
   },
   "search": {
     "placeholder": "Search experiments, topics, elements...",
@@ -103,7 +122,9 @@
     "noReaction": "No reaction observed. Adjust temperature or reagents.",
     "observation": "Observation",
     "balancedEquation": "Balanced Equation",
-    "jeeNeetRelevance": "Curriculum Relevance"
+    "jeeNeetRelevance": "Curriculum Relevance",
+    "tenThousandPlusReactions": "10,000+ Reactions",
+    "exitToPortal": "Exit to Portal"
   },
   "physics": {
     "title": "Interactive Physics Laboratory",
@@ -114,7 +135,9 @@
     "concaveLens": "Concave Lens",
     "laserSource": "Laser Beam Source",
     "refractiveIndex": "Refractive Index (n)",
-    "focalLength": "Focal Length (f)"
+    "focalLength": "Focal Length (f)",
+    "highDpiCanvas": "High-DPI Canvas",
+    "snellRefraction": "Snell Refraction"
   },
   "aiTutor": {
     "title": "Socratic Science AI Tutor",
@@ -207,8 +230,60 @@
     "element": "Element",
     "reactantSide": "Reactant Side (Before)",
     "productSide": "Product Side (After)",
-    "balanceStatus": "Balance Status",
     "equal": "Equal",
     "stepDerivation": "Step-by-Step Linear Algebraic Resolution:"
+  },
+  "floating": {
+    "askScienceTa": "Ask Science TA & Notes",
+    "close": "Close"
+  },
+  "games": {
+    "elementBingo": "Element Bingo",
+    "atomBuilder": "Atom Builder",
+    "reactionRush": "Reaction Rush",
+    "launchPhysics": "Launch Physics",
+    "labConnect": "Lab Connect",
+    "formulaMatch": "Formula Match"
+  },
+  "experiments": {
+    "magnesiumRibbon": "Magnesium Ribbon Burning",
+    "magnesiumRibbonDesc": "Observe the intense white dazzling flame and formation of magnesium oxide powder through rapid oxidation in atmospheric oxygen.",
+    "pendulumMotion": "Pendulum Motion",
+    "reactionSpeed": "Reaction Speed Test",
+    "lensRefraction": "Lens Refraction",
+    "acidBaseTitration": "Acid-Base Titration",
+    "snellsLaw": "Snell's Law & Optics",
+    "flameColor": "Flame Emission Colors",
+    "hookesLaw": "Hooke's Spring Law",
+    "electrolysisWater": "Electrolysis of Water"
+  },
+  "steps": {
+    "step1Title": "Step 1: Setup the Apparatus",
+    "step1Desc": "Position the tripod stand securely over the Bunsen burner. Place the pipeclay triangle across the ring and seat the porcelain crucible firmly.",
+    "step2Title": "Step 2: Clean the Magnesium Ribbon",
+    "step2Desc": "Rub the ribbon surface with fine emery paper to remove dark magnesium oxide coating and reveal the reactive silvery-white metal.",
+    "step3Title": "Step 3: Ignite the Bunsen Burner",
+    "step3Desc": "Rotate the air collar to open the air hole, creating a hot, non-luminous blue oxidizing flame with complete methane combustion.",
+    "step4Title": "Step 4: Heat the Crucible & Ribbon",
+    "step4Desc": "Hold the coiled magnesium ribbon with tongs into the flame. Watch for rapid ignition producing an intense dazzling white flare.",
+    "step5Title": "Step 5: Collect & Test Ash",
+    "step5Desc": "Collect the white magnesium oxide residue. Dissolve slightly in distilled water; test basicity with red litmus paper turning blue."
+  },
+  "materials": {
+    "magnesiumRibbon": "Magnesium Ribbon",
+    "crucible": "Crucible"
+  },
+  "time": {
+    "twoDaysAgo": "2 days ago",
+    "threeDaysAgo": "3 days ago",
+    "fourDaysAgo": "4 days ago",
+    "fiveDaysAgo": "5 days ago"
+  },
+  "categories": {
+    "chemistry": "Chemistry",
+    "physics": "Physics"
+  },
+  "filters": {
+    "all": "All"
   }
 }

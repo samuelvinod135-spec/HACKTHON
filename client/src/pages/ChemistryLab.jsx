@@ -37,7 +37,7 @@ export default function ChemistryLab({ initialTab = 'dashboard' }) {
             <h2 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
               <span>{t('chemistry.title', 'Chemistry Virtual Laboratory & Reaction Studio')}</span>
               <span className="rounded-full bg-yellow-300 px-2 py-0.5 text-[10px] font-black text-slate-900 shadow-xs">
-                10,000+ Reactions
+                {t('chemistry.tenThousandPlusReactions', '10,000+ Reactions')}
               </span>
             </h2>
             <p className="text-[11px] text-slate-500">
@@ -51,7 +51,7 @@ export default function ChemistryLab({ initialTab = 'dashboard' }) {
             to="/"
             className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition"
           >
-            <span>Exit to Portal</span>
+            <span>{t('chemistry.exitToPortal', 'Exit to Portal')}</span>
           </Link>
         </div>
       </div>

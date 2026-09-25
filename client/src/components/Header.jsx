@@ -301,7 +301,7 @@ export default function Header({ onMenuClick }) {
           title={isLiteMode ? "Lite Mode Active" : "Click to activate Lite Mode"}
         >
           <Zap size={13} className={isLiteMode ? "text-slate-950 fill-current" : "text-amber-500"} />
-          <span>Lite Mode</span>
+          <span>{t('dashboard.liteMode', 'Lite Mode')}</span>
         </button>
 
         {/* 4,645 Credits Yellow Pill Badge */}
@@ -311,7 +311,7 @@ export default function Header({ onMenuClick }) {
           className="flex items-center gap-1.5 rounded-full bg-yellow-100 hover:bg-yellow-200 text-yellow-900 border border-yellow-300 px-3 py-1.5 text-xs font-bold shadow-2xs transition cursor-pointer"
           title="Click to view Credit Status"
         >
-          <span>⚡ {xp.toLocaleString()} Credits</span>
+          <span>⚡ {xp.toLocaleString()} {t('dashboard.credits', 'Credits')}</span>
         </button>
 
         {/* Stage 4: Quantum Pioneer Blue Pill Badge */}
@@ -321,7 +321,7 @@ export default function Header({ onMenuClick }) {
           className="hidden sm:flex items-center gap-1.5 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-1.5 text-xs font-bold shadow-2xs transition cursor-pointer"
           title="Current Rank: Stage 4 Quantum Pioneer"
         >
-          <span>Stage 4: Quantum Pioneer</span>
+          <span>{t('dashboard.quantumPioneer', 'Stage 4: Quantum Pioneer')}</span>
         </button>
 
         {/* Notification Bell Button */}
@@ -576,7 +576,7 @@ export default function Header({ onMenuClick }) {
           className="hidden sm:inline-flex items-center gap-2 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-4 py-2 text-xs shadow-xs border border-yellow-300 transition-all active:scale-95 cursor-pointer shrink-0"
         >
           <Sparkles size={14} className="fill-slate-950 text-slate-950" />
-          <span>Launch AI Science Tutor</span>
+          <span>{t('dashboard.launchAiTutor', 'Launch AI Science Tutor')}</span>
         </button>
       </div>
 

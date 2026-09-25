@@ -158,28 +158,28 @@ export default function Home() {
   const steps = [
     {
       num: 1,
-      title: 'Step 1: Setup the Apparatus',
-      desc: 'Position the tripod stand securely over the Bunsen burner. Place the pipeclay triangle across the ring and seat the porcelain crucible firmly.',
+      title: t('steps.step1Title', 'Step 1: Setup the Apparatus'),
+      desc: t('steps.step1Desc', 'Position the tripod stand securely over the Bunsen burner. Place the pipeclay triangle across the ring and seat the porcelain crucible firmly.'),
     },
     {
       num: 2,
-      title: 'Step 2: Clean the Magnesium Ribbon',
-      desc: 'Rub the ribbon surface with fine emery paper to remove dark magnesium oxide coating and reveal the reactive silvery-white metal.',
+      title: t('steps.step2Title', 'Step 2: Clean the Magnesium Ribbon'),
+      desc: t('steps.step2Desc', 'Rub the ribbon surface with fine emery paper to remove dark magnesium oxide coating and reveal the reactive silvery-white metal.'),
     },
     {
       num: 3,
-      title: 'Step 3: Ignite the Bunsen Burner',
-      desc: 'Rotate the air collar to open the air hole, creating a hot, non-luminous blue oxidizing flame with complete methane combustion.',
+      title: t('steps.step3Title', 'Step 3: Ignite the Bunsen Burner'),
+      desc: t('steps.step3Desc', 'Rotate the air collar to open the air hole, creating a hot, non-luminous blue oxidizing flame with complete methane combustion.'),
     },
     {
       num: 4,
-      title: 'Step 4: Heat the Crucible & Ribbon',
-      desc: 'Hold the coiled magnesium ribbon with tongs into the flame. Watch for rapid ignition producing an intense dazzling white flare.',
+      title: t('steps.step4Title', 'Step 4: Heat the Crucible & Ribbon'),
+      desc: t('steps.step4Desc', 'Hold the coiled magnesium ribbon with tongs into the flame. Watch for rapid ignition producing an intense dazzling white flare.'),
     },
     {
       num: 5,
-      title: 'Step 5: Collect & Test Ash',
-      desc: 'Collect the white magnesium oxide residue. Dissolve slightly in distilled water; test basicity with red litmus paper turning blue.',
+      title: t('steps.step5Title', 'Step 5: Collect & Test Ash'),
+      desc: t('steps.step5Desc', 'Collect the white magnesium oxide residue. Dissolve slightly in distilled water; test basicity with red litmus paper turning blue.'),
     },
   ];
 
@@ -211,7 +211,7 @@ export default function Home() {
     setLabState((prev) => ({
       ...prev,
       observationRecorded: true,
-      toastMessage: '✅ Observation recorded in Student Journal: +50 Credits earned!',
+      toastMessage: `✅ ${t('dashboard.observationRecorded', 'Observation recorded in Student Journal: +50 Credits earned!')}`,
     }));
     setTimeout(() => {
       setLabState((prev) => ({ ...prev, toastMessage: '' }));
@@ -223,11 +223,11 @@ export default function Home() {
   const [exploreSearch, setExploreSearch] = useState('');
 
   const exploreList = [
-    { id: 1, title: 'Acid-Base Titration', category: 'Chemistry', duration: '15 min', to: '/chemistry' },
-    { id: 2, title: "Snell's Law & Optics", category: 'Physics', duration: '20 min', to: '/physics' },
-    { id: 3, title: 'Flame Emission Colors', category: 'Chemistry', duration: '10 min', to: '/chemistry' },
-    { id: 4, title: "Hooke's Spring Law", category: 'Physics', duration: '12 min', to: '/physics' },
-    { id: 5, title: 'Electrolysis of Water', category: 'Chemistry', duration: '25 min', to: '/chemistry' },
+    { id: 1, title: t('experiments.acidBaseTitration', 'Acid-Base Titration'), category: t('categories.chemistry', 'Chemistry'), duration: `15 ${t('dashboard.twentyMin', '20 min').replace('20', '').trim()}`, to: '/chemistry' },
+    { id: 2, title: t('experiments.snellsLaw', "Snell's Law & Optics"), category: t('categories.physics', 'Physics'), duration: `20 ${t('dashboard.twentyMin', '20 min').replace('20', '').trim()}`, to: '/physics' },
+    { id: 3, title: t('experiments.flameColor', 'Flame Emission Colors'), category: t('categories.chemistry', 'Chemistry'), duration: `10 ${t('dashboard.twentyMin', '20 min').replace('20', '').trim()}`, to: '/chemistry' },
+    { id: 4, title: t('experiments.hookesLaw', "Hooke's Spring Law"), category: t('categories.physics', 'Physics'), duration: `12 ${t('dashboard.twentyMin', '20 min').replace('20', '').trim()}`, to: '/physics' },
+    { id: 5, title: t('experiments.electrolysisWater', 'Electrolysis of Water'), category: t('categories.chemistry', 'Chemistry'), duration: `25 ${t('dashboard.twentyMin', '20 min').replace('20', '').trim()}`, to: '/chemistry' },
   ];
 
   const filteredExplores = exploreList.filter((exp) => {
@@ -243,10 +243,10 @@ export default function Home() {
         <div>
           {/* Hero Text: "Welcome back, samuel 👋" with subtext */}
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
-            Welcome back, {name} <span className="text-3xl">👋</span>
+            {t('dashboard.welcomeBack', 'Welcome back')}, {name} <span className="text-3xl">👋</span>
           </h1>
           <p className="mt-1 text-sm font-medium text-slate-500 dark:text-[#A0A0A0]">
-            Ready to explore, experiment and learn today?
+            {t('dashboard.greetingSubtitle', 'Ready to explore, experiment and learn today?')}
           </p>
         </div>
 
@@ -262,7 +262,7 @@ export default function Home() {
                   : 'text-slate-600 dark:text-[#A0A0A0] hover:text-slate-900 dark:hover:text-white hover:bg-slate-50'
               }`}
             >
-              <span>Dashboard</span>
+              <span>{t('nav.home', 'Dashboard')}</span>
             </button>
             <button
               type="button"
@@ -274,7 +274,7 @@ export default function Home() {
               }`}
             >
               <Cpu size={13} />
-              <span>Adaptive Engine</span>
+              <span>{t('dashboard.adaptiveEngine', 'Adaptive Engine')}</span>
             </button>
             <button
               type="button"
@@ -286,7 +286,7 @@ export default function Home() {
               }`}
             >
               <Layers size={13} />
-              <span>Utility & Focus</span>
+              <span>{t('dashboard.utilityFocus', 'Utility & Focus')}</span>
             </button>
           </div>
         )}
@@ -308,10 +308,10 @@ export default function Home() {
                   <FlaskConical size={20} />
                 </div>
                 <h3 className="text-base font-bold text-slate-800 dark:text-white">
-                  Chemistry Canvas
+                  {t('dashboard.chemistryCanvas', 'Chemistry Canvas')}
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  118 elements, 5,000+ reactions & stoichiometry
+                  {t('dashboard.chemistryCanvasDesc', '118 elements, 5,000+ reactions & stoichiometry')}
                 </p>
               </div>
               <div className="mt-5">
@@ -319,7 +319,7 @@ export default function Home() {
                   to="/chemistry?tab=drag-and-drop"
                   className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold px-4 py-2 text-xs shadow-xs transition-transform active:scale-95"
                 >
-                  <span>Open Canvas &rarr;</span>
+                  <span>{t('dashboard.openCanvas', 'Open Canvas')} &rarr;</span>
                 </Link>
               </div>
             </div>
@@ -331,10 +331,10 @@ export default function Home() {
                   <Atom size={20} />
                 </div>
                 <h3 className="text-base font-bold text-slate-800 dark:text-white">
-                  New Physics Workspace
+                  {t('dashboard.physicsWorkspace', 'New Physics Workspace')}
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Harmonics & kinematics
+                  {t('dashboard.physicsWorkspaceDesc', 'Harmonics & kinematics')}
                 </p>
               </div>
               <div className="mt-5">
@@ -342,7 +342,7 @@ export default function Home() {
                   to="/physics"
                   className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold px-4 py-2 text-xs shadow-xs transition-transform active:scale-95"
                 >
-                  <span>Start Experiment &rarr;</span>
+                  <span>{t('dashboard.startExperiment', 'Start Experiment')} &rarr;</span>
                 </Link>
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function Home() {
               <div>
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-slate-800 dark:text-white">
-                    My Progress
+                    {t('dashboard.myProgress', 'My Progress')}
                   </h3>
                   <span className="text-xs font-mono font-bold text-slate-400 dark:text-[#A0A0A0]">
                     ({xp.toLocaleString()} / {xpCap.toLocaleString()} XP)
@@ -361,7 +361,7 @@ export default function Home() {
 
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    <span>Level {level}</span>
+                    <span>{t('common.level', 'Level')} {level}</span>
                     <span className="text-sky-600 font-semibold">{xpPct}%</span>
                   </div>
                   {/* Blue Progress Bar */}
@@ -377,7 +377,7 @@ export default function Home() {
               {/* Achievements Section with 3 Colorful Icons */}
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-[#333333]">
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-[#A0A0A0] block mb-2">
-                  Achievements
+                  {t('dashboard.achievements', 'Achievements')}
                 </span>
                 <div className="flex items-center gap-2">
                   <div
@@ -409,10 +409,10 @@ export default function Home() {
                   <Sparkles size={20} />
                 </div>
                 <h3 className="text-base font-bold text-slate-800 dark:text-white">
-                  Learn by Doing
+                  {t('dashboard.learnByDoing', 'Learn by Doing')}
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Interactive guided simulations, test theoretical hypotheses, and master STEM concepts.
+                  {t('dashboard.learnByDoingDesc', 'Interactive guided simulations, test theoretical hypotheses, and master STEM concepts.')}
                 </p>
               </div>
               <div className="mt-5">
@@ -420,7 +420,7 @@ export default function Home() {
                   to="/saved"
                   className="inline-flex items-center gap-1.5 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold px-4 py-2 text-xs shadow-xs transition-transform active:scale-95"
                 >
-                  <span>Explore Experiments &rarr;</span>
+                  <span>{t('dashboard.exploreExperiments', 'Explore Experiments')} &rarr;</span>
                 </Link>
               </div>
             </div>
@@ -436,10 +436,10 @@ export default function Home() {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#333333]">
                   <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     <Clock size={16} className="text-sky-500" />
-                    <span>Recent Experiments</span>
+                    <span>{t('dashboard.recentExperiments', 'Recent Experiments')}</span>
                   </h3>
                   <Link to="/saved" className="text-xs font-bold text-sky-600 hover:underline">
-                    View all
+                    {t('dashboard.viewAll', 'View all')}
                   </Link>
                 </div>
 
@@ -455,15 +455,15 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-sky-600 transition-colors">
-                          Magnesium Ribbon Burning
+                          {t('experiments.magnesiumRibbon', 'Magnesium Ribbon Burning')}
                         </p>
                         <span className="inline-block mt-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-bold px-2 py-0.2 border border-sky-100 dark:border-sky-900">
-                          Chemistry
+                          {t('categories.chemistry', 'Chemistry')}
                         </span>
                       </div>
                     </div>
                     <span className="text-[11px] font-medium text-slate-400 dark:text-[#A0A0A0]">
-                      2 days ago
+                      {t('time.twoDaysAgo', '2 days ago')}
                     </span>
                   </Link>
 
@@ -478,15 +478,15 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-sky-600 transition-colors">
-                          Pendulum Motion
+                          {t('experiments.pendulumMotion', 'Pendulum Motion')}
                         </p>
                         <span className="inline-block mt-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.2 border border-indigo-100 dark:border-indigo-900">
-                          Physics
+                          {t('categories.physics', 'Physics')}
                         </span>
                       </div>
                     </div>
                     <span className="text-[11px] font-medium text-slate-400 dark:text-[#A0A0A0]">
-                      3 days ago
+                      {t('time.threeDaysAgo', '3 days ago')}
                     </span>
                   </Link>
 
@@ -501,15 +501,15 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-sky-600 transition-colors">
-                          Reaction Speed Test
+                          {t('experiments.reactionSpeed', 'Reaction Speed Test')}
                         </p>
                         <span className="inline-block mt-0.5 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-bold px-2 py-0.2 border border-sky-100 dark:border-sky-900">
-                          Chemistry
+                          {t('categories.chemistry', 'Chemistry')}
                         </span>
                       </div>
                     </div>
                     <span className="text-[11px] font-medium text-slate-400 dark:text-[#A0A0A0]">
-                      4 days ago
+                      {t('time.fourDaysAgo', '4 days ago')}
                     </span>
                   </Link>
 
@@ -524,15 +524,15 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-sky-600 transition-colors">
-                          Lens Refraction
+                          {t('experiments.lensRefraction', 'Lens Refraction')}
                         </p>
                         <span className="inline-block mt-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.2 border border-indigo-100 dark:border-indigo-900">
-                          Physics
+                          {t('categories.physics', 'Physics')}
                         </span>
                       </div>
                     </div>
                     <span className="text-[11px] font-medium text-slate-400 dark:text-[#A0A0A0]">
-                      5 days ago
+                      {t('time.fiveDaysAgo', '5 days ago')}
                     </span>
                   </Link>
                 </div>
@@ -545,10 +545,10 @@ export default function Home() {
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#333333]">
                   <h3 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     <Target size={16} className="text-amber-500" />
-                    <span>Fun Games to Learn</span>
+                    <span>{t('dashboard.funGamesToLearn', 'Fun Games to Learn')}</span>
                   </h3>
                   <Link to="/games" className="text-xs font-bold text-amber-600 hover:underline">
-                    All games
+                    {t('dashboard.allGames', 'All games')}
                   </Link>
                 </div>
 
@@ -562,7 +562,7 @@ export default function Home() {
                       <Grid size={18} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                      Element Bingo
+                      {t('games.elementBingo', 'Element Bingo')}
                     </span>
                   </Link>
 
@@ -575,7 +575,7 @@ export default function Home() {
                       <Atom size={18} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                      Atom Builder
+                      {t('games.atomBuilder', 'Atom Builder')}
                     </span>
                   </Link>
 
@@ -588,7 +588,7 @@ export default function Home() {
                       <Zap size={18} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                      Reaction Rush
+                      {t('games.reactionRush', 'Reaction Rush')}
                     </span>
                   </Link>
 
@@ -601,7 +601,7 @@ export default function Home() {
                       <Rocket size={18} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                      Launch Physics
+                      {t('games.launchPhysics', 'Launch Physics')}
                     </span>
                   </Link>
 
@@ -614,7 +614,7 @@ export default function Home() {
                       <Share2 size={18} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                      Lab Connect
+                      {t('games.labConnect', 'Lab Connect')}
                     </span>
                   </Link>
 
@@ -627,7 +627,7 @@ export default function Home() {
                       <Brain size={18} />
                     </div>
                     <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                      Formula Match
+                      {t('games.formulaMatch', 'Formula Match')}
                     </span>
                   </Link>
                 </div>
@@ -638,7 +638,7 @@ export default function Home() {
             <div className="lg:col-span-3 rounded-3xl p-6 bg-white dark:bg-[#222222] border border-slate-100 dark:border-[#333333] shadow-sm flex flex-col justify-between">
               <div>
                 <h3 className="text-base font-bold text-slate-800 dark:text-white mb-3">
-                  Explore Experiments
+                  {t('dashboard.exploreExperiments', 'Explore Experiments')}
                 </h3>
 
                 {/* Rounded Search Bar */}
@@ -648,25 +648,29 @@ export default function Home() {
                     type="text"
                     value={exploreSearch}
                     onChange={(e) => setExploreSearch(e.target.value)}
-                    placeholder="Search..."
+                    placeholder={`${t('common.search', 'Search')}...`}
                     className="w-full bg-transparent text-xs font-medium text-slate-800 dark:text-white outline-none placeholder-slate-400"
                   />
                 </div>
 
                 {/* Filter Pills: All, Chemistry, Physics */}
                 <div className="flex items-center gap-1.5 mb-3">
-                  {['All', 'Chemistry', 'Physics'].map((pill) => (
+                  {[
+                    { id: 'All', label: t('filters.all', 'All') },
+                    { id: 'Chemistry', label: t('categories.chemistry', 'Chemistry') },
+                    { id: 'Physics', label: t('categories.physics', 'Physics') },
+                  ].map((pill) => (
                     <button
-                      key={pill}
+                      key={pill.id}
                       type="button"
-                      onClick={() => setExploreFilter(pill)}
+                      onClick={() => setExploreFilter(pill.id)}
                       className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
-                        exploreFilter === pill
+                        exploreFilter === pill.id
                           ? 'bg-yellow-400 text-slate-950 font-black shadow-2xs'
                           : 'bg-slate-100 dark:bg-[#2D2D2D] text-slate-600 dark:text-[#A0A0A0] hover:bg-slate-200'
                       }`}
                     >
-                      {pill}
+                      {pill.label}
                     </button>
                   ))}
                 </div>
@@ -766,14 +770,14 @@ export default function Home() {
                       : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                   }`}
                 >
-                  &larr; Back
+                  &larr; {t('common.back', 'Back')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentStep((prev) => Math.min(5, prev + 1))}
                   className="rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold px-4 py-2 text-xs shadow-xs transition-transform active:scale-95 cursor-pointer"
                 >
-                  {currentStep === 5 ? 'Finish Steps ✓' : 'Next \u2192'}
+                  {currentStep === 5 ? `${t('common.finishSteps', 'Finish Steps')} ✓` : `${t('common.next', 'Next')} \u2192`}
                 </button>
               </div>
             </div>
@@ -784,34 +788,34 @@ export default function Home() {
                 {/* Header Tag & Rating */}
                 <div className="flex items-center justify-between">
                   <span className="rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 px-3 py-1 text-xs font-bold border border-sky-200 dark:border-sky-900">
-                    Chemistry
+                    {t('categories.chemistry', 'Chemistry')}
                   </span>
                   <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
                     <Star size={14} className="fill-amber-400 text-amber-400" />
-                    <span>4.8 (120 reviews)</span>
+                    <span>4.8 (120 {t('dashboard.reviews', 'reviews')})</span>
                   </div>
                 </div>
 
                 {/* Title & Description */}
                 <h4 className="mt-3 text-lg font-extrabold text-slate-800 dark:text-white">
-                  Magnesium Ribbon Burning
+                  {t('experiments.magnesiumRibbon', 'Magnesium Ribbon Burning')}
                 </h4>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Observe the intense white dazzling flame and formation of magnesium oxide powder through rapid oxidation in atmospheric oxygen.
+                  {t('experiments.magnesiumRibbonDesc', 'Observe the intense white dazzling flame and formation of magnesium oxide powder through rapid oxidation in atmospheric oxygen.')}
                 </p>
 
                 {/* Tags: "Medium Difficulty" and "20 min" */}
                 <div className="flex items-center gap-2 mt-3">
                   <span className="rounded-full bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900 px-3 py-0.5 text-xs font-bold">
-                    Medium Difficulty
+                    {t('dashboard.mediumDifficulty', 'Medium Difficulty')}
                   </span>
                   <span className="rounded-full bg-slate-100 dark:bg-[#2D2D2D] text-slate-600 dark:text-slate-300 px-3 py-0.5 text-xs font-semibold">
-                    20 min
+                    {t('dashboard.twentyMin', '20 min')}
                   </span>
                 </div>
 
                 {/* Burner Preview Illustration */}
-                <div className="mt-3 rounded-2xl bg-slate-50 dark:bg-[#1A1A1A] p-2 border border-slate-100 dark:border-[#3D3D3D]">
+                <div className="mt-3 rounded-2xl bg-slate-50 dark:bg-[#1A1A1A] p-2 border border-slate-100 dark:border-[#333333]">
                   <BunsenApparatusIllustration isIgnited={true} ribbonPlaced={true} isReacting={false} />
                 </div>
               </div>
@@ -822,7 +826,7 @@ export default function Home() {
                   to="/chemistry?tab=drag-and-drop"
                   className="w-full flex items-center justify-center gap-2 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold py-2.5 text-xs shadow-xs transition-transform active:scale-95"
                 >
-                  <span>Start Experiment &rarr;</span>
+                  <span>{t('dashboard.startExperiment', 'Start Experiment')} &rarr;</span>
                 </Link>
               </div>
             </div>
@@ -832,13 +836,13 @@ export default function Home() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-base font-bold text-slate-800 dark:text-white">
-                    Virtual Lab Interactive
+                    {t('dashboard.virtualLabInteractive', 'Virtual Lab Interactive')}
                   </h4>
                   <button
                     onClick={triggerReaction}
                     className="text-[10px] font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full transition cursor-pointer"
                   >
-                    Ignite Ribbon ⚡
+                    {t('dashboard.igniteRibbon', 'Ignite Ribbon')} ⚡
                   </button>
                 </div>
 
@@ -850,10 +854,10 @@ export default function Home() {
                   {/* Dashed Outlines for "Magnesium Ribbon" and "Crucible" */}
                   <div className="absolute top-2 left-2 flex items-center gap-1.5">
                     <span className="border border-dashed border-slate-400 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md text-[9px] font-mono">
-                      [Magnesium Ribbon]
+                      [{t('materials.magnesiumRibbon', 'Magnesium Ribbon')}]
                     </span>
                     <span className="border border-dashed border-slate-400 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-md text-[9px] font-mono">
-                      [Crucible]
+                      [{t('materials.crucible', 'Crucible')}]
                     </span>
                   </div>
 
@@ -868,7 +872,7 @@ export default function Home() {
                       2Mg(s) + O₂(g) &rarr; 2MgO(s) + ΔH
                     </p>
                     <span className="text-[9px] text-slate-400 group-hover:text-amber-600 font-semibold transition-colors">
-                      Click canvas to ignite reaction
+                      {t('dashboard.clickCanvasToIgnite', 'Click canvas to ignite reaction')}
                     </span>
                   </div>
                 </div>
@@ -889,7 +893,7 @@ export default function Home() {
                   className="w-full flex items-center justify-center gap-2 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold py-2.5 text-xs shadow-xs transition-transform active:scale-95 cursor-pointer"
                 >
                   <CheckCircle2 size={15} />
-                  <span>Record Observation</span>
+                  <span>{t('dashboard.recordObservation', 'Record Observation')}</span>
                 </button>
               </div>
             </div>

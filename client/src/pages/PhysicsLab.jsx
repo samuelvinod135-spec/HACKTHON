@@ -43,11 +43,11 @@ export default function PhysicsLab() {
         <div className="hidden sm:flex items-center gap-2">
           <span className="flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-100 shadow-xs">
             <Sparkles size={12} className="text-teal-500" />
-            <span>High-DPI Canvas</span>
+            <span>{t('physics.highDpiCanvas', 'High-DPI Canvas')}</span>
           </span>
           <span className="flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-100 shadow-xs">
             <Compass size={12} className="text-sky-500" />
-            <span>Snell Refraction</span>
+            <span>{t('physics.snellRefraction', 'Snell Refraction')}</span>
           </span>
         </div>
       </div>

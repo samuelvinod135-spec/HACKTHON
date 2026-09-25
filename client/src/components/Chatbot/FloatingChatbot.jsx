@@ -1744,7 +1744,7 @@ export default function FloatingChatbot() {
             onClick={() => setIsOpen(true)}
             className="cursor-pointer flex items-center gap-2 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-4 py-2.5 text-xs shadow-lg border border-yellow-300 transition-all hover:scale-105 active:scale-95"
           >
-            <span>Ask Science TA & Notes &rarr;</span>
+            <span>{t('floating.askScienceTa', 'Ask Science TA & Notes')} &rarr;</span>
           </button>
         )}
 
