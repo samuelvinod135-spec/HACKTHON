@@ -75,7 +75,7 @@ export default function Quizzes() {
   const [availableChapters, setAvailableChapters] = useState([]);
 
   const { record } = useProgress();
-  const { t } = useLanguage();
+  const { t, localizeQuestion } = useLanguage();
 
   const showToastMsg = (msg) => {
     setToast(msg);
@@ -197,7 +197,8 @@ export default function Quizzes() {
   }, [selectedChapter]);
 
   const total = questions.length;
-  const currentQ = questions[currentIndex];
+  const rawQ = questions[currentIndex];
+  const currentQ = rawQ ? localizeQuestion(rawQ) : null;
 
   // Map database columns to options list
   const getOptions = (q) => {

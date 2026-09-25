@@ -11,8 +11,21 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(() => {
+    try {
+      const raw = localStorage.getItem('labxplore_cached_profile');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('labxplore_cached_profile');
+    } catch {
+      return true;
+    }
+  });
 
   // Fetch or construct profile from Supabase with dynamic username extraction
   const loadProfile = useCallback(async (authUser) => {
@@ -77,6 +90,9 @@ export function AuthProvider({ children }) {
         };
 
         setProfile(fullProfile);
+        try {
+          localStorage.setItem('labxplore_cached_profile', JSON.stringify(fullProfile));
+        } catch {}
 
         // Keep local SQLite student synchronized with real logged-in user
         api.updateStudent({

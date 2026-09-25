@@ -36,13 +36,11 @@ const ExperimentalBetaPage = lazy(() => import('./pages/ExperimentalBetaPage.jsx
 const TeacherCockpit = lazy(() => import('./pages/TeacherCockpit.jsx'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard.jsx'));
 
-// Warm up key student destinations during browser idle intervals
-if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-  window.requestIdleCallback(() => {
-    import('./pages/Home.jsx');
-    import('./pages/PhysicsLab.jsx');
-    import('./pages/ChemistryLab.jsx');
-  });
+import { prefetchAllRoutes } from './utils/prefetchRoute.js';
+
+// Warm up all primary student destinations during browser idle intervals
+if (typeof window !== 'undefined') {
+  prefetchAllRoutes();
 }
 
 // Smart Home: Displays Landing for visitors, redirects authenticated users to their role-based portal

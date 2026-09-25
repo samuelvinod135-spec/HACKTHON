@@ -6,7 +6,12 @@ const BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replac
 /**
  * Executes a network fetch with an AbortController timeout (default 10000ms for cloud boot resilience).
  */
-export async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+export async function fetchWithTimeout(url, options = {}, timeoutMs = 1500) {
+  // If the browser is completely offline, fail fast to local cache in 0ms
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    throw new Error('Device is offline');
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -31,7 +36,7 @@ export function notifyNetworkFallback(reason = 'latency') {
     window.dispatchEvent(
       new CustomEvent('labxplore:network-fallback', {
         detail: {
-          message: 'Network latency detected. Loading locally cached module...',
+          message: 'Offline resilience active: Serving pre-verified local scientific knowledge base.',
           reason,
           timestamp: Date.now(),
         },
@@ -91,7 +96,7 @@ export function purgeUserData(userId) {
 }
 
 // Safe localStorage helper
-function getLocal(key, fallback = null) {
+export function getLocal(key, fallback = null) {
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : fallback;
@@ -100,15 +105,32 @@ function getLocal(key, fallback = null) {
   }
 }
 
-function setLocal(key, val) {
+export function setLocal(key, val) {
   try {
     localStorage.setItem(key, JSON.stringify(val));
   } catch {}
 }
 
-async function request(path, options = {}, timeoutMs = 10000) {
+async function request(path, options = {}, timeoutMs = 1500) {
+  const uid = getActiveUserId();
+
+  // Instant offline bypass (0 ms latency)
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    if (path === '/student') {
+      const savedStudent = getLocal(`labxplore_local_student_${uid}`, {
+        name: 'Scholar',
+        level: 1,
+        xp: 0,
+        xp_for_level: 1000,
+      });
+      return { student: savedStudent, achievements: [] };
+    }
+    if (path === '/achievements') return getLocal(`labxplore_local_achievements_${uid}`, []);
+    if (path === '/completions') return getLocal(`labxplore_local_completions_${uid}`, []);
+    if (path === '/saved') return getLocal(`labxplore_saved_experiments_${uid}`, []);
+  }
+
   try {
-    const uid = getActiveUserId();
     const headers = {
       'Content-Type': 'application/json',
       'x-user-id': uid,
@@ -132,9 +154,21 @@ async function request(path, options = {}, timeoutMs = 10000) {
     if (!res.ok) {
       throw new Error(`API error ${res.status}: ${res.statusText}`);
     }
-    return await res.json();
+    const json = await res.json();
+
+    // Cache successful reads into localStorage for offline continuity
+    if (path === '/student' && json?.student) {
+      setLocal(`labxplore_local_student_${uid}`, json.student);
+    } else if (path === '/achievements' && Array.isArray(json)) {
+      setLocal(`labxplore_local_achievements_${uid}`, json);
+    } else if (path === '/completions' && Array.isArray(json)) {
+      setLocal(`labxplore_local_completions_${uid}`, json);
+    } else if (path === '/saved' && Array.isArray(json)) {
+      setLocal(`labxplore_saved_experiments_${uid}`, json);
+    }
+
+    return json;
   } catch (err) {
-    const uid = getActiveUserId();
     // Graceful offline & static-deployment fallbacks
     if (path === '/student') {
       const savedStudent = getLocal(`labxplore_local_student_${uid}`, {

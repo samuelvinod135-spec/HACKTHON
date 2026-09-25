@@ -4,6 +4,7 @@ import hiLocale from '../i18n/locales/hi.json';
 import taLocale from '../i18n/locales/ta.json';
 import teLocale from '../i18n/locales/te.json';
 import { getLocalizedElement as localizeElementHelper } from '../i18n/elements_i18n.js';
+import { localizeQuestion as localizeQuestionHelper, localizeConcept as localizeConceptHelper } from '../i18n/questions_i18n.js';
 
 const BUNDLED_LOCALES = {
   en: enLocale,
@@ -114,6 +115,20 @@ export function LanguageProvider({ children }) {
     [currentLang]
   );
 
+  const localizeQuestion = useCallback(
+    (q) => {
+      return localizeQuestionHelper(q, currentLang);
+    },
+    [currentLang]
+  );
+
+  const localizeConcept = useCallback(
+    (concept) => {
+      return localizeConceptHelper(concept, currentLang);
+    },
+    [currentLang]
+  );
+
   const speechLangCode = SPEECH_LANG_MAP[currentLang] || 'en-IN';
 
   const value = {
@@ -121,6 +136,8 @@ export function LanguageProvider({ children }) {
     setLanguage,
     t,
     getLocalizedElement,
+    localizeQuestion,
+    localizeConcept,
     speechLangCode,
     supportedLanguages: SUPPORTED_LANGUAGES,
     isRegional: currentLang !== 'en',
@@ -138,6 +155,8 @@ export function useLanguage() {
       setLanguage: () => {},
       t: (k, fb = '') => fb || k,
       getLocalizedElement: (el) => el,
+      localizeQuestion: (q) => q,
+      localizeConcept: (c) => c,
       speechLangCode: 'en-IN',
       supportedLanguages: SUPPORTED_LANGUAGES,
       isRegional: false,

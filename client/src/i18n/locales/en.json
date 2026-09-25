@@ -194,5 +194,21 @@
     "pinQuestion": "Pin to Notepad",
     "askAi": "Ask AI to Explain",
     "prefetchedReady": "Next 10 questions ready instantly"
+  },
+  "balancer": {
+    "title": "Linear Algebraic Chemical Equation Balancer",
+    "massConserved": "Conservation of Mass",
+    "subtitle": "Balances stoichiometric coefficients using linear matrix nullspace and verifies element atom counts.",
+    "enterEquation": "Enter Unbalanced Chemical Equation:",
+    "balanceButton": "Balance Equation",
+    "cbsePresets": "Iconic CBSE Equation Presets:",
+    "balancedHero": "Balanced Equation (Stoichiometrically Exact)",
+    "atomAudit": "Atomic Species Conservation Audit:",
+    "element": "Element",
+    "reactantSide": "Reactant Side (Before)",
+    "productSide": "Product Side (After)",
+    "balanceStatus": "Balance Status",
+    "equal": "Equal",
+    "stepDerivation": "Step-by-Step Linear Algebraic Resolution:"
   }
 }

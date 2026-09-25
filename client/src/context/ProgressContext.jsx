@@ -8,10 +8,34 @@ const ProgressContext = createContext(null);
 
 export function ProgressProvider({ children }) {
   const { user, profile } = useAuth();
-  const [student, setStudent] = useState(null);
-  const [achievements, setAchievements] = useState([]);
-  const [completions, setCompletions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const uid = user?.id || '1';
+  const [student, setStudent] = useState(() => {
+    try {
+      const raw = localStorage.getItem(`labxplore_local_student_${uid}`) || localStorage.getItem('labxplore_local_student');
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {
+      name: profile?.full_name || profile?.username || 'Scholar',
+      level: profile?.level ?? 1,
+      xp: profile?.xp ?? 0,
+      xp_for_level: profile?.xp_for_level ?? 1000,
+    };
+  });
+  const [achievements, setAchievements] = useState(() => {
+    try {
+      const raw = localStorage.getItem(`labxplore_local_achievements_${uid}`);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [];
+  });
+  const [completions, setCompletions] = useState(() => {
+    try {
+      const raw = localStorage.getItem(`labxplore_local_completions_${uid}`);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return [];
+  });
+  const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(async () => {
     try {

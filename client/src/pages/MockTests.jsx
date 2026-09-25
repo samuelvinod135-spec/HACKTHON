@@ -98,7 +98,7 @@ class MockTestsErrorBoundary extends Component {
 
 export default function MockTests() {
   const { record } = useProgress();
-  const { t } = useLanguage();
+  const { t, localizeQuestion, localizeConcept } = useLanguage();
 
   // Test Mode in INTRO: 'QB_50' (Supabase Question Bank 50-Q Test) | 'ADAPTIVE_10' (Diagnostic Intervention)
   const [testMode, setTestMode] = useState('QB_50');
@@ -255,8 +255,10 @@ export default function MockTests() {
   // -------------------------------------------------------------
   // 10-Q ADAPTIVE TEST HANDLERS
   // -------------------------------------------------------------
-  const currentQ = MOCK_TEST_QUESTIONS[currentIndex];
-  const activeConcept = activeIntervention ? CONCEPTS[activeIntervention.conceptId] : null;
+  const rawCurrentQ = MOCK_TEST_QUESTIONS[currentIndex];
+  const currentQ = rawCurrentQ ? localizeQuestion(rawCurrentQ) : null;
+  const rawConcept = activeIntervention ? CONCEPTS[activeIntervention.conceptId] : null;
+  const activeConcept = rawConcept ? localizeConcept(rawConcept) : null;
 
   const handleStartAdaptiveTest = () => {
     sounds.playSimStart();
@@ -418,7 +420,8 @@ export default function MockTests() {
   // -------------------------------------------------------------
   // RENDER HELPERS
   // -------------------------------------------------------------
-  const currentQbQ = qbQuestions[qbCurrentIndex];
+  const rawQbQ = qbQuestions[qbCurrentIndex];
+  const currentQbQ = rawQbQ ? localizeQuestion(rawQbQ) : null;
   const qbTotalAnswered = Object.keys(qbAnswers).length;
   const qbTotalFlagged = Object.values(qbFlags).filter(Boolean).length;
 
@@ -1010,8 +1013,9 @@ export default function MockTests() {
                     </div>
                   ) : (
                     <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                      {safeList.map((q, idx) => {
-                        if (!q) return null;
+                      {safeList.map((rawQItem, idx) => {
+                        if (!rawQItem) return null;
+                        const q = localizeQuestion(rawQItem);
                         const userChoice = qbAnswers?.[idx];
                         const correctOpt = (q?.correct_option || q?.answer || '').toString().trim().toUpperCase();
                         const isCorrect = userChoice && userChoice.toString().trim().toUpperCase() === correctOpt;
@@ -1293,13 +1297,14 @@ export default function MockTests() {
           </div>
 
           {(() => {
-            const remQ = remedialQuestions[remedialIndex];
+            const rawRemQ = remedialQuestions[remedialIndex];
+            const remQ = rawRemQ ? localizeQuestion({ ...rawRemQ, question: rawRemQ.q }) : null;
             const isLast = remedialIndex === remedialQuestions.length - 1;
 
             return (
               <div className="clay-card rounded-3xl bg-white p-6 sm:p-8 shadow-xl border border-slate-100 space-y-5">
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-relaxed">
-                  {remQ.q}
+                  {remQ?.question || remQ?.q}
                 </h3>
 
                 <div className="space-y-2.5">

@@ -144,7 +144,7 @@ export function calculateUpdatedMastery(currentMastery = 50, isCorrect = true, d
  */
 export function calculateOverallProgressScore(topicsMastery = {}, labEvaluations = [], quizStats = {}) {
   const topics = Object.values(topicsMastery);
-  const totalAttempts = topics.reduce((acc, t) => acc + (t.attempts || 0), 0);
+  const totalAttempts = topics.reduce((acc, t) => acc + (t.attempts || ((t.successCount || 0) + (t.errorCount || 0))), 0);
   const totalScore = topics.reduce((acc, t) => acc + (t.score || 0), 0);
 
   // When a new user logs in without assessment or experiment records, trajectory initializes at 0%
@@ -155,8 +155,8 @@ export function calculateOverallProgressScore(topicsMastery = {}, labEvaluations
     };
   }
 
-  const averageTopicMastery = totalAttempts > 0
-    ? topics.reduce((acc, t) => acc + (t.score || 0), 0) / topics.length
+  const averageTopicMastery = (totalAttempts > 0 || totalScore > 0) && topics.length > 0
+    ? totalScore / topics.length
     : 0;
 
   // Lab factor (procedure understanding & accuracy)

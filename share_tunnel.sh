@@ -10,14 +10,22 @@ case "$ACTION" in
     if pgrep -f "cloudflared tunnel.*5173" > /dev/null; then
       echo "Cloudflare tunnel is already running."
     else
-      nohup /opt/homebrew/bin/cloudflared tunnel --url http://localhost:5173 > /Users/samuel/Documents/JARVIS/tunnel.log 2>&1 &
-      echo "Starting tunnel, please wait..."
-      sleep 4
+      pkill -f "cloudflared tunnel.*5173" || true
+      > /Users/samuel/Documents/JARVIS/tunnel.log
+      nohup /opt/homebrew/bin/cloudflared tunnel --protocol http2 --url http://localhost:5173 > /Users/samuel/Documents/JARVIS/tunnel.log 2>&1 &
+      echo "Starting Cloudflare HTTP/2 tunnel, please wait..."
+      for i in {1..12}; do
+        sleep 1
+        URL=$(grep -o 'https://[^ ]*\.trycloudflare\.com' /Users/samuel/Documents/JARVIS/tunnel.log | tail -n 1)
+        if [ -n "$URL" ]; then
+          break
+        fi
+      done
     fi
-    URL=$(grep -o 'https://[^ ]*\.trycloudflare\.com' /Users/samuel/Documents/JARVIS/tunnel.log | head -n 1)
+    URL=$(grep -o 'https://[^ ]*\.trycloudflare\.com' /Users/samuel/Documents/JARVIS/tunnel.log | tail -n 1)
     echo ""
     echo "=========================================================="
-    echo "🎉 PUBLIC SHAREABLE URL:"
+    echo "🎉 LABXPLORE PUBLIC SHAREABLE URL:"
     echo "👉 $URL"
     echo "=========================================================="
     ;;
@@ -27,7 +35,7 @@ case "$ACTION" in
     ;;
   status)
     if pgrep -f "cloudflared tunnel.*5173" > /dev/null; then
-      URL=$(grep -o 'https://[^ ]*\.trycloudflare\.com' /Users/samuel/Documents/JARVIS/tunnel.log | head -n 1)
+      URL=$(grep -o 'https://[^ ]*\.trycloudflare\.com' /Users/samuel/Documents/JARVIS/tunnel.log | tail -n 1)
       echo "Tunnel is active!"
       echo "👉 Public URL: $URL"
     else

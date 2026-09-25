@@ -87,3 +87,43 @@ export function prefetchRoute(rawPath) {
     // Ignore prefetch failures in background
   }
 }
+
+/**
+ * Preloads all primary student application routes during idle moments
+ * so page transitions occur with zero perceived latency.
+ */
+export function prefetchAllRoutes() {
+  const routes = [
+    '/dashboard',
+    '/physics',
+    '/chemistry',
+    '/quizzes',
+    '/mock-tests',
+    '/progress',
+    '/daily-challenge',
+    '/achievements',
+    '/games',
+    '/saved',
+    '/profile',
+    '/settings',
+    '/snap-solve',
+    '/pomodoro',
+    '/sandbox',
+    '/spaced-repetition',
+  ];
+
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    let i = 0;
+    const loadNext = () => {
+      if (i < routes.length) {
+        prefetchRoute(routes[i++]);
+        window.requestIdleCallback(loadNext, { timeout: 1000 });
+      }
+    };
+    window.requestIdleCallback(loadNext, { timeout: 500 });
+  } else {
+    setTimeout(() => {
+      routes.forEach((r) => prefetchRoute(r));
+    }, 1000);
+  }
+}
