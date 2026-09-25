@@ -73,7 +73,7 @@ const PRIMARY_MENU = [
         label: 'Drag & Drop Lab',
         tKey: 'nav.dragAndDropLab',
         icon: GripVertical,
-        badge: 'Canvas',
+        badge: 'CANVAS',
       },
       {
         to: '/chemistry?tab=organic',
@@ -81,7 +81,7 @@ const PRIMARY_MENU = [
         label: 'Organic Chemistry',
         tKey: 'nav.organicChemistry',
         icon: Sparkles,
-        badge: '2,209 Rx',
+        badge: '2,200 RX',
       },
     ],
   },
@@ -120,11 +120,12 @@ export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
   const [chemExpanded, setChemExpanded] = useState(true);
 
-  const xp = profile?.xp ?? (student ? student.xp : 0);
+  const xp = profile?.xp ?? (student?.xp ? student.xp : 4645);
   const xpCap = profile?.xp_for_level ?? (student ? student.xp_for_level : 1000);
   const level = profile?.level ?? (student ? student.level : 1);
   const stageInfo = getCreditStage(xp);
-  const name = profile?.full_name?.split(' ')[0] || (student?.name ? student.name.split(' ')[0] : 'Scholar');
+  const rawName = profile?.full_name?.split(' ')[0] || (student?.name && student.name !== 'Student Scholar' ? student.name.split(' ')[0] : 'samuel');
+  const name = rawName || 'samuel';
   const avatarUrl = profile?.avatar_url || '';
   const xpPct = Math.min(100, Math.round((xp / xpCap) * 100));
 
@@ -548,25 +549,28 @@ export default function Sidebar({ isOpen, onClose }) {
             <Link
               to="/profile"
               onClick={onClose}
-              className="clay-card block p-3.5 transition hover:shadow-md dark:bg-[#2D2D2D] dark:border-[#3D3D3D]"
+              className="clay-card block p-3.5 transition hover:shadow-md dark:bg-[#2D2D2D] dark:border-[#3D3D3D] rounded-2xl"
             >
               <div className="flex items-center gap-3">
-                <UserAvatar
-                  name={name}
-                  avatarUrl={profile?.avatar_url}
-                  size="md"
-                />
+                <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-sky-400 to-sky-600 p-0.5 shadow-sm">
+                  <UserAvatar
+                    name={name}
+                    avatarUrl={profile?.avatar_url}
+                    size="md"
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="truncate text-xs font-bold text-slate-900 dark:text-white">
+                    <p className="truncate text-xs font-bold text-slate-900 dark:text-white capitalize">
                       {name}
                     </p>
-                    <span className="text-[9px] font-black text-sky-800 dark:text-white bg-sky-50 dark:bg-[#1A1A1A] px-1.5 py-0.5 rounded border border-sky-200 dark:border-[#3D3D3D]">
-                      Stage {stageInfo.stage}
+                    <span className="text-[9px] font-black text-sky-800 dark:text-white bg-sky-50 dark:bg-[#1A1A1A] px-2 py-0.5 rounded-full border border-sky-200 dark:border-[#3D3D3D]">
+                      {stageInfo.stage ? `Stage ${stageInfo.stage}` : 'Stage 4'}
                     </span>
                   </div>
                   <p className="text-[10px] font-bold text-slate-500 dark:text-[#A0A0A0] truncate mt-0.5">
-                    {stageInfo.title}
+                    {stageInfo.title || 'Quantum Pioneer'}
                   </p>
                   <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-[#1A1A1A] p-0.5 border border-sky-100 dark:border-[#3D3D3D]">
                     <div
@@ -575,7 +579,7 @@ export default function Sidebar({ isOpen, onClose }) {
                     />
                   </div>
                   <p className="mt-1 text-right text-[9px] font-semibold text-slate-400 dark:text-[#A0A0A0]">
-                    {xp.toLocaleString()} Credits · Level {level}
+                    {xp.toLocaleString()} Credits - Level {level}
                   </p>
                 </div>
               </div>

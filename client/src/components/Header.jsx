@@ -293,93 +293,62 @@ export default function Header({ onMenuClick }) {
         <button
           type="button"
           onClick={toggleLiteMode}
-          className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs active:scale-95 cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all border shadow-2xs active:scale-95 cursor-pointer ${
             isLiteMode
               ? 'bg-amber-400 dark:bg-white text-slate-950 dark:text-[#1A1A1A] border-amber-500 dark:border-white font-black'
-              : 'bg-white dark:bg-[#2D2D2D] text-slate-600 dark:text-[#A0A0A0] border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D] dark:hover:text-white'
+              : 'bg-white dark:bg-[#2D2D2D] text-slate-600 dark:text-[#A0A0A0] border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50'
           }`}
-          title={isLiteMode ? "Lite Mode Active (Essential Functions Only) - Click to restore full AI mode" : "Click to activate Lite Mode (clean, simple, less clutter)"}
+          title={isLiteMode ? "Lite Mode Active" : "Click to activate Lite Mode"}
         >
-          <Zap size={13} className={isLiteMode ? "text-slate-950 dark:text-[#1A1A1A] fill-current" : "text-amber-500 dark:text-white"} />
-          <span className="hidden sm:inline">{isLiteMode ? 'Lite Mode (ON)' : 'Lite Mode'}</span>
+          <Zap size={13} className={isLiteMode ? "text-slate-950 fill-current" : "text-amber-500"} />
+          <span>Lite Mode</span>
         </button>
 
-        {/* Theme Toggle Button (Sun / Moon) */}
+        {/* 4,645 Credits Yellow Pill Badge */}
         <button
           type="button"
-          onClick={toggleTheme}
-          className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border shadow-2xs transition-all active:scale-95 cursor-pointer bg-white dark:bg-[#2D2D2D] text-slate-700 dark:text-white border-slate-200 dark:border-[#3D3D3D] hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
-          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          aria-label="Toggle theme mode"
+          onClick={() => setStageModalOpen(true)}
+          className="flex items-center gap-1.5 rounded-full bg-yellow-100 hover:bg-yellow-200 text-yellow-900 border border-yellow-300 px-3 py-1.5 text-xs font-bold shadow-2xs transition cursor-pointer"
+          title="Click to view Credit Status"
         >
-          {isDark ? (
-            <Sun size={15} className="text-white" />
-          ) : (
-            <Moon size={15} className="text-slate-600" />
-          )}
+          <span>⚡ {xp.toLocaleString()} Credits</span>
         </button>
 
-        {/* Credit Stage Capsule Button (Students Only) */}
-        {!isTeacher && !isAdmin && !isLiteMode && (
-          <button
-            type="button"
-            onClick={() => setStageModalOpen(true)}
-            className="hidden lg:flex items-center gap-1.5 rounded-full bg-white dark:bg-[#2D2D2D] px-3 py-1.5 shadow-2xs border border-slate-200 dark:border-[#3D3D3D] hover:border-amber-400 dark:hover:border-white transition cursor-pointer text-xs font-bold text-slate-800 dark:text-white"
-            title="Click to view Credit Stages & Status"
-          >
-            <span className="text-amber-500 dark:text-white font-mono">⚡ {xp.toLocaleString()} Credits</span>
-            <span className="hidden 2xl:inline text-sky-800 dark:text-white bg-sky-50 dark:bg-[#1A1A1A] px-2 py-0.2 rounded-full text-[10px] border border-transparent dark:border-[#3D3D3D]">
-              Stage {stageInfo.stage}
-            </span>
-          </button>
-        )}
+        {/* Stage 4: Quantum Pioneer Blue Pill Badge */}
+        <button
+          type="button"
+          onClick={() => setStageModalOpen(true)}
+          className="hidden sm:flex items-center gap-1.5 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-1.5 text-xs font-bold shadow-2xs transition cursor-pointer"
+          title="Current Rank: Stage 4 Quantum Pioneer"
+        >
+          <span>Stage 4: Quantum Pioneer</span>
+        </button>
 
-        {/* Notification Button */}
-        {!isLiteMode && (
-          <Link
-            to="/daily-challenge"
-            className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] text-slate-600 dark:text-white hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
-            title="3 new lab notifications"
-          >
-            <Bell size={16} />
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-white text-[9px] font-bold text-slate-950 dark:text-[#1A1A1A]">
-              3
-            </span>
-          </Link>
-        )}
+        {/* Notification Bell Button */}
+        <Link
+          to="/daily-challenge"
+          className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] text-slate-600 dark:text-white hover:bg-slate-50 transition"
+          title="Notifications"
+        >
+          <Bell size={16} />
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-yellow-400 text-[9px] font-black text-slate-950 shadow-xs">
+            3
+          </span>
+        </Link>
 
-        {/* Tools / Experiments Bag Button */}
-        {!isLiteMode && (
-          <Link
-            to="/saved"
-            className="relative hidden sm:flex h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] text-slate-600 dark:text-white hover:bg-slate-50 dark:hover:bg-[#3D3D3D]"
-            title={`${savedCount} saved experiments`}
-          >
-            <ShoppingBag size={16} />
-            {savedCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 dark:bg-white text-[9px] font-bold text-slate-950 dark:text-[#1A1A1A]">
-                {savedCount}
-              </span>
-            )}
-          </Link>
-        )}
-
-        {/* User Avatar with Dropdown */}
+        {/* User Profile Dropdown Pill ("SA" avatar + "samuel") */}
         <div ref={profileRef} className="relative">
           <button
             onClick={() => setProfileOpen((o) => !o)}
-            className="clay-btn-circle flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 text-slate-800 dark:text-white cursor-pointer dark:bg-[#2D2D2D] dark:border-[#3D3D3D]"
+            className="flex items-center gap-2 rounded-full bg-white dark:bg-[#2D2D2D] border border-slate-200 dark:border-[#3D3D3D] py-1 pl-1 pr-3 text-slate-800 dark:text-white shadow-2xs hover:bg-slate-50 transition cursor-pointer"
           >
-            <UserAvatar
-              name={displayName}
-              email={userEmail}
-              avatarUrl={profile?.avatar_url}
-              size="sm"
-            />
-            <span className="text-xs font-bold text-slate-800 dark:text-white max-w-[100px] truncate">
-              {displayName}
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sky-500 font-bold text-white text-xs">
+              SA
+            </div>
+            <span className="text-xs font-bold text-slate-800 dark:text-white capitalize">
+              {displayName || 'samuel'}
             </span>
-            <ChevronDown size={14} className={`text-slate-400 dark:text-[#A0A0A0] transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={13} className={`text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Profile / Settings Dropdown */}
@@ -594,6 +563,21 @@ export default function Header({ onMenuClick }) {
             </div>
           )}
         </div>
+
+        {/* Far Right Action Button: Launch AI Science Tutor */}
+        <button
+          onClick={() =>
+            window.dispatchEvent(
+              new CustomEvent('labxplore:ask-ai', {
+                detail: { prompt: 'Hello! I need guidance with my science lab experiments today.' },
+              })
+            )
+          }
+          className="hidden sm:inline-flex items-center gap-2 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-4 py-2 text-xs shadow-xs border border-yellow-300 transition-all active:scale-95 cursor-pointer shrink-0"
+        >
+          <Sparkles size={14} className="fill-slate-950 text-slate-950" />
+          <span>Launch AI Science Tutor</span>
+        </button>
       </div>
 
       {/* Credit Stage & Status Modal */}

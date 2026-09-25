@@ -1737,40 +1737,39 @@ export default function FloatingChatbot() {
         </div>
       )}
 
-      {/* 2. Floating Launcher Button */}
-      <div className="pointer-events-auto relative flex items-center gap-2">
-        {!isOpen && hasUnread && (
-          <div
+      {/* 2. Floating Launcher Button: Yellow Pill "Ask Science TA & Notes ->" with blue AI Assistant icon */}
+      <div className="pointer-events-auto relative flex items-center gap-3">
+        {!isOpen && (
+          <button
             onClick={() => setIsOpen(true)}
-            className="cursor-pointer hidden sm:flex items-center gap-1.5 rounded-full border border-sky-200 bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-800 shadow-md shadow-sky-500/10 backdrop-blur-xs transition hover:bg-sky-50 hover:border-sky-300 animate-pulse"
+            className="cursor-pointer flex items-center gap-2 rounded-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-4 py-2.5 text-xs shadow-lg border border-yellow-300 transition-all hover:scale-105 active:scale-95"
           >
-            <Sparkles size={13} className="text-amber-500" />
-            <span>Ask Science TA & Notes</span>
-          </div>
+            <span>Ask Science TA & Notes &rarr;</span>
+          </button>
         )}
 
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 ${
+          className={`group relative flex h-13 w-13 items-center justify-center rounded-full shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${
             isOpen
               ? 'bg-slate-800 text-white shadow-slate-900/20'
-              : 'bg-gradient-to-tr from-sky-500 to-sky-400 text-white shadow-sky-500/30 hover:shadow-sky-500/50'
+              : 'bg-gradient-to-tr from-sky-500 to-sky-400 text-white shadow-sky-500/40 hover:shadow-sky-500/60 ring-4 ring-sky-100 dark:ring-sky-950'
           }`}
-          title={isOpen ? 'Close Science Assistant' : 'Open Science Assistant, Notes & Libraries'}
+          title={isOpen ? 'Close Science Assistant' : 'Ask Science TA & Notes'}
           data-testid="floating-chatbot-launcher"
         >
           {isOpen ? (
-            <X size={24} />
+            <X size={22} />
           ) : (
             <>
               <img
                 src="/logo-icon-transparent.png"
                 alt="Open LabXplore Assistant"
-                className="w-8 h-8 object-contain drop-shadow-sm transition-transform group-hover:scale-110"
+                className="w-7 h-7 object-contain drop-shadow-sm transition-transform group-hover:scale-110"
               />
               <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-400 border-2 border-white items-center justify-center text-[8px] font-black text-slate-950">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-yellow-400 border-2 border-white items-center justify-center text-[8px] font-black text-slate-950">
                   ⚡
                 </span>
               </span>
